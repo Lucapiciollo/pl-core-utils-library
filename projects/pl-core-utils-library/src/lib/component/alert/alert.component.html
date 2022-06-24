@@ -1,0 +1,24 @@
+<div  #dialog  *ngIf="messageInfo!=null" 
+        data-backdrop="static" 
+        data-keyboard="false"  
+        class="modal"
+        [style.background]="messageInfo!=null ? 'rgba(0,0,0,0.4)' :''" 
+        [style.display]="messageInfo!=null ? 'block':'none'"
+        [ngClass]="messageInfo!=null ? 'modal-open':'fade in'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title w-80" id="myModalLabel">{{messageInfo.title || 'Message!'}}</h4>
+        <button (click)="closeDialog()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body" [innerHTML]="messageInfo.body">
+          
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="closeDialog()">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
