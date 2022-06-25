@@ -1,14 +1,10 @@
 import { Component, Injector } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
- 
+
 import { PlHttpService, PlUtilsService } from 'pl-core-utils-library';
- 
 
-interface Array<T> {
-  removeElement: (from: number) => void;
 
-}
 
 
 @Component({
@@ -28,17 +24,17 @@ export class AppComponent {
     this.injector = injector;
   }
 
- 
+
 
 
 
   public async method() {
-     
+
   }
 
   ngOnInit(a) {
-    
  
+    alert("CIao", "CIao") 
   }
 
 

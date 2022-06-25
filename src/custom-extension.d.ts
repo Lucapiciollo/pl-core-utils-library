@@ -7,7 +7,9 @@
  * utile per risalire alle funzionalità messe a disposizione dal sistema core e evita che il compilatore vada in errore
  * per funzionalità non trovate.]
  */
- 
+
+declare function alert(message?: any, body?: string): void;
+
 
 interface String {
     format: (...params) => string;
@@ -26,9 +28,9 @@ interface Array<T> {
     insert: (index: number, item: any) => void;
 }
 
-interface JSON     { 
-    changeValues: (json,previousValue, nextValue) => any;
-    changeValuesByKey: (json,key, nextValue) => any;
+interface JSON {
+    changeValues: (json, previousValue, nextValue) => any;
+    changeValuesByKey: (json, key, nextValue) => any;
     findByValue: (json, value) => any;
     json2flat: (json) => any;
     json2array: (json) => any;

@@ -23,7 +23,7 @@ declare const $: any;
 
 /** eventi registrati per PLlibrary */
 export enum TYPE_EVENT_NETWORK {
-  PL_BREACK_NET = "PL:BREACK_NET"
+  PL_BREACK_NET = "PL:BREACK_NET" 
 }
 
 /**
