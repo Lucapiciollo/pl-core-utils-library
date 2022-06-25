@@ -70,7 +70,7 @@ export class HttpService {
   TAILAJXCALL(IDAjax: string): Subject<any> {
     try {
       return PlCoreUtils.progressBars[IDAjax].changed;
-    } catch (error) {
+    } catch (error:any) {
       throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
     }
   }
@@ -84,7 +84,7 @@ export class HttpService {
   KILLAJXCALL(IDAjax: string) {
     try {
       PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
-    } catch (error) {
+    } catch (error:any) {
       throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
     }
   }
@@ -383,6 +383,7 @@ export class HttpService {
     } catch (e) {
       if (error.message)
         return new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
+      return null
     }
   }
   /********************************************************************************************************************/

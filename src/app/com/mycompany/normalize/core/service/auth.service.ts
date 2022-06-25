@@ -71,7 +71,7 @@ export class AuthService {
       
         console.log("Logout called...")
         
-    } catch (error) { 
+    } catch (error:any) { 
       throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
     }
   }

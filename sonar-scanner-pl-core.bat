@@ -1,1 +1,0 @@
-sonar-scanner -D"sonar.projectKey=pl-core-utils-library" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000" -D"sonar.login=590eaf645a49181abca38e7865d7917329d6365d" -D"sonar.exclusions=**/node_modules/** ,**/src/assets/**,  **/*json , **/temp/**"

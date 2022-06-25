@@ -15,13 +15,13 @@
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken, Injector } from '@angular/core';
-import { CACHE_TAG, PlCacheMapService,PlCoreUtils } from 'pl-core-utils-library';
+import { CACHE_TAG, PlCacheMapService, PlCoreUtils } from 'pl-core-utils-library';
 import { Observable, of } from 'rxjs';
 import { finalize, tap, timeout } from 'rxjs/operators';
 import { ErrorBean, ErrorCode } from '../bean/error-bean';
 import { CORE_TYPE_EVENT } from '../type/type.event';
 import { environment } from '../../../../../../environments/environment';
-import { Utils  } from '../../shared/utils/utils';
+import { Utils } from '../../shared/utils/utils';
 
 /** 
  * @author l.piciollo
@@ -81,20 +81,20 @@ export class HttpInterceptorService implements HttpInterceptor {
       if (this.isRequestCachable(request.method, request.url)) {
         let cachedResponse = this.cache.get(request);
         if (cachedResponse !== null) {
-         /**in caso sia presente in cache la chimata, viene ritornato il suo valore */
+          /**in caso sia presente in cache la chimata, viene ritornato il suo valore */
           PlCoreUtils.Broadcast().execEvent(CORE_TYPE_EVENT.CORE_HTTP_AJAX_CACHE, request.url);
           return of(cachedResponse);
         }
       }
       /***************************************************************************************************************************** */
       let timeoutValue = Number(request.headers.get('timeout')) || this.defaultTimeout;
-      let uuid =  Utils.UUIDCODE(); 
-           
+      let uuid = Utils.UUIDCODE();
+
       let headers = { 'TransactionID': uuid };
-        
+
       let urlApp = request.url;
       let url = request.url;
-      try { url = urlApp.truncateUrlCache(this.tagCache) } catch (e) { console.debug(url + " not in storable...");}
+      try { url = urlApp.truncateUrlCache(this.tagCache) } catch (e) { console.debug(url + " not in storable..."); }
       request = request.clone({ setHeaders: headers, url: url });
       return next.handle(request).pipe(
         timeout(timeoutValue),
@@ -108,9 +108,9 @@ export class HttpInterceptorService implements HttpInterceptor {
             }
           }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
-            /**l'errore vienre rediretto nell'intercettore di eccezione, è possibile specializzarne l'operazione di gestione */
+              /**l'errore vienre rediretto nell'intercettore di eccezione, è possibile specializzarne l'operazione di gestione */
               PlCoreUtils.Broadcast().execEvent(CORE_TYPE_EVENT.CORE_HTTP_AJAX_ERROR, err);
-              throw new  ErrorBean(err.message, ErrorCode.NETWORKERROR)
+              throw new ErrorBean(err.message, ErrorCode.NETWORKERROR)
             }
           }
         ),
@@ -120,8 +120,8 @@ export class HttpInterceptorService implements HttpInterceptor {
           console.debug(request.method + " " + request.urlWithParams + " in " + elapsedTime + "ms");
         })
       );
-    } catch (error) {
-      throw new  ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE);
+    } catch (error: any) {
+      throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE);
     }
   };
   /***************************************************************************************************************************** */

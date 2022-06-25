@@ -13,7 +13,7 @@ export { PlCoreUtils, progressBarsInterface } from './lib/pl-core-utils-library.
 export { PlHttpService, RESPONSE_TYPE, CONTENT_TYPE, TYPE_EVENT_NETWORK } from './lib/service/pl-http.service';
 export { AlertComponent } from './lib/component/alert/alert.component';
 export { AlertService } from './lib/component/alert/alert.service';
-export { PLPermission, PLTraceHooks, PLDelay, TYPE_EVENT, PLTraceMethod, PLUnsubscribe, PLFormatDate, FORMAT_DATE, FORMAT_NUMBER } from "./lib/decorator/decordator";
+export { PLPermission, PLTraceHooks,   TYPE_EVENT, PLTraceMethod  } from "./lib/decorator/decordator";
 export { DEFAULT_PATH_MOCK, PlHttpInterceptorMockService } from './lib/interceptor/pl-interceptor-mock.service';
 export { PlHttpRequest } from "./lib/bean/Pl-http-request";
 export { PlBaseComponent } from "./lib/component/base-component/pl-base-component.component";

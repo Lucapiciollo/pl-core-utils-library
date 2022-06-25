@@ -35,5 +35,5 @@ export const UiLoaderConfig: NgxUiLoaderConfig = {
   "text": "",
   "textColor": "#FFFFFF",
   "textPosition": "center-center",
-  "threshold": 50
+ /*  "threshold": 50 */
 }

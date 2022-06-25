@@ -11,7 +11,7 @@
 import { Injectable, OnDestroy,Injector } from "@angular/core";
 import {ErrorBean,  ErrorCode } from "src/app/com/mycompany/normalize/core/bean/error-bean";
 import {HttpService } from 'src/app/com/mycompany/normalize/core/service/http.service';
-import { CONTENT_TYPE, PlHttpRequest, PLUnsubscribe, RESPONSE_TYPE  } from 'pl-core-utils-library';
+import { CONTENT_TYPE, PlHttpRequest, RESPONSE_TYPE  } from 'pl-core-utils-library';
 import { environment } from 'src/environments/environment';
 import { Observable, Subject } from 'rxjs';
 import { CORE_TYPE_EVENT } from 'src/app/com/mycompany/normalize/core/type/type.event';
@@ -32,7 +32,7 @@ import { AuthService } from 'src/app/com/mycompany/normalize/core/service/auth.s
  * annotazione custom, indica di distrugere tutti gli osservatori eventualmente attivi, alla distruzione della classe
  * in ingresso è possibile passare la lista degli osservatoti che devono rimanere attivi
  */
-@PLUnsubscribe()  
+  
 export class GlobalService implements OnDestroy {
 
 /***************************************************************************************************************************** */
@@ -92,7 +92,7 @@ export class GlobalService implements OnDestroy {
   ngOnDestroy(): void {
     try {
        console.log("GlobalService destroyed ... ")
-    } catch (err) {
+    } catch (err:any) {
       throw new  ErrorBean(err.message,  ErrorCode.SYSTEMERRORCODE);
     }
   }
@@ -108,7 +108,7 @@ export class GlobalService implements OnDestroy {
       try {
         return this.httpService.TAILAJXCALL(idAjax);
       }
-      catch (e) { 
+      catch (e:any) { 
         throw new ErrorBean(e.message)
       }
    }

@@ -2,8 +2,22 @@
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/pl-core-utils-library",
   "lib": {
-    "entryFile": "src/public_api.ts"
-  },"whitelistedNonPeerDependencies": [
-    "."
+    "entryFile": "src/public-api.ts"
+  },
+  "allowedNonPeerDependencies": [
+      "@compodoc/compodoc",
+      "@fortawesome/fontawesome-free",
+      "@compodoc/compodoc" ,
+      "@fortawesome/fontawesome-free" ,
+      "@ng-bootstrap/ng-bootstrap" ,
+      "@ngx-translate/http-loader" ,
+      "angular2-uuid",
+      "bootstrap" ,
+      "html-to-image" ,
+      "html2canvas" ,
+      "jquery" ,
+      "moment" ,
+      "ngx-ui-loader" ,
+      "popper.js"  
   ]
 }

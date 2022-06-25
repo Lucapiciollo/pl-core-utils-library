@@ -17,8 +17,7 @@ import { PlCoreUtils } from '../pl-core-utils-library.service';
 declare const require: any;
 /**@ignore */
 declare const $: any;
-/**@ignore */
-const JQ = require("jquery");
+ 
 
 
 
@@ -210,7 +209,7 @@ export class PlHttpService {
   }
   //***************************************************************************************************** */
 
-  private checkEventHttp(event: HttpEvent<any>, uuid, observer: Subscriber<any>) {
+  private checkEventHttp(event: any, uuid, observer: Subscriber<any>) {
     let httpEventType=null;
     switch (event.type) {
       case HttpEventType.Sent:
@@ -415,7 +414,7 @@ export class PlHttpService {
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
           )
-          .subscribe((event: HttpEvent<any>) => {
+          .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();
@@ -461,7 +460,7 @@ export class PlHttpService {
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
           )
-          .subscribe((event: HttpEvent<any>) => {
+          .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();
@@ -512,7 +511,7 @@ export class PlHttpService {
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
           )
-          .subscribe((event: HttpEvent<any>) => {
+          .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();
@@ -563,7 +562,7 @@ export class PlHttpService {
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
           )
-          .subscribe((event: HttpEvent<any>) => {
+          .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();
@@ -613,7 +612,7 @@ export class PlHttpService {
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
           )
-          .subscribe((event: HttpEvent<any>) => {
+          .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();

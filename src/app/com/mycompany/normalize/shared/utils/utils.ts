@@ -20,7 +20,7 @@ export class Utils {
   public static UUIDCODE(): any {
     try {
       return UUID.UUID();
-    } catch (error) {
+    } catch (error : any) {
       throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, false);
     }
   }

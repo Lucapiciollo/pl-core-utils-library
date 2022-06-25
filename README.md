@@ -141,18 +141,119 @@ il sistema come gia detto mette a disposizione anche un servizio di cache, per e
 > come per il tag, è possibile anche configurare il tempo valido per la cache.. scaduto il tempo la chiamata verrà eliminata dalla cache in modo da poter poi richiedere al BE nuovi aggiornamenti
 
   
- 
-## Esempi decoratori
+
+## Apertura progress bars
+
+E' stato realizzato un sistema di accodamento delle chiamate al BE, le stesse possono essere monitorate nella loro progressione oppure stoppare la loro esecuzione.
+
+>questa funzionalità è utile ovviamente in caso di chiamate a download o upload file, in quanto possono compiere diverso tempo.. per le chiamate "semplici", ovviamente non trova giovamento questa utilità.
+
+ci sono due modi per mostrare le progress bar
+
+  
+
+1. Visualizzazione di tutte le progressioni messe in coda
+
+2. Visualizzazione della singola chiamata
+
+  
+
+Per la visualizzazione di tutte le code, è opportuno invocare il seguente comando
+
+  
+
+    this.progressService.showQueueDownload(".test");
+
+
+ ![alt text](https://firebasestorage.googleapis.com/v0/b/pl-schematics.appspot.com/o/img%2FProgressBar.PNG?alt=media&token=34f86e01-0552-4b45-bc58-af3eb04ca64b)
+
+>come si vede, occorre passare una classe css la quale serve per rintracciare il contenitore dove inserire la finestra che mostra le progress bar.
+
+  
+
+>tutte le chiamate che stanno ancora in esecuzione, mostrano un pulsante di annullamento della stessa chiamata.
+
+  
+
+per la visualizzazione di una singola chiamata.. occorre risalire all'id staccato dal sistema al momento della chiamata al BE e mettersi in tail sulla progressione. Quindi è possibile creare due funzioni di utilità che si occupano di registrarsi agli eventi di progressione, e al kill della sua esecuzione.
 
   
 
     /**
-        conversione automatica della data il campo prendera
-        automaticamente il formato standard FULLDATE >> 'EEEE, MMMM d, y'
+        @author l.piciollo
+        funzionlita per rimanere in ascolto su una progressione di chiamata al be.. utile per risalire allo stato di chiamate al BE
+        per il caricamento/scaricamento file. la funzione ritorna un Subject... dove possibile sottoscriversi per icevere i dati
+        in modalità realtime. utile per costruire barre di progressione a runtime.
+        @param IDAjax : id della chiamata ajax precedentemente chiamata, l'id viene restituido dalla callback in ingresso alle chiamate
     */
-    @PLFormatDate(FORMAT_DATE.FULLDATE)
-    private campoData: Date = new Date()
 
+    TAILAJXCALL(IDAjax:string): any {
+         try {
+            return PlCoreUtils.progressBars[IDAjax].changed;
+         } catch (error) {
+            throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
+        }
+    }
+
+    /********************************************************************************************************************/
+
+    /**
+        @author l.piciollo
+        funzionalità per la terminazione di una chiamata di rete che magari prende piu tempo del previsto.. passando in ingresso l'id AJAX
+        staccato al momento della chiamata è utile per killare upload/download file.
+        @param IDAjax : id della chiamata ajax precedentemente chiamata, l'id viene restituido dalla callback in ingresso alle chiamate
+    */
+
+    KILLAJXCALL(IDAjax:string) {
+        try {
+            PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
+        } catch (error) {
+            throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
+        }
+    }
+
+  
+
+per registrarsi è possibile procedere in questo modo
+
+  
+
+    /**
+        @author l.piciollo
+        esempio di chiamata http
+    */
+
+    callMock(p1: any, p2: any): Observable<any> {
+        return new Observable<any>(obs => {
+            this.httpService.POST(environment.http.api.mock.url, {},null, (idAjax)=>{
+                PlCoreUtils.progressBars[IDAjax].changed.subscribe(info=>{
+                console.log(info)
+            })
+            }, null, environment.http.api.mock.mock).subscribe(sb => {
+                obs.next(sb);
+                obs.complete()
+            }, error => {
+                obs.error(error);
+            }, () => { })
+            })
+        }
+    }
+
+  
+
+>allo stesso modo è possibile stoppare la chiamata al servizio nel seguente modo
+
+  
+
+PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
+
+  
+  
+  
+
+## Esempi decoratori
+
+   
 
     /**
         abilitazione del trace log dei cicli di hook delle classi,
@@ -160,15 +261,7 @@ il sistema come gia detto mette a disposizione anche un servizio di cache, per e
     */
     @PLTraceHooks( )
     export class AppComponent
-
-    /**
-        eliinatzione dei sottoscrittori in modo automatico al momento del'ondestroy
-        del componente,in questo modo di hanno gli unsubscriber automatici di tutti i
-        sottoscrittori creati per quel componente . E' possibile elencare gli osservatori da non
-        prendere in considerazione
-    */
-    @PLUnsubscribe(ignore = [])
-    export class AppComponent
+ 
 
     /**
         decoratore configurabile, se attivato, inibisce la creazione di componenti DOM in base a
@@ -188,16 +281,7 @@ il sistema come gia detto mette a disposizione anche un servizio di cache, per e
         observer e dopo 3 secondi dalla sua chiamata.
     */
 
-    //dichiarare una funzione come sotto
-    @PLDelay(3000)
-    public log(){..}
-
-
-    /**
-        per utilizzare la funzione di log, occorre sottoscriversi alla sua esecuzione in
-        una funzioa
-    */
-    log.subscribe(response=>{ ... })
+ 
 
   
   
@@ -462,9 +546,17 @@ Componente nato per essere esteso, mette a disposizione funzionalità utili per 
     /** lettura dei parametri arrivati */
     export class MenuComponent extends PlBaseComponent{
         ngOnInit() {
-            console.log(this.queryParams )
-            console.log(this.data )
-            console.log(this.params)
+              this.queryParams.subscribe(user => {
+                this.user = user;
+                this.userName = String(Object.keys(user)[0]);
+                this.pathDetailUser = user[(Object.keys(user)[0])];
+              })
+              this.data.subscribe(user => {
+                .....
+              })
+              this.params.subscribe(user => {
+                .....
+              })
         }       
     }
 
@@ -531,10 +623,7 @@ Questa versione della lib, contiene tutte le fix effettuate nelle precedenti e i
 
   
 
- - Eliminazione della funzionalità per la visualizzazione della progress bar per il monitoring dello stato ajax
-la funzionalità è stata portata nella pl-http-progress-dialog quindi:
-
->npm i pl-http-progress-dialog
+ - modifica dell'interfaccia Rxjs per l'introduzione di una nuova funzionalità, applicabile agli osservatori "polling" e inserimento di un nuovo attributo per identificare tutti gli Observer "uuid"
 
   
 

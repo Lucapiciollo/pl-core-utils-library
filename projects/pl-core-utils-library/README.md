@@ -253,15 +253,7 @@ PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
 
 ## Esempi decoratori
 
-  
-
-    /**
-        conversione automatica della data il campo prendera
-        automaticamente il formato standard FULLDATE >> 'EEEE, MMMM d, y'
-    */
-    @PLFormatDate(FORMAT_DATE.FULLDATE)
-    private campoData: Date = new Date()
-
+   
 
     /**
         abilitazione del trace log dei cicli di hook delle classi,
@@ -269,15 +261,7 @@ PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
     */
     @PLTraceHooks( )
     export class AppComponent
-
-    /**
-        eliinatzione dei sottoscrittori in modo automatico al momento del'ondestroy
-        del componente,in questo modo di hanno gli unsubscriber automatici di tutti i
-        sottoscrittori creati per quel componente . E' possibile elencare gli osservatori da non
-        prendere in considerazione
-    */
-    @PLUnsubscribe(ignore = [])
-    export class AppComponent
+ 
 
     /**
         decoratore configurabile, se attivato, inibisce la creazione di componenti DOM in base a
@@ -297,16 +281,7 @@ PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
         observer e dopo 3 secondi dalla sua chiamata.
     */
 
-    //dichiarare una funzione come sotto
-    @PLDelay(3000)
-    public log(){..}
-
-
-    /**
-        per utilizzare la funzione di log, occorre sottoscriversi alla sua esecuzione in
-        una funzioa
-    */
-    log.subscribe(response=>{ ... })
+ 
 
   
   

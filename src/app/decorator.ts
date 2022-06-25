@@ -1,9 +1,9 @@
-import { Singleton } from "pl-decorator";
-import "reflect-metadata";
+ import "reflect-metadata";
 import * as moment from "moment"
 
 
 import { v4 as uuidv4 } from 'uuid';
+import { Singleton } from "pl-decorator";
 @Singleton
 class DependencyManager {
     private deps: Record<string, <T extends new (...args: any[]) => any>() => {}> = {};

@@ -66,8 +66,9 @@ export class AlertComponent implements OnInit {
 
   private push() {
     let _this = this;
+    /// @ts-ignore
     this.queueMessageInfo.push = function () {
-      Array.prototype.push.apply(this, arguments);
+      Array.prototype.push.apply(this, arguments as any);
       if (_this.messageInfo == null) {
         _this.openDialog();
       }

@@ -1,34 +1,40 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "sourceMap": false,
     "declaration": false,
-    "module": "commonjs",
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators":true,
-     "importHelpers": true,
-    "target": "es5",
-    "skipLibCheck":true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "importHelpers": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
     "paths": {
       "pl-core-utils-library": [
+        "dist/pl-core-utils-library/pl-core-utils-library",
         "dist/pl-core-utils-library"
-      ],
-      "pl-core-utils-library/*": [
-        "dist/pl-core-utils-library/*"
       ]
-    }
+    },
+    "target": "es2017",
+    "module": "es2020",
+    "lib": [
+      "es2020",
+      "dom"
+    ]
   },
-  "exclude": [
-    "src/**/*.*",
-  ]
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
 }
