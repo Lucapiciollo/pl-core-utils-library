@@ -60,7 +60,7 @@ export class PlCoreUtils {
       },
       removeLlistenEvent(event: TYPE_EVENT | string, callBack: any): void {
         try {
-          document.removeEventListener(event, callBack);
+          document.removeEventListener(event, callBack, false);
         } catch (e) {
           throw e
         }

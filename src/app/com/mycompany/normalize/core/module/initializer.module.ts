@@ -10,17 +10,17 @@
  * ]
  */
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { APP_INITIALIZER, ErrorHandler, NgModule ,Injector} from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule, Injector } from '@angular/core';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule, NgxUiLoaderRouterModule } from 'ngx-ui-loader';
-import { BROWSER_VALID, CACHE_TAG, DISABLE_LOG, MAX_CACHE_AGE, PlAmbientModeLoaderService, PlCoreModule ,BROWSER, DEFAULT_PATH_MOCK} from 'pl-core-utils-library';
+import { BROWSER_VALID, CACHE_TAG, DISABLE_LOG, MAX_CACHE_AGE, PlAmbientModeLoaderService, PlCoreModule, BROWSER, DEFAULT_PATH_MOCK } from 'pl-core-utils-library';
 import { BASE_URL_API } from '../service/http.service';
 import { UiLoaderConfig } from '../utils/UiLoaderConfig';
 import { UiLoaderHttpConfig } from '../utils/UiLoaderHttpConfig';
 import { UiLoaderRouterConfig } from '../utils/UiLoaderRouterConfig';
 import { environment } from '../../../../../../environments/environment';
-import {DEFAULT_TIMEOUT, HttpInterceptorService } from '../interceptor/http-interceptor.service';
-import {ErrorService } from '../service/error.service';
-import {AuthService } from '../service/auth.service';
+import { DEFAULT_TIMEOUT, HttpInterceptorService } from '../interceptor/http-interceptor.service';
+import { ErrorService } from '../service/error.service';
+import { AuthService } from '../service/auth.service';
 import AmbientModeProviderFactory from '../initializer/AmbientModeLoader';
 import AutenticationLoader from "../initializer/AutenticationLoader";
 
@@ -46,10 +46,10 @@ import AutenticationLoader from "../initializer/AutenticationLoader";
     NgxUiLoaderModule.forRoot(UiLoaderConfig),
     NgxUiLoaderHttpModule.forRoot(UiLoaderHttpConfig),
     NgxUiLoaderRouterModule.forRoot(UiLoaderRouterConfig),
-    
+
   ],
-  providers: [  
-    
+  providers: [
+
     /**
     * @author l.piciollo
     * inizializzazione della base url per le chiamate al BE, la configurazione prevede che venga valorizzata la chiave di accesso
@@ -77,41 +77,42 @@ import AutenticationLoader from "../initializer/AutenticationLoader";
      */
     { provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true },
     /**
-     * @author l.piciollo
-     * viene iniettato il processo di login..
-     * il servizio deve ritornare un ok che indica l'avvenuta login, altrimenti il portale non si avvia 
-     */
-    { provide: APP_INITIALIZER, useFactory: AutenticationLoader, deps: [AuthService ], multi: true },
-    /**
     * @author l.piciollo
     * viene intercettata la creazione del portale.. 
     * viene identificato il tipo di browwser e vengono adeguate le funzionalita per il tipo di browser. 
     * l'adeguamento riane trasparente all'applicazione, il core ne gestisce le funzionalità
     */
     { provide: APP_INITIALIZER, useFactory: AmbientModeProviderFactory, deps: [PlAmbientModeLoaderService], multi: true },
+
+    /**
+     * @author l.piciollo
+     * viene iniettato il processo di login..
+     * il servizio deve ritornare un ok che indica l'avvenuta login, altrimenti il portale non si avvia 
+     */
+    { provide: APP_INITIALIZER, useFactory: AutenticationLoader, deps: [AuthService], multi: true },
     /**
      * @author l.piciollo
      * impostazione tempo massimo di attesa per richieste al BE
      */
-    { provide: DEFAULT_TIMEOUT, useValue: 300000 },    
+    { provide: DEFAULT_TIMEOUT, useValue: 300000 },
     { provide: DEFAULT_PATH_MOCK, useValue: "public/mock" },
-     
+
   ],
   exports: [
     PlCoreModule,
     NgxUiLoaderModule,
     NgxUiLoaderHttpModule,
     NgxUiLoaderRouterModule,
-    
+
   ]
 })
-export class   InitializerModule {
-  
-  
+export class InitializerModule {
+
+
 
   static forRoot() {
     return {
-      ngModule:   InitializerModule,
+      ngModule: InitializerModule,
       providers: [],
       import: []
     }

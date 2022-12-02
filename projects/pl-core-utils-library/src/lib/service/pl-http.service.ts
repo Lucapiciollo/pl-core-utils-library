@@ -177,7 +177,7 @@ export class PlHttpService {
       if (contentType)
         header.append('Content-Type', contentType);
       else
-        header.append('Content-Type', contentType)
+        header.delete('Content-Type')
 
       let options = { headers: header, params: search };
       if (responseType) {

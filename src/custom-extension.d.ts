@@ -8,7 +8,7 @@
  * per funzionalità non trovate.]
  */
 
-declare function alert(message?: any, body?: string): void;
+declare function alert(message?: any, body?: any): void;
 
 
 interface String {
