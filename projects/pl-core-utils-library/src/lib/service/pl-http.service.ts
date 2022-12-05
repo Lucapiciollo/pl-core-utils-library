@@ -33,7 +33,7 @@ export enum TYPE_EVENT_NETWORK {
 export enum RESPONSE_TYPE {
   "TEXT" = "pplication/text",
   "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "Blob ",
+  "BLOB" = "blob ",
   "MS_STREAM" = "ms-stream",
   "JAVA-ARCHIVE" = "application/java-archive",
   "EDI-X12" = "application/EDI-X12",
@@ -95,7 +95,7 @@ export enum RESPONSE_TYPE {
 export enum CONTENT_TYPE {
   "TEXT" = "pplication/text",
   "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "Blob ",
+  "BLOB" = "blob ",
   "MS_STREAM" = "ms-stream",
   "JAVA-ARCHIVE" = "application/java-archive",
   "EDI-X12" = "application/EDI-X12",
