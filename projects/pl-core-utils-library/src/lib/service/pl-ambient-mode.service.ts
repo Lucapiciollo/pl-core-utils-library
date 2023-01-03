@@ -364,21 +364,21 @@ export class PlAmbientModeLoaderService {
      */
     JSON["findByValue"] = function (json, value): Array<any> {
       let keys = [];
-      let recursive = function (object, value, key) {
+      let recursive = function (object, value, key, obj) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
             if (object.hasOwnProperty(k)) {
-              recursive(object[k], value, key + "." + k);
+              recursive(object[k], value, key + "." + k, object);
             }
           }
         } else {
           if (object === value) {
-            keys.push({ key: key.substring(1, key.length), value: object });
+            keys.push({ key: key.substring(1, key.length), value: object, object: obj });
           }
         }
       }
-      recursive(json, value, "");
+      recursive(json, value, "", json);
       return keys
     }
 

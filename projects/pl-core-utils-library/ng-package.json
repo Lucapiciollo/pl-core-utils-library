@@ -18,6 +18,7 @@
       "jquery" ,
       "moment" ,
       "ngx-ui-loader" ,
-      "popper.js"  
-  ]
+      "popper.js",  
+      "@angular/common" ,
+      "@angular/core" 
 }
