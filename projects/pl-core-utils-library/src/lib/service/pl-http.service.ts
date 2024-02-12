@@ -17,13 +17,13 @@ import { PlCoreUtils } from '../pl-core-utils-library.service';
 declare const require: any;
 /**@ignore */
 declare const $: any;
- 
+
 
 
 
 /** eventi registrati per PLlibrary */
 export enum TYPE_EVENT_NETWORK {
-  PL_BREACK_NET = "PL:BREACK_NET" 
+  PL_BREACK_NET = "PL:BREACK_NET"
 }
 
 /**
@@ -208,35 +208,43 @@ export class PlHttpService {
     }
   }
   //***************************************************************************************************** */
-
-  private checkEventHttp(event: any, uuid, observer: Subscriber<any>) {
-    let httpEventType=null;
-    switch (event.type) {
-      case HttpEventType.Sent:
-        break;
-      case HttpEventType.ResponseHeader:
-        break;
-      case HttpEventType.DownloadProgress:
-        if (httpEventType == null) httpEventType = HttpEventType.DownloadProgress;
-        if (httpEventType != HttpEventType.DownloadProgress) break;
-        this.refreshProgress(uuid, event);
-        break;
-      case HttpEventType.UploadProgress:
-        if (httpEventType == null) httpEventType = HttpEventType.UploadProgress;
-        if (httpEventType != HttpEventType.UploadProgress) break;
-        this.refreshProgress(uuid, event);
-        break;
-      case HttpEventType.Response: {
-        this.refreshProgress(uuid).complete();
-        observer.next(event)
-        observer.complete();
+  private checkEventHttp<T>(event: any, uuid, observer: Subscriber<T>) {
+    let httpEventType = null;
+    try {
+      switch (event.type) {
+        case HttpEventType.Sent:
+          break;
+        case HttpEventType.ResponseHeader:
+          break;
+        case HttpEventType.DownloadProgress:
+          if (httpEventType == null) httpEventType = HttpEventType.DownloadProgress;
+          if (httpEventType != HttpEventType.DownloadProgress) break;
+          this.refreshProgress(uuid, event);
+          break;
+        case HttpEventType.UploadProgress:
+          if (httpEventType == null) httpEventType = HttpEventType.UploadProgress;
+          if (httpEventType != HttpEventType.UploadProgress) break;
+          this.refreshProgress(uuid, event);
+          break;
+        case HttpEventType.Response:
+          this.refreshProgress(uuid).complete();
+          observer.next(event)
+          observer.complete();
+          break;
+        default: {
+          observer.next(event)
+          observer.complete();
+        }
       }
+    } catch (e) {
+      observer.next(event)
+      observer.complete();
     }
   }
 
   /********************************************************************************************************************/
   constructor(private http: HttpClient) {
- 
+
   }
   /********************************************************************************************************************/
 
@@ -394,7 +402,7 @@ export class PlHttpService {
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
    
    */
-  GET(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<any>> {
+  GET<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
 
 
     let uuid = UUID.UUID();
@@ -409,7 +417,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.get(plHttpRequest.url, options)
+        let sub = this.http.get<T>(plHttpRequest.url, options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -442,7 +450,7 @@ export class PlHttpService {
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
    
    */
-  POST(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<any>> {
+  POST<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
@@ -455,7 +463,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.post(plHttpRequest.url, plHttpRequest.body, options)
+        let sub = this.http.post<T>(plHttpRequest.url, plHttpRequest.body, options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -493,7 +501,7 @@ export class PlHttpService {
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
    
    */
-  PATCH(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<any>> {
+  PATCH<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
@@ -506,7 +514,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.patch(plHttpRequest.url, plHttpRequest.body, options)
+        let sub = this.http.patch<T>(plHttpRequest.url, plHttpRequest.body, options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -544,7 +552,7 @@ export class PlHttpService {
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
    
    */
-  PUT(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<any>> {
+  PUT<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
@@ -557,7 +565,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.put(plHttpRequest.url, plHttpRequest.body, options)
+        let sub = this.http.put<T>(plHttpRequest.url, plHttpRequest.body, options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -594,7 +602,7 @@ export class PlHttpService {
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars   
    
    */
-  DELETE(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<any>> {
+  DELETE<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
@@ -607,7 +615,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.delete(plHttpRequest.url, options)
+        let sub = this.http.delete<T>(plHttpRequest.url, options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),

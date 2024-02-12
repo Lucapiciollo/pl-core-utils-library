@@ -21,4 +21,5 @@
       "popper.js",  
       "@angular/common" ,
       "@angular/core" 
+    ]
 }

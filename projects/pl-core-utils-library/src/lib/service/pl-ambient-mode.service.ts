@@ -303,32 +303,30 @@ export class PlAmbientModeLoaderService {
 
     /********************************************************************************************************* */
     /**
-     * @author l.piciollo
-     * funzione per cambiare il valore di un json, l'esecuzione avrà impatto su tutte le chiavi dei json anche annidati
-     * che presentano il valore da cambiare
-     * @param previousValue  : valore da ricercare e sostituire
-     * @param nextValue  : valore da sostituire
-     */
-
-    JSON["changeValues"] = function (json, previousValue, nextValue) {
-      let recursive = function (json, previousValue, nextValue) {
+        * @author l.piciollo
+        * funzione per cambiare il valore di un json, l'esecuzione avrà impatto su tutte le chiavi dei json anche annidati
+        * che presentano il valore da cambiare
+        * @param previousValue  : valore da ricercare e sostituire
+        * @param nextValue  : valore da sostituire
+        */
+    JSON["changeValues"] = function (json, previousValue, nextValue, ignore = []) {
+      let recursive = function (json, previousValue, nextValue, ignore) {
         let k = "";
         if (json instanceof Object) {
           for (k in json) {
-            if (json.hasOwnProperty(k)) {
-              recursive(json[k], previousValue, nextValue);
+            if (json.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(json[k], previousValue, nextValue, ignore);
               if (json[k] === previousValue) {
-                json[k] = nextValue
+                json[k] = nextValue;
               }
             }
           }
         }
-      }
-      recursive(json, previousValue, nextValue);
-      return json
+      };
+      recursive(json, previousValue, nextValue, ignore);
+      return json;
     };
     /********************************************************************************************************* */
-
     /**
      * @author l.piciollo
      * funzione per cambiare il valore di un json, l'esecuzione avrà impatto su tutte le chiavi dei json anche annidati
@@ -336,153 +334,171 @@ export class PlAmbientModeLoaderService {
      * @param key  :  chiave da sostituire
      * @param nextValue  : valore da sostituire
      */
-    JSON["changeValuesByKey"] = function (json, key, nextValue) {
-      let recursive = function (json, previousValue, nextValue) {
+    JSON["changeValuesByKey"] = function (json, key, nextValue, ignore = []) {
+      let recursive = function (json, previousValue, nextValue, ignore) {
         let k = "";
         if (json instanceof Object) {
           for (k in json) {
-            if (json.hasOwnProperty(k)) {
-              recursive(json[k], previousValue, nextValue);
+            if (json.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(json[k], previousValue, nextValue, ignore);
               if (k === key) {
-                json[k] = nextValue
+                json[k] = nextValue;
               }
             }
           }
         }
-
-      }
-      recursive(json, key, nextValue);
-      return json
-    }
-
+      };
+      recursive(json, key, nextValue, ignore);
+      return json;
+    };
     /********************************************************************************************************* */
     /**
      * @author l.piciollo
-     * funzione per ricercare tutte le chiavi di un oggetto che hanno un determinato valore    
+     * funzione per ricercare tutte le chiavi di un oggetto che hanno un determinato valore
      * @param value  : valore da ricercare
      * @returns Observable function
      */
-    JSON["findByValue"] = function (json, value): Array<any> {
+    JSON["findByValue"] = function (json, value, ignore = []) {
       let keys = [];
-      let recursive = function (object, value, key, obj) {
+      let recursive = function (object, value, key, obj, ignore) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
-            if (object.hasOwnProperty(k)) {
-              recursive(object[k], value, key + "." + k, object);
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], value, key + "." + k, object, ignore);
             }
           }
-        } else {
+        }
+        else {
           if (object === value) {
             keys.push({ key: key.substring(1, key.length), value: object, object: obj });
           }
         }
-      }
-      recursive(json, value, "", json);
-      return keys
-    }
-
+      };
+      recursive(json, value, "", json, ignore);
+      return keys;
+    };
     /********************************************************************************************************* */
     /**
      * @author l.piciollo
-     * funzione per ricercare tutte le chiavi di un oggetto che hanno un determinato valore    
+     * funzione per ricercare tutte le chiavi di un oggetto che hanno un determinato valore
      * @param value  : valore da ricercare
      * @returns Observable function
      */
-    JSON["findKey"] = function (json, keyFind): Array<any> {
+    JSON["findKey"] = function (json, keyFind, ignore = []) {
       let keys = [];
-      let recursive = function (object, value, key) {
+      let recursive = function (object, value, key, ignore) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
-            if (object.hasOwnProperty(k)) {
-              recursive(object[k], value, k);
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], value, k, ignore);
             }
           }
         }
         if (key === keyFind) {
           keys.push({ "key": key, value: object });
         }
-      }
-      recursive(json, keyFind, "");
-      return keys
-    }
-
+      };
+      recursive(json, keyFind, "", ignore);
+      return keys;
+    };
     /**
       * @l.piciollo
       * scanner per json, ritorna all'osservatore la flatkey con il valore associato.
-      * @param obj 
+      * @param obj
       */
-    JSON["json2flat"] = function (json): Array<any> {
+    JSON["json2flat"] = function (json, ignore = []) {
       let keys = [];
-      let recursive = function (object, key) {
+      let recursive = function (object, key, ignore) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
-            if (object.hasOwnProperty(k)) {
-              recursive(object[k], key + "." + k);
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], key + "." + k, ignore);
             }
           }
-        } else {
+        }
+        else {
           keys.push({ key: key.substring(1, key.length), value: object });
         }
-      }
-      recursive(json, "");
+      };
+      recursive(json, "", ignore);
       return keys;
     };
-
     /**
      * @author l.piciollo
-     * ritorna sottoforma di array key value tutte le chiavi del json 
+     * ritorna sottoforma di array key value tutte le chiavi del json
      */
-    JSON["json2array"] = function (json): Array<any> {
+    JSON["json2array"] = function (json, ignore = []) {
       let keys = [];
-      let recursive = function (object, key) {
+      let recursive = function (object, key, ignore) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
-            if (object.hasOwnProperty(k)) {
-              recursive(object[k], k);
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], k, ignore);
             }
           }
-        } else {
+        }
+        else {
           keys.push({ key: key, value: object });
         }
-      }
-      recursive(json, "");
+      };
+      recursive(json, "", ignore);
       return keys;
     };
-
-
     /**
       * @l.piciollo
       * scanner per json, ritorna all'osservatore la flatkey con il valore associato in formato JSON.
-      * @param obj 
+      * @param obj
       */
-    JSON["json2flatObj"] = function (data): JSON {
+    JSON["json2flatObj"] = function (data, ignore = []) {
       var result = {};
-      function recurse(cur, prop) {
-        if (Object(cur) !== cur) {
+      let recursive = function (cur, prop) {
+        if (Object(cur) !== cur || ignore.indexOf(prop) < 0) {
           result[prop] = cur;
-        } else if (Array.isArray(cur)) {
+        }
+        else if (Array.isArray(cur)) {
           for (var i = 0, l = cur.length; i < l; i++)
-            recurse(cur[i], prop + "[" + i + "]");
+            recursive(cur[i], prop + "[" + i + "]");
           if (l == 0)
             result[prop] = [];
-        } else {
+        }
+        else {
           var isEmpty = true;
           for (var p in cur) {
             isEmpty = false;
-            recurse(cur[p], prop ? prop + "." + p : p);
+            recursive(cur[p], prop ? prop + "." + p : p);
           }
           if (isEmpty && prop)
             result[prop] = {};
         }
-      }
-      recurse(data, "");
-      return <JSON>result;
-    }
+      };
+      recursive(data, "");
+      return result;
+    };
+
+    JSON["deleteKey"] = function (source, keys) {
+      let recursive = function (source, keys) {
+        let k = "";
+        if (source instanceof Object) {
+          for (k in source) {
+            if (source.hasOwnProperty(k)) {
+              recursive(source[k], keys);
+              keys.map(k => delete source[k]);
+            }
+          }
+        }
+      };
+      recursive(source, keys);
+      return source;
+    };
   }
+
+
+
+
   /**
    * @author l.piciollo
    * Identifica il brawser in uso
