@@ -403,6 +403,26 @@ export class PlAmbientModeLoaderService {
       recursive(json, keyFind, "", ignore);
       return keys;
     };
+
+    JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = []) => {
+      let keys = [];
+      let recursive = function (object, value, key, obj, ignore) {
+          let k = "";
+          if (object instanceof Object) {
+              for (k in object) {
+                  if (object.hasOwnProperty(k)&& ignore.indexOf(k) < 0) {
+                      recursive(object[k], value, k, object, ignore);
+                  }
+              }
+          }
+          if (key === keyFind && object == valueFind) {
+              keys.push({ "key": key, value: object, object: obj });
+          }
+      };
+      recursive(json, keyFind, "", json, ignore);
+      return keys;
+  };
+
     /**
       * @l.piciollo
       * scanner per json, ritorna all'osservatore la flatkey con il valore associato.
