@@ -407,21 +407,21 @@ export class PlAmbientModeLoaderService {
     JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = []) => {
       let keys = [];
       let recursive = function (object, value, key, obj, ignore) {
-          let k = "";
-          if (object instanceof Object) {
-              for (k in object) {
-                  if (object.hasOwnProperty(k)&& ignore.indexOf(k) < 0) {
-                      recursive(object[k], value, k, object, ignore);
-                  }
-              }
+        let k = "";
+        if (object instanceof Object) {
+          for (k in object) {
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], value, k, object, ignore);
+            }
           }
-          if (key === keyFind && object == valueFind) {
-              keys.push({ "key": key, value: object, object: obj });
-          }
+        }
+        if (key === keyFind && object == valueFind) {
+          keys.push({ "key": key, value: object, object: obj });
+        }
       };
       recursive(json, keyFind, "", json, ignore);
       return keys;
-  };
+    };
 
     /**
       * @l.piciollo
@@ -514,6 +514,53 @@ export class PlAmbientModeLoaderService {
       recursive(source, keys);
       return source;
     };
+
+
+    (<any>Object.prototype).PROXY = (replaceWith = "", proxy, ignore = []) => {
+      if (!proxy) {
+        proxy = <Object>(object: {}, emptyChar = {}) => {
+          try {
+            return new Proxy(object, {
+              get: (target: any, prop: any, receiver: any) => {
+                if (!target.hasOwnProperty(prop)) {
+                  console.error(`IS NOT POSSIBLE TO GET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`)
+                  return { [prop]: replaceWith }
+                } else {
+                  return target[prop];
+                }
+              },
+              set: (target: any, prop: any, receiver: any) => {
+                if (!target.hasOwnProperty(prop)) {
+                  console.error(`IS NOT POSSIBLE TO SET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`)
+                } else {
+                  return Reflect.set(target, prop, receiver);
+                }
+              }
+            })
+          } catch (e) {
+            return object
+          }
+        }
+      }
+      let cloned = JSON.parse(JSON.stringify(this));
+      let recursive = (object, proxy, ignore) => {
+        let k = "";
+        if (object instanceof Object) {
+          for (k in object) {
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], proxy, ignore);
+              if (object[k] instanceof Object) {
+                object[k] = proxy(object[k], "")
+              }
+            }
+          }
+        }
+      };
+      recursive(cloned, proxy, ignore);
+      return proxy(cloned)
+
+    };
+
   }
 
 
