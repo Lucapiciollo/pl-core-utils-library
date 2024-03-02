@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
  import { CommonModule } from '@angular/common';
 import { GlobalService } from '../../shared/service/global.service';
+import { MaterialModule } from './material.module';
+import { ListItemComponent } from 'src/app/list-item/list-item.component';
 /**
  *  @author @l.piciollo
  *  modulo comune a tutto l'applicativo, si occupa di condividere altri moduli e funzionalita con il sistema. 
@@ -21,19 +23,22 @@ import { GlobalService } from '../../shared/service/global.service';
  *  impport ed in export
  */
 @NgModule({
-  declarations: [  ],
+  declarations: [ListItemComponent  ],
   imports: [
     CommonModule,
     HttpClientModule,
     FormsModule,
-    TranslateModule
+    TranslateModule,
+    MaterialModule
   ],
   providers: [GlobalService],
   exports: [
+    ListItemComponent,
     CommonModule,
     HttpClientModule,
     FormsModule,
-    TranslateModule 
+    TranslateModule,
+    MaterialModule
   ]
 })
 export class SharedModule {

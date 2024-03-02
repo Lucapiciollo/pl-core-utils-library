@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { SharedModule } from './com/mycompany/normalize/shared/module/shared.module';
 import { AppRoutingModule } from './app-routing.module';
 import { InitializerModule } from './com/mycompany/normalize/core/module/initializer.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
  
 
@@ -17,6 +18,7 @@ import { InitializerModule } from './com/mycompany/normalize/core/module/initial
     SharedModule,
     AppRoutingModule,
     InitializerModule,
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

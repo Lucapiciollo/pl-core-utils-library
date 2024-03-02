@@ -11,4 +11,13 @@
       @author l.piciollo
       inizializzazione del routing space
 -->
+
+<div>
+      <list-item [item]="parentItem"
+        [connectedDropListsIds]="connectedDropListsIds"
+        (itemDrop)="onDragDrop($event)">
+      </list-item>
+    </div>
+    
+
 <router-outlet></router-outlet>
