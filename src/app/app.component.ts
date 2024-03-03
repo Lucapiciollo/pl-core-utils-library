@@ -12,19 +12,36 @@ import { DOCUMENT } from '@angular/common';
 
 import * as uuid from 'uuid';
 
-export class Item {
-    name: string;
-    uId: string;
-    children: Item[];
 
-    constructor(options: {
-        name: string,
-        children?: Item[]
-    }) {
-        this.name = options.name;
-        this.uId = uuid.v4();
-        this.children = options.children || [];
-    }
+export class User {
+  name: string;
+  uId: string;
+  phader: User[];
+
+  constructor(options: {
+    name: string,
+    phader?: User[]
+  }) {
+    this.name = options.name;
+    this.uId = uuid.v4();
+    this.phader = options.phader || [];
+  }
+}
+
+
+export class Item {
+  name: string;
+  uId: string;
+  children: Item[];
+
+  constructor(options: {
+    name: string,
+    children?: Item[]
+  }) {
+    this.name = options.name;
+    this.uId = uuid.v4();
+    this.children = options.children || [];
+  }
 }
 
 @Component({
@@ -33,10 +50,12 @@ export class Item {
   styleUrls: ['./app.component.css']
 })
 
+ 
 export class AppComponent {
 
 
-
+  public uuid = uuid.v4();
+  
   public app = JSON.parse(`{
     "wrapper": "div#div_id.div_class[attribute-one=value]",
     "sections": {
@@ -53,9 +72,9 @@ export class AppComponent {
 
   title = "";
 
-  constructor(@Inject(DOCUMENT) private document: Document,private injector: Injector, protected ambientModeLoaderService: PlUtilsService, private modalService: NgbModal, public plHttpService: PlHttpService) {
+  constructor(@Inject(DOCUMENT) private document: Document, private injector: Injector, protected ambientModeLoaderService: PlUtilsService, private modalService: NgbModal, public plHttpService: PlHttpService) {
     this.injector = injector;
- 
+
     this.parentItem = new Item({ name: 'parent-item' });
   }
 
@@ -66,14 +85,14 @@ export class AppComponent {
   public async method() {
 
   }
- 
+
   public parentItem: Item;
   public get connectedDropListsIds(): string[] {
     // We reverse ids here to respect items nesting hierarchy
-    return this.getIdsRecursive(this.parentItem).reverse();
+    return this.getIdsRecursive(this.parentItem).reverse().concat([this.uuid]);
   }
 
- 
+
 
   public ngOnInit() {
     this.parentItem.children.push(new Item({
@@ -112,7 +131,7 @@ export class AppComponent {
         event.currentIndex
       );
     }
-    console.log(   this.parentItem)
+    console.log(this.parentItem)
   }
 
   private getIdsRecursive(item: Item): string[] {
@@ -138,5 +157,34 @@ export class AppComponent {
     return hasChild ? true : parentItem.children.some((item) => this.hasChild(item, childItem));
   }
 
-}
+
+
+
+
+
+
+
  
+
+
+  todo = Array.from({ length: 10 }, (_, id) => {
+    return new User({ name: String(id),phader:[] })
+  });
+
+  done = [];
+
+  drop(event: CdkDragDrop<any>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    }
+  }
+
+
+}

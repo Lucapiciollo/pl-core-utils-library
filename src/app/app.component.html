@@ -12,12 +12,37 @@
       inizializzazione del routing space
 -->
 
-<div>
+<!-- <div>
       <list-item [item]="parentItem"
         [connectedDropListsIds]="connectedDropListsIds"
         (itemDrop)="onDragDrop($event)">
       </list-item>
+    </div> -->
+
+
+<div class="example-container">
+    <h2>To do</h2>
+
+    <div cdkDropList #listUser="cdkDropList" [cdkDropListData]="todo" [cdkDropListConnectedTo]=" connectedDropListsIds" class="example-list" (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let item of todo" class="example-box" cdkDrag>{{$any(item).name}}</div>
     </div>
-    
+</div>
+
+<div class="example-container">
+    <h2>Done</h2>
+    <div cdkDropList   [id]="uuid" [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let item of done" class="example-box" cdkDrag>
+            {{item | json}}
+
+            <div class="example-container">
+                  <h2>Phader</h2>
+                  <div cdkDropList  [id]="item.uid" [cdkDropListData]="item.phader" class="example-list" (cdkDropListDropped)="drop($event)">
+                      <div *ngFor="let phader of item.phader" class="example-box" cdkDrag>{{item | json}}</div>
+                  </div>
+           </div>
+
+        </div>
+    </div>
+</div>
 
 <router-outlet></router-outlet>
