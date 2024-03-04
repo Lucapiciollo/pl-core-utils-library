@@ -1,0 +1,69 @@
+<div>
+    <div class="row p-1" *ngIf="_user">
+
+
+
+        <div class="row">
+            <div class="col-12">
+                <p>Utenti</p>
+            </div>
+
+            <div class="col-12">
+                <div class="example-list" cdkDropList (cdkDropListDropped)="drop($any($event))" [cdkDropListData]="_user?.users||[]" id="users">
+                    <div *ngFor="let item of _user?.users " class="example-box" cdkDrag>{{item.name}}</div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <mat-card class="example-card">
+            <mat-card-header>
+                <div mat-card-avatar class="example-header-image"></div>
+                <mat-card-title>{{_user.name}}</mat-card-title>
+                <mat-card-subtitle>{{_user.type}}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+                <div class="row">
+                    <div class="col-12">
+                        <p>Padre</p>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="example-list" cdkDropList (cdkDropListDropped)="drop($any($event))" [cdkDropListData]="_user?.fathers||[]" id="fathersToAdd">
+                            <div *ngFor="let item of _user?.fathers " class="example-box" cdkDrag>{{item.name}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <p>Figlio</p>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="example-list" cdkDropList (cdkDropListDropped)="drop($any($event))" [cdkDropListData]="_user?.sons||[]" id="sonsToAdd">
+                            <div *ngFor="let item of _user?.sons " class="example-box" cdkDrag>{{item.name}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <p>Approvatore</p>
+                    </div>
+                    <div class="col-12">
+                        <div class="example-list" cdkDropList (cdkDropListDropped)="drop($any($event))" [cdkDropListData]="_user?.approvers||[]" id="approvalToAdd">
+                            <div *ngFor="let item of _user?.approvers " class="example-box" cdkDrag>{{item.name}}</div>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button mat-button>LIKE</button>
+                <button mat-button>SHARE</button>
+            </mat-card-actions>
+        </mat-card>
+    </div>
+</div>
