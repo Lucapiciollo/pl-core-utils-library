@@ -16,6 +16,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { GlobalService } from '../../shared/service/global.service';
 import { MaterialModule } from './material.module';
 import { ListItemComponent } from 'src/app/list-item/list-item.component';
+import { NgxOrgChartModule } from 'ngx-org-chart';
  /**
  *  @author @l.piciollo
  *  modulo comune a tutto l'applicativo, si occupa di condividere altri moduli e funzionalita con il sistema. 
@@ -29,11 +30,12 @@ import { ListItemComponent } from 'src/app/list-item/list-item.component';
     HttpClientModule,
     FormsModule,
     TranslateModule,
-    MaterialModule
+    MaterialModule,
+    NgxOrgChartModule
   ],
   providers: [GlobalService],
   exports: [
-    
+    NgxOrgChartModule,
     ListItemComponent,
     CommonModule,
     HttpClientModule,

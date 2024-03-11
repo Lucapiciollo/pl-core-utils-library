@@ -20,7 +20,7 @@
     </div> -->
 
 
-<div class=" row p-1" cdkDropListGroup>
+  <div class=" row p-1" cdkDropListGroup>
     <h2>Gruppi</h2>
 
     <div class=" item-dropzone  parent col-4" cdkDropList [cdkDropListData]="groupDtoResult.items" (cdkDropListDropped)="drop($any($event))">
@@ -33,6 +33,9 @@
             <app-user [user]="todo"></app-user>
         </li>
     </ul>
-</div>
+</div>  
+
+<ngx-org-chart [nodes]="nodes" direction="vertical"  ></ngx-org-chart>
+
 
 <router-outlet></router-outlet>

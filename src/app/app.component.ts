@@ -1,4 +1,4 @@
-import { Component, Inject, Injector } from '@angular/core';
+import { AfterViewInit, Component, Inject, Injector } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -10,7 +10,7 @@ import { CdkDragDrop, CdkDragEnter, CdkDragExit, moveItemInArray, transferArrayI
 import * as uuid from 'uuid';
 import { GroupDtoSearchResult } from './com/mycompany/normalize/shared/model/groupDtoSearchResult';
 import { GroupDto } from './com/mycompany/normalize/shared/model/groupDto';
-
+import * as $ from "jquery.orgchart.js"
 
 export class GroupDtoResult implements GroupDtoSearchResult {
   items?: GroupDto[] = [];
@@ -40,7 +40,7 @@ export class Item {
 })
 
 
-export class AppComponent {
+export class AppComponent implements AfterViewInit{
 
 
   public uuid = uuid.v4();
@@ -56,6 +56,9 @@ export class AppComponent {
 
     // this.parentItem = new Item({ name: 'parent-item' });
   }
+  ngAfterViewInit(): void {
+ 
+  }
 
 
 
@@ -70,10 +73,11 @@ export class AppComponent {
   //   // We reverse ids here to respect items nesting hierarchy
   //   return this.getIdsRecursive(this.parentItem).reverse().concat([this.uuid]);
   // }
-
-
+ 
 
   public ngOnInit() {
+
+
     // this.parentItem.children.push(new Item({
     //   name: 'test1',
     //   children: [
@@ -240,6 +244,10 @@ export class AppComponent {
       ]
     }
 
+
+
+
+    
   }
 
   // public onDragDrop(event: CdkDragDrop<Item>) {
@@ -290,6 +298,7 @@ export class AppComponent {
 
 
 
+  public uniqueGroup;
 
 
 
@@ -309,6 +318,276 @@ export class AppComponent {
     }
     console.log(this.todo)
   }
+
+
+
+  public   nodes: any = [
+    {
+      name: 'Sundar Pichai',
+      cssClass: 'ngx-org-ceo',
+      image: '',
+      title: 'Chief Executive Officer',
+      childs: [
+        {
+          name: 'Thomas Kurian',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, Google Cloud',
+        },
+        {
+          name: 'Susan Wojcicki',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, YouTube',
+          childs: [
+            {
+              name: 'Beau Avril',
+              cssClass: 'ngx-org-head',
+              image: 'assets/node.svg',
+              title: 'Global Head of Business Operations',
+              childs: []
+            },
+            {
+              name: 'Tara Walpert Levy',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Agency and Brand Solutions',
+              childs: []
+            },
+            {
+              name: 'Ariel Bardin',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Product Management',
+              childs: []
+            }
+          ]
+        },
+        {
+          name: 'Jeff Dean',
+          cssClass: 'ngx-org-head',
+          image: 'assets/node.svg',
+          title: 'Head of Artificial Intelligence',
+          childs: [
+            {
+              name: 'David Feinberg',
+              cssClass: 'ngx-org-ceo',
+              image: 'assets/node.svg',
+              title: 'CEO, Google Health', 
+              childs: [
+                {
+                  name: 'Beau Avril',
+                  cssClass: 'ngx-org-head',
+                  image: 'assets/node.svg',
+                  title: 'Global Head of Business Operations',
+                  childs: []
+                },
+                {
+                  name: 'Tara Walpert Levy',
+                  cssClass: 'ngx-org-vp',
+                  image: 'assets/node.svg',
+                  title: 'VP, Agency and Brand Solutions',
+                  childs: [
+                    {
+                      name: 'Beau Avril',
+                      cssClass: 'ngx-org-head',
+                      image: 'assets/node.svg',
+                      title: 'Global Head of Business Operations',
+                      childs: []
+                    },
+                    {
+                      name: 'Tara Walpert Levy',
+                      cssClass: 'ngx-org-vp',
+                      image: 'assets/node.svg',
+                      title: 'VP, Agency and Brand Solutions',
+                      childs: [
+                        {
+                          name: 'Beau Avril',
+                          cssClass: 'ngx-org-head',
+                          image: 'assets/node.svg',
+                          title: 'Global Head of Business Operations',
+                          childs: []
+                        },
+                        {
+                          name: 'Tara Walpert Levy',
+                          cssClass: 'ngx-org-vp',
+                          image: 'assets/node.svg',
+                          title: 'VP, Agency and Brand Solutions',
+                          childs: [
+                            {
+                              name: 'Beau Avril',
+                              cssClass: 'ngx-org-head',
+                              image: 'assets/node.svg',
+                              title: 'Global Head of Business Operations',
+                              childs: []
+                            },
+                            {
+                              name: 'Tara Walpert Levy',
+                              cssClass: 'ngx-org-vp',
+                              image: 'assets/node.svg',
+                              title: 'VP, Agency and Brand Solutions',
+                              childs: []
+                            },
+                            {
+                              name: 'Ariel Bardin',
+                              cssClass: 'ngx-org-vp',
+                              image: 'assets/node.svg',
+                              title: 'VP, Product Management',
+                              childs: []
+                            }
+                          ]
+                        },
+                        {
+                          name: 'Ariel Bardin',
+                          cssClass: 'ngx-org-vp',
+                          image: 'assets/node.svg',
+                          title: 'VP, Product Management',
+                          childs: []
+                        }
+                      ]
+                    },
+                    {
+                      name: 'Ariel Bardin',
+                      cssClass: 'ngx-org-vp',
+                      image: 'assets/node.svg',
+                      title: 'VP, Product Management',
+                      childs: []
+                    }
+                  ]
+                },
+                {
+                  name: 'Ariel Bardin',
+                  cssClass: 'ngx-org-vp',
+                  image: 'assets/node.svg',
+                  title: 'VP, Product Management',
+                  childs: []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Sundar Pichai',
+      cssClass: 'ngx-org-ceo',
+      image: 'assets/node.svg',
+      title: 'Chief Executive Officer',
+      childs: [
+        {
+          name: 'Thomas Kurian',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, Google Cloud',
+        },
+        {
+          name: 'Susan Wojcicki',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, YouTube',
+          childs: [
+            {
+              name: 'Beau Avril',
+              cssClass: 'ngx-org-head',
+              image: 'assets/node.svg',
+              title: 'Global Head of Business Operations',
+              childs: []
+            },
+            {
+              name: 'Tara Walpert Levy',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Agency and Brand Solutions',
+              childs: []
+            },
+            {
+              name: 'Ariel Bardin',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Product Management',
+              childs: []
+            }
+          ]
+        },
+        {
+          name: 'Jeff Dean',
+          cssClass: 'ngx-org-head',
+          image: 'assets/node.svg',
+          title: 'Head of Artificial Intelligence',
+          childs: [
+            {
+              name: 'David Feinberg',
+              cssClass: 'ngx-org-ceo',
+              image: 'assets/node.svg',
+              title: 'CEO, Google Health',
+              childs: []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Sundar Pichai',
+      cssClass: 'ngx-org-ceo',
+      image: 'assets/node.svg',
+      title: 'Chief Executive Officer',
+      childs: [
+        {
+          name: 'Thomas Kurian',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, Google Cloud',
+        },
+        {
+          name: 'Susan Wojcicki',
+          cssClass: 'ngx-org-ceo',
+          image: 'assets/node.svg',
+          title: 'CEO, YouTube',
+          childs: [
+            {
+              name: 'Beau Avril',
+              cssClass: 'ngx-org-head',
+              image: 'assets/node.svg',
+              title: 'Global Head of Business Operations',
+              childs: []
+            },
+            {
+              name: 'Tara Walpert Levy',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Agency and Brand Solutions',
+              childs: []
+            },
+            {
+              name: 'Ariel Bardin',
+              cssClass: 'ngx-org-vp',
+              image: 'assets/node.svg',
+              title: 'VP, Product Management',
+              childs: []
+            }
+          ]
+        },
+        {
+          name: 'Jeff Dean',
+          cssClass: 'ngx-org-head',
+          image: 'assets/node.svg',
+          title: 'Head of Artificial Intelligence',
+          childs: [
+            {
+              name: 'David Feinberg',
+              cssClass: 'ngx-org-ceo',
+              image: 'assets/node.svg',
+              title: 'CEO, Google Health',
+              childs: []
+            }
+          ]
+        }
+      ]
+    }
+  ];
+
+ 
+
 
 
 }
