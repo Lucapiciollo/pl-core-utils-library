@@ -20,29 +20,22 @@
     </div> -->
 
 
-<div class="example-container">
-    <h2>To do</h2>
+  <div class=" row p-1" cdkDropListGroup>
+    <h2>Gruppi</h2>
 
-    <div cdkDropList #listUser="cdkDropList" [cdkDropListData]="todo" [cdkDropListConnectedTo]=" connectedDropListsIds" class="example-list" (cdkDropListDropped)="drop($event)">
-        <div *ngFor="let item of todo" class="example-box" cdkDrag>{{$any(item).name}}</div>
+    <div class=" item-dropzone  parent col-4" cdkDropList [cdkDropListData]="groupDtoResult.items" (cdkDropListDropped)="drop($any($event))">
+        <div *ngFor="let item of groupDtoResult.items" class="example-box" cdkDrag (dblclick)="todo=item">{{item.name}} </div> 
     </div>
-</div>
 
-<div class="example-container">
-    <h2>Done</h2>
-    <div cdkDropList   [id]="uuid" [cdkDropListData]="done" class="example-list" (cdkDropListDropped)="drop($event)">
-        <div *ngFor="let item of done" class="example-box" cdkDrag>
-            {{item | json}}
 
-            <div class="example-container">
-                  <h2>Phader</h2>
-                  <div cdkDropList  [id]="item.uid" [cdkDropListData]="item.phader" class="example-list" (cdkDropListDropped)="drop($event)">
-                      <div *ngFor="let phader of item.phader" class="example-box" cdkDrag>{{item | json}}</div>
-                  </div>
-           </div>
+    <ul class="item-dropzone parent col-8">
+        <li>
+            <app-user [user]="todo"></app-user>
+        </li>
+    </ul>
+</div>  
 
-        </div>
-    </div>
-</div>
+<ngx-org-chart [nodes]="nodes" direction="vertical" ></ngx-org-chart>
+
 
 <router-outlet></router-outlet>

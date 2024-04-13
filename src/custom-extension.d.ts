@@ -43,6 +43,7 @@ interface JSON {
 
 interface Object {
     PROXY: <T>(replaceWith: any, proxy: any, ignore: Array<string>) => T
+    clone: <T>() => T
 }
 
 

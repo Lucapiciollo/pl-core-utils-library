@@ -301,6 +301,7 @@ export class PlAmbientModeLoaderService {
       return Array(length + 1).join(this);
     };
 
+
     /********************************************************************************************************* */
     /**
         * @author l.piciollo
@@ -516,8 +517,14 @@ export class PlAmbientModeLoaderService {
     };
 
 
-    (<any>Object.prototype).PROXY = function(replaceWith = "", proxy, ignore = [])   {
-      let i=0;
+
+    (<any>Object.prototype).clone = function () {
+      return JSON.parse(JSON.stringify(this))
+    };
+
+
+    (<any>Object.prototype).PROXY = function (replaceWith = "", proxy, ignore = []) {
+      let i = 0;
       if (!proxy) {
         proxy = <Object>(object: {}, emptyChar = {}) => {
           try {
@@ -525,16 +532,16 @@ export class PlAmbientModeLoaderService {
               get: (target: any, prop: any, receiver: any) => {
                 i++;
                 if (!target.hasOwnProperty(prop)) {
-                  console.error(`IS NOT POSSIBLE TO GET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`,`Level:  ${i}`)
-                  return proxy( {})
+                  console.error(`IS NOT POSSIBLE TO GET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`, `Level:  ${i}`)
+                  return proxy({})
                 } else {
                   return target[prop];
                 }
               },
               set: (target: any, prop: any, receiver: any) => {
                 if (!target.hasOwnProperty(prop)) {
-                  console.error(`IS NOT POSSIBLE TO SET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`,`Level:  ${i}`);
-               
+                  console.error(`IS NOT POSSIBLE TO SET PROPERTY [${prop}] THIS IS NOT DEFINED IN [${Object.keys(object).join(" ; ")}]`, `Level:  ${i}`);
+
                   return target
                 } else {
                   return Reflect.set(target, prop, receiver);

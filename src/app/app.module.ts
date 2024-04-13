@@ -6,12 +6,14 @@ import { SharedModule } from './com/mycompany/normalize/shared/module/shared.mod
 import { AppRoutingModule } from './app-routing.module';
 import { InitializerModule } from './com/mycompany/normalize/core/module/initializer.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UserComponent } from './user/user.component';
 
  
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    UserComponent
   ],
   imports: [
     BrowserModule,
