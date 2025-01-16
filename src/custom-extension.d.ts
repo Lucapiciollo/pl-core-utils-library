@@ -3,7 +3,7 @@
  * @email l.piciollo@gmail.com
  * @create date 2019-12-22 12:09:07
  * @modify date 2019-12-22 12:09:07
- * @desc [interfaccia per la specializzazione di dunzionalita native dei browser 
+ * @desc [interfaccia per la specializzazione di dunzionalita native dei browser
  * utile per risalire alle funzionalità messe a disposizione dal sistema core e evita che il compilatore vada in errore
  * per funzionalità non trovate.]
  */
@@ -29,14 +29,14 @@ interface Array<T> {
 }
 
 interface JSON {
-    changeValues: (json: any, previousValue: any, nextValue: any) => any;
-    changeValuesByKey: (json: any, key: any, nextValue: any, ignore: Array<string>) => any;
-    findByValue: (json: any, value: any, ignore: Array<string>) => any;
-    json2flat: (json: any, ignore: Array<string>) => any;
-    json2array: (json: any, ignore: Array<string>) => any;
-    json2flatObj: (json: any, ignore: Array<string>) => any;
-    findKey: (json: any, keyFind: any, ignore: Array<string>) => any;
-    findByKeyAndValue: (json, keyFind, valueFind, ignore: Array<string>) => any;
+    changeValues: (json: any, previousValue: any, nextValue: any, ignore?: Array<string>) => any;
+    changeValuesByKey: (json: any, key: any, nextValue: any, ignore?: Array<string>) => any;
+    findByValue: (json: any, value: any, ignore?: Array<string>) => any;
+    json2flat: (json: any, ignore?: Array<string>) => any;
+    json2array: (json: any, ignore?: Array<string>) => any;
+    json2flatObj: (json: any, ignore?: Array<string>) => any;
+    findKey: (json: any, keyFind: any, ignore?: Array<string>) => any;
+    findByKeyAndValue: (json, keyFind, valueFind, ignore?: Array<string>) => any;
     deleteKey: <T>(json: T, keys: Array<string>) => T;
 }
 
@@ -44,6 +44,7 @@ interface JSON {
 interface Object {
     PROXY: <T>(replaceWith: any, proxy: any, ignore: Array<string>) => T
     clone: <T>() => T
+    changeValues: (previousValue: Array<any>, nextValue: any, ignore?: Array<string>) => any;
 }
 
 
