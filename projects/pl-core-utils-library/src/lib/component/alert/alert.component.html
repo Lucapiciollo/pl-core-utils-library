@@ -4,7 +4,8 @@
         class="modal"
         [style.background]="messageInfo!=null ? 'rgba(0,0,0,0.4)' :''" 
         [style.display]="messageInfo!=null ? 'block':'none'"
-        [ngClass]="messageInfo!=null ? 'modal-open':'fade in'">
+        [class.modal-open]="messageInfo!=null ? 'modal-open':'fade-in'"
+        >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

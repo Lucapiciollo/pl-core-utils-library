@@ -48,6 +48,7 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
+    "pl-decorator": "^1.4.1",
     "@angular-devkit/build-angular": "^15.1.2",
     "@angular/cli": "~15.1.2",
     "@angular/compiler-cli": "^15.1.0",

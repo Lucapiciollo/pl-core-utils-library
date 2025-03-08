@@ -16,7 +16,7 @@ import { PlHttpService } from '../../service/pl-http.service';
 import { PlNetworkService } from '../../service/pl-network.service';
 import { PlUtilsService } from '../../service/pl-utils.service';
 import { PLWorkerService } from '../../service/pl-worker.service';
-
+import { Delay, Log, Unsubscribe } from 'pl-decorator';
 @Component({
   template: "",
 })
@@ -87,12 +87,13 @@ export class PlBaseComponent implements OnChanges, OnInit, DoCheck, AfterContent
 
 
 
-  ngOnInit(): void { }
-  ngAfterContentInit(): void { }
-  ngOnDestroy(): void { }
-  ngAfterViewInit(): void { }
-  ngAfterViewChecked(): void { }
-  ngAfterContentChecked(): void { }
-  ngDoCheck(): void { }
-  ngOnChanges(changes: SimpleChanges): void { }
+
+  @Log('debug') ngOnInit() { }
+  @Log('debug') ngAfterContentInit() { }
+  @Log('debug') ngOnDestroy() { }
+  ngAfterViewInit() { }
+  ngAfterViewChecked() { }
+  ngAfterContentChecked() { }
+  ngDoCheck() { }
+  ngOnChanges(changes: SimpleChanges) { }
 }

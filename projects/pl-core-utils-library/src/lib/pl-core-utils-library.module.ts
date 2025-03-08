@@ -23,7 +23,7 @@ import { PlBaseComponent } from './component/base-component/pl-base-component.co
     HttpClientModule,
     NgbModule ,
   ],
-  exports: [HttpClientModule, PlBaseComponent],
+  exports: [HttpClientModule, PlBaseComponent,CommonModule],
   providers: [
     PlAmbientModeLoaderService,
     /**
@@ -44,7 +44,8 @@ import { PlBaseComponent } from './component/base-component/pl-base-component.co
     { provide: DEFAULT_PATH_MOCK, useValue: "public/mock" }
 
     //{ provide: APP_INITIALIZER, useFactory: PlAmbientModeLoaderService, deps: [ ], multi: true }
-  ], entryComponents: [ AlertComponent]
+  ]
+  //, entryComponents: [ AlertComponent]
 })
 /**
  * @author l.piciollo

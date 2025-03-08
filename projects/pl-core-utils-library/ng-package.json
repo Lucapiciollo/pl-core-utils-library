@@ -20,6 +20,7 @@
       "ngx-ui-loader" ,
       "popper.js",  
       "@angular/common" ,
-      "@angular/core" 
+      "@angular/core" ,
+      "pl-decorator" 
     ]
 }

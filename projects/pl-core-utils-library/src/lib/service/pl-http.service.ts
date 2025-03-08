@@ -356,7 +356,7 @@ export class PlHttpService {
       let url = new URL(plHttpRequest.url);
 
       if (plHttpRequest.queryParams != null) Object.keys(plHttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plHttpRequest.queryParams[val]); })
-      xhr.open(plHttpRequest.method, decodeURIComponent(url.toString()));
+      xhr.open(plHttpRequest.method, decodeURIComponent(url.toString()).replace(/\*/g, "%2A"));
       if (plHttpRequest.httpHeaders != null) Object.keys(plHttpRequest.httpHeaders).forEach(val => { xhr.setRequestHeader(val, plHttpRequest.httpHeaders[val]); })
       if (responseType != null) xhr.responseType = responseType;
       if (contentType != null) xhr.setRequestHeader('Content-Type', contentType);
@@ -417,7 +417,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.get<T>(decodeURIComponent(plHttpRequest.url), options)
+        let sub = this.http.get<T>(decodeURIComponent(plHttpRequest.url).replace(/\*/g, "%2A"), options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -615,7 +615,7 @@ export class PlHttpService {
         plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
         const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
         PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.delete<T>(decodeURIComponent(plHttpRequest.url), options)
+        let sub = this.http.delete<T>(decodeURIComponent(plHttpRequest.url).replace(/\*/g, "%2A"), options)
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
