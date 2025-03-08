@@ -18,7 +18,8 @@ import { PlUtilsService } from '../../service/pl-utils.service';
 import { PLWorkerService } from '../../service/pl-worker.service';
 import { Delay, Log, Unsubscribe } from 'pl-decorator';
 @Component({
-  template: "",
+    template: "",
+    standalone: false
 })
 
 export class PlBaseComponent implements OnChanges, OnInit, DoCheck, AfterContentInit, AfterContentChecked, AfterViewInit, AfterViewChecked, OnDestroy {

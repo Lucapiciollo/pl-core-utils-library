@@ -17,7 +17,7 @@ import { CONTENT_TYPE, PlCoreModule, PlHttpService, RESPONSE_TYPE, PlCoreUtils, 
 import { Observable, Subject  } from 'rxjs';
 import { ErrorBean, ErrorCode } from 'src/app/com/mycompany/normalize/core/bean/error-bean';
 import { HttpResponse } from '@angular/common/http';
-
+ 
 /** 
  * @author l.piciollo
  * injectiontoken per la valorizzazione della baseurl per l'invocazione dei servizi del BE.

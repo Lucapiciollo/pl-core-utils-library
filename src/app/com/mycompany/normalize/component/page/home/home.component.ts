@@ -20,10 +20,11 @@ import { PlBaseComponent } from 'pl-core-utils-library';
  * di piu componenti home, eliminare la riga  providers:[HomeService] .
  */
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
-  providers:[HomeService]
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css'],
+    providers: [HomeService],
+    standalone: false
 })
 export class HomeComponent  extends PlBaseComponent implements OnInit {
 

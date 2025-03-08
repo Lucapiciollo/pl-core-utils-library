@@ -11,9 +11,10 @@ import { PlCoreUtils } from '../../pl-core-utils-library.service';
 
 
 @Component({
-  selector: 'app-alert',
-  templateUrl: './alert.component.html',
-  styleUrls: ['./alert.component.css']
+    selector: 'app-alert',
+    templateUrl: './alert.component.html',
+    styleUrls: ['./alert.component.css'],
+    standalone: false
 })
 /**
  * Componente grafico per la visualizzazione dell'alert

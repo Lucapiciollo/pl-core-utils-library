@@ -4,9 +4,10 @@ import * as uuid from 'uuid';
 import { GroupDto } from '../com/mycompany/normalize/shared/model/groupDto';
 
 @Component({
-  selector: 'app-user',
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css']
+    selector: 'app-user',
+    templateUrl: './user.component.html',
+    styleUrls: ['./user.component.css'],
+    standalone: false
 })
 export class UserComponent {
 

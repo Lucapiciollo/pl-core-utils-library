@@ -3,9 +3,10 @@ import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/co
 import { INode } from '../node';
 
 @Component({
-  selector: 'ngx-chart-designer',
-  templateUrl: './ngx-chart-designer.component.html',
-  styleUrls: ['./ngx-chart-designer.component.scss']
+    selector: 'ngx-chart-designer',
+    templateUrl: './ngx-chart-designer.component.html',
+    styleUrls: ['./ngx-chart-designer.component.scss'],
+    standalone: false
 })
 export class NgxChartDesignerComponent {
 

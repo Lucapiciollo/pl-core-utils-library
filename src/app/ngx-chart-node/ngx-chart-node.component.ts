@@ -3,9 +3,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { INode } from '../node';
 
 @Component({
-  selector: 'ngx-chart-node',
-  templateUrl: './ngx-chart-node.component.html',
-  styleUrls: ['./ngx-chart-node.component.scss']
+    selector: 'ngx-chart-node',
+    templateUrl: './ngx-chart-node.component.html',
+    styleUrls: ['./ngx-chart-node.component.scss'],
+    standalone: false
 })
 export class NgxChartNodeComponent {
 

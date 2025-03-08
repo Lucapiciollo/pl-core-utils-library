@@ -23,7 +23,8 @@ export class Item {
 @Component({
     selector: 'list-item',
     templateUrl: './list-item.html',
-    styleUrls: ['./list-item.css']
+    styleUrls: ['./list-item.css'],
+    standalone: false
 })
 export class ListItemComponent {
     @Input() item: Item;
