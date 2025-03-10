@@ -405,23 +405,24 @@ export class PlAmbientModeLoaderService {
       return keys;
     };
 
-    JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = []) => {
-      let keys = [];
-      let recursive = function (object, value, key, obj, ignore) {
-        let k = "";
-        if (object instanceof Object) {
-          for (k in object) {
-            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
-              recursive(object[k], value, k, object, ignore);
+    JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = [], stopOnFirstMatch = true) => {
+      let recursive = function (obj) {
+        if (obj && typeof obj === "object") {
+          for (const key of Object.keys(obj)) {
+            if (ignore.includes(key)) continue;
+
+            if (key === keyFind && obj[key] === valueFind) {
+              return [{ key, value: obj[key], object: obj }]; // Ritorna subito se trova un match
             }
+
+            let found = recursive(obj[key]);
+            if (stopOnFirstMatch && found) return found; // Interrompe la ricerca alla prima occorrenza
           }
         }
-        if (key === keyFind && object == valueFind) {
-          keys.push({ "key": key, value: object, object: obj });
-        }
+        return null;
       };
-      recursive(json, keyFind, "", json, ignore);
-      return keys;
+
+      return recursive(json);
     };
 
     /**
@@ -519,7 +520,7 @@ export class PlAmbientModeLoaderService {
 
 
     (<any>Object.prototype).clone = function () {
-      return JSON.parse(JSON.stringify(this))
+      return structuredClone(this);
     };
 
 
