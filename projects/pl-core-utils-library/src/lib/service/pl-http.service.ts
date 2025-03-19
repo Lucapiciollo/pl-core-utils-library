@@ -5,7 +5,7 @@
  * @modify date 2019-11-06 22:10:04
  * @desc [description]
  */
-import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams, HttpProgressEvent, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpProgressEvent, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UUID } from "angular2-uuid";
 import { forkJoin, Observable, of, Subject, Subscriber } from 'rxjs';
@@ -28,7 +28,7 @@ export enum TYPE_EVENT_NETWORK {
 
 /**
  * @author l.piciollo
- * Tipologica per identificare il tipo di chiamata http che si sta facendo 
+ * Tipologica per identificare il tipo di chiamata http che si sta facendo
  */
 export enum RESPONSE_TYPE {
   "TEXT" = "pplication/text",
@@ -155,7 +155,7 @@ export enum CONTENT_TYPE {
  * @author l.piciollo
  * Servizio di utilita per chiamate a servizi di BE, espone funzionalità per invocazione al BE
  * funzionalità di download, upload con chiamate asincrone e in background. i servizi espongono tutti un id identificativo
- * per reperire lo stato di proressione di un deterinato avanzamento di richiesta.. 
+ * per reperire lo stato di proressione di un deterinato avanzamento di richiesta..
  */
 
 @Injectable({
@@ -165,7 +165,7 @@ export class PlHttpService {
 
 
   /**@ignore */
-  private requestOption(params: JSON, header: HttpHeaders, responseType?: RESPONSE_TYPE, contentType?: CONTENT_TYPE | string) {
+  public requestOption(params: JSON, header: HttpHeaders, responseType?: RESPONSE_TYPE, contentType?: CONTENT_TYPE | string) {
     try {
       let search = new HttpParams();
       params != null ? null : params = JSON.parse("{}");
@@ -252,10 +252,10 @@ export class PlHttpService {
   /**
      * l.piciollo
      * funzione per il download dello straming in formato file, viene prototipato in ambientService
-   * @param streamData 
-   * @param nomeFile 
-   * @param isTextfile 
-   * @param applicationType 
+   * @param streamData
+   * @param nomeFile
+   * @param isTextfile
+   * @param applicationType
    */
   CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -275,7 +275,7 @@ export class PlHttpService {
   /**
    * @author l.piciollo
    * eliminazione del blod in memoria
-   * @param blobUrl 
+   * @param blobUrl
    */
   DESTROYBLOB(blobUrl: string): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -400,7 +400,7 @@ export class PlHttpService {
    * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
    * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-   
+
    */
   GET<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
 
@@ -434,6 +434,7 @@ export class PlHttpService {
             }, 3000);
           });
       } catch (error) {
+        console.error(error)
         throw error
       }
     });
@@ -448,7 +449,7 @@ export class PlHttpService {
    * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
    * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-   
+
    */
   POST<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
@@ -499,7 +500,7 @@ export class PlHttpService {
    * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
    * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-   
+
    */
   PATCH<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
@@ -550,7 +551,7 @@ export class PlHttpService {
    * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
    * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
    * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-   
+
    */
   PUT<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();
@@ -599,8 +600,8 @@ export class PlHttpService {
    * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
    * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
    * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars   
-   
+   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
+
    */
   DELETE<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
     let uuid = UUID.UUID();

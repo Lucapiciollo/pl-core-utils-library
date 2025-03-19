@@ -382,51 +382,56 @@ export class PlAmbientModeLoaderService {
       return keys;
     };
 
-    JSON["findByValue"] = function (json, valueFind, ignore = [], stopOnFirst = false) {
+
+
+
+    JSON["findByValue"] = function (json, value, ignore = [], stopOnFirst = true) {
       let keys = [];
-
-      function recursive(object, keyPath, parentObj) {
-        if (keys.length > 0 && stopOnFirst) return true; // Interrompe se già trovato
-
+      let recursive = function (object, value, key, obj, ignore) {
+        let k = "";
         if (object instanceof Object) {
-          return Object.keys(object).some(k => {
-            if (ignore.includes(k)) return false; // Salta chiavi ignorate
-            return recursive(object[k], keyPath ? `${keyPath}.${k}` : k, object);
-          });
-        } else {
-          if (object === valueFind) {
-            keys.push({ key: keyPath, value: object, object: parentObj });
-            return stopOnFirst; // Ferma la ricerca se richiesto
+          for (k in object) {
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], value, key + "." + k, object, ignore);
+            }
           }
         }
-        return false;
-      }
-
-      recursive(json, "", json);
+        else {
+          if (object === value && !stopOnFirst) {
+            keys.push({ key: key.substring(1, key.length), value: object, object: obj });
+          }
+          else if (object === value && stopOnFirst) {
+            keys.push({ key: key.substring(1, key.length), value: object, object: obj });
+            return;
+          }
+        }
+      };
+      recursive(json, value, "", json, ignore);
+      return keys;
+    };
+    JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = [], stopOnFirst = true) => {
+      let keys = [];
+      let recursive = function (object, value, key, obj, ignore) {
+        let k = "";
+        if (object instanceof Object) {
+          for (k in object) {
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
+              recursive(object[k], value, k, object, ignore);
+            }
+          }
+        }
+        if (key === keyFind && object == valueFind && !stopOnFirst) {
+          keys.push({ "key": key, value: object, object: obj });
+        }
+        else if (key === keyFind && object == valueFind && stopOnFirst) {
+          keys.push({ "key": key, value: object, object: obj });
+          return;
+        }
+      };
+      recursive(json, keyFind, "", json, ignore);
       return keys;
     };
 
-
-
-    JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = [], stopOnFirstMatch = true) => {
-      let recursive = function (obj) {
-        if (obj && typeof obj === "object") {
-          for (const key of Object.keys(obj)) {
-            if (ignore.includes(key)) continue;
-
-            if (key === keyFind && obj[key] === valueFind) {
-              return [{ key, value: obj[key], object: obj }]; // Ritorna subito se trova un match
-            }
-
-            let found = recursive(obj[key]);
-            if (stopOnFirstMatch && found) return found; // Interrompe la ricerca alla prima occorrenza
-          }
-        }
-        return null;
-      };
-
-      return recursive(json);
-    };
 
     /**
       * @l.piciollo
