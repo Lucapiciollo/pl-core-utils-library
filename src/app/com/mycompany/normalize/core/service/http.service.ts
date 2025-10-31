@@ -13,10 +13,11 @@
 */ 
 
 import { Injectable, InjectionToken, Injector } from '@angular/core';
-import { CONTENT_TYPE, PlCoreModule, PlHttpService, RESPONSE_TYPE, PlCoreUtils, PlHttpRequest} from 'pl-core-utils-library';
+ 
 import { Observable, Subject  } from 'rxjs';
 import { ErrorBean, ErrorCode } from 'src/app/com/mycompany/normalize/core/bean/error-bean';
 import { HttpResponse } from '@angular/common/http';
+import { PlHttpService, PlCoreUtils, CONTENT_TYPE, PlHttpRequest, RESPONSE_TYPE, PlCoreModule } from 'projects/pl-core-utils-library/src/public-api';
  
 /** 
  * @author l.piciollo

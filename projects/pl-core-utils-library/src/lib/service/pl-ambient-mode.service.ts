@@ -420,22 +420,27 @@ export class PlAmbientModeLoaderService {
      * @returns ramo di json dove viene trovato il valore
      */
     JSON["findByKeyAndValue"] = (json, keyFind, valueFind, ignore = [], stopOnFirst = true) => {
+      let init = performance.now();
       let keys = [];
       let recursive = function (object, value, key, obj, ignore) {
         let k = "";
         if (object instanceof Object) {
           for (k in object) {
-            if (stopOnFirst || ignore.indexOf(k) > -1) continue;
-            if (object.hasOwnProperty(k)) {
+            if (object.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
               recursive(object[k], value, k, object, ignore);
             }
           }
         }
-        if (key === keyFind && object == valueFind) {
+        if (key === keyFind && object == valueFind && !stopOnFirst) {
           keys.push({ "key": key, value: object, object: obj });
+        }
+        else if (key === keyFind && object == valueFind && stopOnFirst) {
+          keys.push({ "key": key, value: object, object: obj });
+          return;
         }
       };
       recursive(json, keyFind, "", json, ignore);
+      console.debug('findByKeyAndValue', ((performance.now() - init) / 1000).toFixed(3));
       return keys;
     };
 

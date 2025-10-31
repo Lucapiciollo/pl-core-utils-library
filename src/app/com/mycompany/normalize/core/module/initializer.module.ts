@@ -12,7 +12,7 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { APP_INITIALIZER, ErrorHandler, NgModule, Injector } from '@angular/core';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule, NgxUiLoaderRouterModule } from 'ngx-ui-loader';
-import { BROWSER_VALID, CACHE_TAG, DISABLE_LOG, MAX_CACHE_AGE, PlAmbientModeLoaderService, PlCoreModule, BROWSER, DEFAULT_PATH_MOCK } from 'pl-core-utils-library';
+ 
 import { BASE_URL_API } from '../service/http.service';
 import { UiLoaderConfig } from '../utils/UiLoaderConfig';
 import { UiLoaderHttpConfig } from '../utils/UiLoaderHttpConfig';
@@ -23,6 +23,7 @@ import { ErrorService } from '../service/error.service';
 import { AuthService } from '../service/auth.service';
 import AmbientModeProviderFactory from '../initializer/AmbientModeLoader';
 import AutenticationLoader from "../initializer/AutenticationLoader";
+import { PlCoreModule, BROWSER_VALID, BROWSER, DISABLE_LOG, MAX_CACHE_AGE, CACHE_TAG, PlAmbientModeLoaderService, DEFAULT_PATH_MOCK } from 'projects/pl-core-utils-library/src/public-api';
 
 
 /**

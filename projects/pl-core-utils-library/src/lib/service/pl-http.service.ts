@@ -9,7 +9,7 @@ import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpProgressEvent, 
 import { Injectable } from '@angular/core';
 import { UUID } from "angular2-uuid";
 import { forkJoin, Observable, of, Subject, Subscriber } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { PlHttpRequest } from '../bean/Pl-http-request';
 import { PlCoreUtils } from '../pl-core-utils-library.service';
 
@@ -421,18 +421,27 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
+            finalize(() => {
+              this.refreshProgress(uuid).complete();
+              setTimeout(() => {
+                delete PlCoreUtils.progressBars[uuid];
+                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
+              }, 3000);
+            })
           )
           .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
           }, err => {
             this.refreshProgress(uuid).complete();
             observer.error(err);
-          }, () => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          });
+          }
+          // , () => {
+          //   this.refreshProgress(uuid).complete();
+          //   setTimeout(() => {
+          //     delete PlCoreUtils.progressBars[uuid];
+          //   }, 3000);
+          // }
+        );
       } catch (error) {
         console.error(error)
         throw error
@@ -468,6 +477,13 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
+                        finalize(() => {
+              this.refreshProgress(uuid).complete();
+              setTimeout(() => {
+                delete PlCoreUtils.progressBars[uuid];
+                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
+              }, 3000);
+            })
           )
           .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
@@ -477,12 +493,14 @@ export class PlHttpService {
               delete PlCoreUtils.progressBars[uuid];
             }, 3000);
             observer.error(err);
-          }, () => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          });
+          }, 
+          // () => {
+          //   this.refreshProgress(uuid).complete();
+          //   setTimeout(() => {
+          //     delete PlCoreUtils.progressBars[uuid];
+          //   }, 3000);
+          // }
+        );
       } catch (error) {
         throw error
       }
@@ -519,6 +537,13 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
+                        finalize(() => {
+              this.refreshProgress(uuid).complete();
+              setTimeout(() => {
+                delete PlCoreUtils.progressBars[uuid];
+                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
+              }, 3000);
+            })
           )
           .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
@@ -528,12 +553,14 @@ export class PlHttpService {
               delete PlCoreUtils.progressBars[uuid];
             }, 3000);
             observer.error(err);
-          }, () => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          });
+          }
+          // , () => {
+          //   this.refreshProgress(uuid).complete();
+          //   setTimeout(() => {
+          //     delete PlCoreUtils.progressBars[uuid];
+          //   }, 3000);
+          // }
+        );
       } catch (error) {
         throw error
       }
@@ -570,6 +597,13 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
+                        finalize(() => {
+              this.refreshProgress(uuid).complete();
+              setTimeout(() => {
+                delete PlCoreUtils.progressBars[uuid];
+                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
+              }, 3000);
+            })
           )
           .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
@@ -579,12 +613,14 @@ export class PlHttpService {
               delete PlCoreUtils.progressBars[uuid];
             }, 3000);
             observer.error(err);
-          }, () => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          });
+          }
+          // , () => {
+          //   this.refreshProgress(uuid).complete();
+          //   setTimeout(() => {
+          //     delete PlCoreUtils.progressBars[uuid];
+          //   }, 3000);
+          // }
+        );
       } catch (error) {
         throw error
       }
@@ -620,6 +656,13 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
+                        finalize(() => {
+              this.refreshProgress(uuid).complete();
+              setTimeout(() => {
+                delete PlCoreUtils.progressBars[uuid];
+                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
+              }, 3000);
+            })
           )
           .subscribe((event: any) => {
             this.checkEventHttp(event, uuid, observer);
@@ -629,12 +672,14 @@ export class PlHttpService {
               delete PlCoreUtils.progressBars[uuid];
             }, 3000);
             observer.error(err);
-          }, () => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          });
+          }
+          // , () => {
+          //   this.refreshProgress(uuid).complete();
+          //   setTimeout(() => {
+          //     delete PlCoreUtils.progressBars[uuid];
+          //   }, 3000);
+          // }
+        );
       } catch (error) {
         throw error
       }

@@ -11,7 +11,8 @@
  */
 import { Component, OnInit ,Injector} from '@angular/core';
 import { HomeService } from './home.service';
-import { PlBaseComponent } from 'pl-core-utils-library';
+import { PlBaseComponent } from 'projects/pl-core-utils-library/src/public-api';
+ 
 /**
  * @author l.piciollo
  * componente pagina home template.. qui viene la creazione del servizio del modulo HomeService.. questo garantisce che 

@@ -13,8 +13,9 @@
 
 import { ErrorHandler, Injectable, Injector } from "@angular/core";
 import { ErrorBean } from 'src/app/com/mycompany/normalize/core/bean/error-bean'; 
-import { PlCoreUtils } from 'pl-core-utils-library';
+ 
 import { CORE_TYPE_EVENT } from '../type/type.event';
+import { PlCoreUtils } from "projects/pl-core-utils-library/src/public-api";
 /**
  * @author l.piciollo
  * classe per la centralizzazione della gestione degli errori.. qui possono essere catalogati e gestiti come da richiesta

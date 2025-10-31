@@ -11,12 +11,13 @@
 import { Injectable, OnDestroy,Injector } from "@angular/core";
 import {ErrorBean,  ErrorCode } from "src/app/com/mycompany/normalize/core/bean/error-bean";
 import {HttpService } from 'src/app/com/mycompany/normalize/core/service/http.service';
-import { CONTENT_TYPE, PlHttpRequest, RESPONSE_TYPE  } from 'pl-core-utils-library';
+ 
 import { environment } from 'src/environments/environment';
 import { Observable, Subject } from 'rxjs';
 import { CORE_TYPE_EVENT } from 'src/app/com/mycompany/normalize/core/type/type.event';
-import { PlCoreUtils ,TYPE_EVENT_NETWORK} from 'pl-core-utils-library';
+ 
 import { AuthService } from 'src/app/com/mycompany/normalize/core/service/auth.service';
+import { PlCoreUtils, TYPE_EVENT_NETWORK, PlHttpRequest, RESPONSE_TYPE } from "projects/pl-core-utils-library/src/public-api";
  /**
  * @author l.piciollo
  * classe di servizio per tutta l'applicazione, in questa classe ci saranno variabili comuni a tutti i componenti o chiamate

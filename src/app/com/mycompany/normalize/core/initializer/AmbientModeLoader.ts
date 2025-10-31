@@ -8,7 +8,9 @@
 *  ATTENZIONE, NON SI CONSIGLIA LA MODIFICA DI QUESTA CLASSE A CAUSA DI OSSERVATORI ESTERNI CHE NE FANNO USO SPECIFICO.]
  */
 
-import { PlAmbientModeLoaderService } from 'pl-core-utils-library';
+import { PlAmbientModeLoaderService } from "projects/pl-core-utils-library/src/public-api";
+
+ 
 /**
 * @author l.piciollo
 * intercettazione avvio applicazione, per il settaggio dell'ambiente, per determinare il tipo di browser..  
