@@ -326,46 +326,102 @@ export class PlHttpService {
   };
 
   /********************************************************************************************************************/
+  private level = 0;
+  private partialItem = '';
+  private decoder = new TextDecoder();
+  private JTOKEN_START_OBJECT = '{';
+  private JTOKEN_END_OBJECT = '}';
+  private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
+    const chunk = this.decoder.decode(value);
+    let itemStart = 0;
+    for (let i = 0; i < chunk.length; i++) {
+      if (chunk[i] === this.JTOKEN_START_OBJECT) {
+        if (this.level === 0) {
+          itemStart = i;
+        }
+        this.level++;
+      }
+      if (chunk[i] === this.JTOKEN_END_OBJECT) {
+        this.level--;
+        if (this.level === 0) {
+          let item = chunk.substring(itemStart, i + 1);
+          if (this.partialItem) {
+            item = this.partialItem + item;
+            this.partialItem = '';
+          }
+          decodedItemCallback(JSON.parse(item));
+        }
+      }
+    }
+    if (this.level !== 0) {
+      this.partialItem = chunk.substring(itemStart);
+    }
+  }
+
+  STREAM<T>(plttpRequest: PlHttpRequest, decodeChunk?: (value: Uint8Array, decodedItemCallback: (item: T) => void) => void): Observable<T> {
+    return new Observable(observer => {
+      let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+      let url = new URL(plttpRequest.url);
+      if (plttpRequest.queryParams != null) Object.keys(plttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plttpRequest.queryParams[val]); });
+      const headersObj = plttpRequest.httpHeaders?.keys().reduce((acc, key) => {
+        acc[key] = plttpRequest.httpHeaders.get(key);
+        return acc;
+      }, {} as Record<string, string>);
+      (async () => {
+        try {
+          const response = await fetch(plttpRequest.url, {
+            method: plttpRequest.method,
+            headers: { ...headersObj || {} },
+            body: JSON.stringify(plttpRequest.body || {})
+          });
+          if (!response.ok || !response.body) {
+            observer.error(new Error(`HTTP error! status: ${response.status}`));
+            return;
+          }
+          reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            !decodeChunk ? this.decodeChunk<T>(value, (item) => observer.next(item)) : decodeChunk(value, (item) => observer.next(item));
+          }
+          observer.complete();
+        } catch (err) {
+          observer.error(err);
+        }
+      })();
+    });
+  }
+  /************************************************************************************************ */
 
 
   nativeHttp(plHttpRequest: PlHttpRequest, responseType?: XMLHttpRequestResponseType, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<any> {
-
     let uuid = UUID.UUID();
-
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
     if (callBack) callBack(uuid);
-
     return new Observable<any>(observer => {
       const xhr = new XMLHttpRequest();
-
       interrupt == null ? interrupt = new Subject<boolean>() : null;
-
       interrupt.subscribe(() => {
         xhr.abort();
       })
-
       PlCoreUtils.progressBars[uuid].interrupt.subscribe(() => {
         xhr.abort();
       })
-
       PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
       if ('POST|GET|PATCH|DELETE|PUT'.split("|").indexOf(plHttpRequest.method) < -1) {
         observer.error("Method not valid : POST|GET|PATCH|DELETE|PUT")
       }
-
       let url = new URL(plHttpRequest.url);
-
       if (plHttpRequest.queryParams != null) Object.keys(plHttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plHttpRequest.queryParams[val]); })
       xhr.open(plHttpRequest.method, decodeURIComponent(url.toString()).replace(/\*/g, "%2A"));
       if (plHttpRequest.httpHeaders != null) Object.keys(plHttpRequest.httpHeaders).forEach(val => { xhr.setRequestHeader(val, plHttpRequest.httpHeaders[val]); })
       if (responseType != null) xhr.responseType = responseType;
       if (contentType != null) xhr.setRequestHeader('Content-Type', contentType);
-
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable)
           this.refreshProgress(uuid, event);
       };
-
       xhr.onload = () => {
         if (xhr.status != 200) {
           observer.error(`Error ${xhr.status}: ${xhr.statusText}`);
@@ -383,7 +439,6 @@ export class PlHttpService {
         this.refreshProgress(uuid).complete();
         observer.error(e);
       };
-
       if (plHttpRequest.body instanceof FormData)
         xhr.send(plHttpRequest.body);
       else
@@ -391,6 +446,7 @@ export class PlHttpService {
     })
 
   }
+  /************************************************************************************************ */
 
   /**
    * @author l.piciollo
@@ -435,13 +491,13 @@ export class PlHttpService {
             this.refreshProgress(uuid).complete();
             observer.error(err);
           }
-          // , () => {
-          //   this.refreshProgress(uuid).complete();
-          //   setTimeout(() => {
-          //     delete PlCoreUtils.progressBars[uuid];
-          //   }, 3000);
-          // }
-        );
+            // , () => {
+            //   this.refreshProgress(uuid).complete();
+            //   setTimeout(() => {
+            //     delete PlCoreUtils.progressBars[uuid];
+            //   }, 3000);
+            // }
+          );
       } catch (error) {
         console.error(error)
         throw error
@@ -477,7 +533,7 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
-                        finalize(() => {
+            finalize(() => {
               this.refreshProgress(uuid).complete();
               setTimeout(() => {
                 delete PlCoreUtils.progressBars[uuid];
@@ -493,14 +549,14 @@ export class PlHttpService {
               delete PlCoreUtils.progressBars[uuid];
             }, 3000);
             observer.error(err);
-          }, 
-          // () => {
-          //   this.refreshProgress(uuid).complete();
-          //   setTimeout(() => {
-          //     delete PlCoreUtils.progressBars[uuid];
-          //   }, 3000);
-          // }
-        );
+          },
+            // () => {
+            //   this.refreshProgress(uuid).complete();
+            //   setTimeout(() => {
+            //     delete PlCoreUtils.progressBars[uuid];
+            //   }, 3000);
+            // }
+          );
       } catch (error) {
         throw error
       }
@@ -537,7 +593,7 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
-                        finalize(() => {
+            finalize(() => {
               this.refreshProgress(uuid).complete();
               setTimeout(() => {
                 delete PlCoreUtils.progressBars[uuid];
@@ -554,13 +610,13 @@ export class PlHttpService {
             }, 3000);
             observer.error(err);
           }
-          // , () => {
-          //   this.refreshProgress(uuid).complete();
-          //   setTimeout(() => {
-          //     delete PlCoreUtils.progressBars[uuid];
-          //   }, 3000);
-          // }
-        );
+            // , () => {
+            //   this.refreshProgress(uuid).complete();
+            //   setTimeout(() => {
+            //     delete PlCoreUtils.progressBars[uuid];
+            //   }, 3000);
+            // }
+          );
       } catch (error) {
         throw error
       }
@@ -597,7 +653,7 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
-                        finalize(() => {
+            finalize(() => {
               this.refreshProgress(uuid).complete();
               setTimeout(() => {
                 delete PlCoreUtils.progressBars[uuid];
@@ -614,13 +670,13 @@ export class PlHttpService {
             }, 3000);
             observer.error(err);
           }
-          // , () => {
-          //   this.refreshProgress(uuid).complete();
-          //   setTimeout(() => {
-          //     delete PlCoreUtils.progressBars[uuid];
-          //   }, 3000);
-          // }
-        );
+            // , () => {
+            //   this.refreshProgress(uuid).complete();
+            //   setTimeout(() => {
+            //     delete PlCoreUtils.progressBars[uuid];
+            //   }, 3000);
+            // }
+          );
       } catch (error) {
         throw error
       }
@@ -656,7 +712,7 @@ export class PlHttpService {
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
-                        finalize(() => {
+            finalize(() => {
               this.refreshProgress(uuid).complete();
               setTimeout(() => {
                 delete PlCoreUtils.progressBars[uuid];
@@ -673,13 +729,13 @@ export class PlHttpService {
             }, 3000);
             observer.error(err);
           }
-          // , () => {
-          //   this.refreshProgress(uuid).complete();
-          //   setTimeout(() => {
-          //     delete PlCoreUtils.progressBars[uuid];
-          //   }, 3000);
-          // }
-        );
+            // , () => {
+            //   this.refreshProgress(uuid).complete();
+            //   setTimeout(() => {
+            //     delete PlCoreUtils.progressBars[uuid];
+            //   }, 3000);
+            // }
+          );
       } catch (error) {
         throw error
       }
