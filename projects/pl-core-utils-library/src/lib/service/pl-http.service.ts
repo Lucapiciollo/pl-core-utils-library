@@ -358,8 +358,9 @@ export class PlHttpService {
     }
   }
 
-  STREAM<T>(plttpRequest: PlHttpRequest, decodeChunk?: (value: Uint8Array, decodedItemCallback: (item: T) => void) => void): Observable<T> {
+  STREAM<T>(plttpRequest: PlHttpRequest, interrupt?: AbortSignal, decodeChunk?: (value: Uint8Array, decodedItemCallback: (item: T) => void) => void): Observable<T> {
     return new Observable(observer => {
+      const controller = new AbortController();
       let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
       let url = new URL(plttpRequest.url);
       if (plttpRequest.queryParams != null) Object.keys(plttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plttpRequest.queryParams[val]); });
@@ -372,7 +373,8 @@ export class PlHttpService {
           const response = await fetch(plttpRequest.url, {
             method: plttpRequest.method,
             headers: { ...headersObj || {} },
-            body: JSON.stringify(plttpRequest.body || {})
+            body: JSON.stringify(plttpRequest.body || {}),
+            signal: interrupt
           });
           if (!response.ok || !response.body) {
             observer.error(new Error(`HTTP error! status: ${response.status}`));
@@ -387,9 +389,19 @@ export class PlHttpService {
           }
           observer.complete();
         } catch (err) {
+          if ((err as any).name === 'AbortError') {
+            observer.error(new Error('STREAM aborted'));
+            return;
+          }
           observer.error(err);
         }
       })();
+      return () => {
+        try {
+          controller.abort();
+          reader?.cancel();
+        } catch { }
+      };
     });
   }
   /************************************************************************************************ */
