@@ -7,7 +7,6 @@
  * Utile per la condivisione di servizi e funzionalità basilari comuni a tutti i componenti.
  */
 
-import { HttpParams } from '@angular/common/http';
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -23,7 +22,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReplaySubject, Subscription } from 'rxjs';
-import { Delay, Log, Unsubscribe } from 'pl-decorator';
+import { Log } from 'pl-decorator';
 
 import { PlGraphicService } from '../../service/pl-graphic.service';
 import { PlHttpService } from '../../service/pl-http.service';
@@ -99,30 +98,21 @@ export class PlBaseComponent
     queryParams: Record<string, any> = {},
     preservedQueryParams: string[] = []
   ): void {
-    try {
-      queryParams = queryParams ?? {};
+    queryParams = queryParams ?? {};
+    extras = extras ?? {};
 
-      const url = window.location.href;
-      const httpParams = new HttpParams({
-        fromString: url.split('?')[1]
-      });
+    const currentQueryParams = this.route.snapshot.queryParams ?? {};
 
-      preservedQueryParams.forEach(key => {
-        if (!Object.prototype.hasOwnProperty.call(queryParams, key)) {
-          queryParams[key] = httpParams.get(key);
-        }
-      });
+    preservedQueryParams.forEach(key => {
+      if (!Object.prototype.hasOwnProperty.call(queryParams, key)) {
+        queryParams[key] = currentQueryParams[key] ?? null;
+      }
+    });
 
-      extras = extras ?? {};
-
-      Object.assign(extras, {
-        queryParams
-      });
-
-      this.router.navigate([pageUrl], extras).then(() => { });
-    } catch (e) {
-      throw e;
-    }
+    this.router.navigate([pageUrl], {
+      ...extras,
+      queryParams
+    });
   }
 
   @Log('debug')
