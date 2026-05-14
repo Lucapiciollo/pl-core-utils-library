@@ -6,7 +6,7 @@
  * @desc [Componente per la mostra di messaggi alert(), il componente è in grado di accodare tutte le richieste di messaggio
  * pervenute dal sistema, tramite il comando alert(), e le mostra in modalita FIFO]
  */
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PlCoreUtils } from '../../pl-core-utils-library.service';
 
 
@@ -19,7 +19,7 @@ import { PlCoreUtils } from '../../pl-core-utils-library.service';
 /**
  * Componente grafico per la visualizzazione dell'alert
  */
-export class AlertComponent implements OnInit {
+export class AlertComponent implements OnInit, OnDestroy {
   /**
    * contenitore di messaggi
    */
@@ -36,26 +36,38 @@ export class AlertComponent implements OnInit {
 
   constructor() { }
 
+  private readonly infoServiceDialogListener = (
+    message: CustomEvent<{ title?: string | null; body?: string }>
+  ): void => {
+    const detail = message.detail;
+
+    if (!detail?.body) {
+      return;
+    }
+
+    this.queueMessageInfo.push({
+      title: detail.title ?? null,
+      body: detail.body
+    });
+  };
 
   ngOnInit(): void {
     this.push();
 
     PlCoreUtils.Broadcast().listenEvent<{ title?: string | null; body?: string }>(
       'CORE:INFO_SERVICE_DIALOG',
-      message => {
-        const detail = message.detail;
-
-        if (!detail?.body) {
-          return;
-        }
-
-        this.queueMessageInfo.push({
-          title: detail.title ?? null,
-          body: detail.body
-        });
-      }
+      this.infoServiceDialogListener
     );
   }
+
+  ngOnDestroy(): void {
+    PlCoreUtils.Broadcast().removeListenEvent<{ title?: string | null; body?: string }>(
+      'CORE:INFO_SERVICE_DIALOG',
+      this.infoServiceDialogListener
+    );
+  }
+
+
 
   /**
    * funzionalità per la chiusura della modale
