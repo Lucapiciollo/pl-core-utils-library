@@ -8,7 +8,6 @@
     "@fortawesome/fontawesome-free",
     "angular2-uuid",
     "html-to-image",
-    "html2canvas",
-     "moment" 
-   ]
+    "html2canvas" 
+    ]
 }
