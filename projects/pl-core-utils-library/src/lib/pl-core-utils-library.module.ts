@@ -51,27 +51,11 @@ import { PlBaseComponent } from './component/base-component/pl-base-component.co
   providers: [
     PlAmbientModeLoaderService,
 
-    /**
-     * Configurazione per il servizio di caching.
-     */
-    { provide: BROWSER_VALID, useValue: [BROWSER.ALL] },
-    { provide: DISABLE_LOG, useValue: false },
-    { provide: MAX_CACHE_AGE, useValue: 300000 },
-    { provide: CACHE_TAG, useValue: '@cachable@' },
-
-    /**
-     * Configurazione intercettore per servizi mock.
-     */
     {
       provide: HTTP_INTERCEPTORS,
       useClass: PlHttpInterceptorMockService,
       multi: true
-    },
-
-    /**
-     * Path per reperire gli stub JSON di risposta al mock.
-     */
-    { provide: DEFAULT_PATH_MOCK, useValue: 'public/mock' }
+    }
   ]
 })
 export class PlCoreModule implements OnDestroy {
