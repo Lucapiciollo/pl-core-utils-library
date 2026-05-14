@@ -9,8 +9,7 @@
      
     "@ngx-translate/http-loader",
     "angular2-uuid",
-    "bootstrap",
-    "html-to-image",
+     "html-to-image",
     "html2canvas",
     "jquery",
     "moment",
