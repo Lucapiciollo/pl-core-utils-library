@@ -40,17 +40,19 @@ export class AlertComponent implements OnInit {
   ngOnInit(): void {
     this.push();
 
-    PlCoreUtils.Broadcast().listenEvent(
+    PlCoreUtils.Broadcast().listenEvent<{ title?: string | null; body?: string }>(
       'CORE:INFO_SERVICE_DIALOG',
-      (event: Event) => {
-        const message = event as CustomEvent<{ title?: string | null; body: string }>;
+      message => {
+        const detail = message.detail;
 
-        if (message.detail) {
-          this.queueMessageInfo.push({
-            title: message.detail.title ?? null,
-            body: message.detail.body
-          });
+        if (!detail?.body) {
+          return;
         }
+
+        this.queueMessageInfo.push({
+          title: detail.title ?? null,
+          body: detail.body
+        });
       }
     );
   }
