@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-
+import { createPlUuid } from '../utils/pl-uuid.util';
 
 /**
  * @author l.piciollo
@@ -16,19 +16,7 @@ export class PLWorkerService {
   private promiseToWorkerMap = new WeakMap<Promise<any>, Worker>();
 
 
-  private createUuid(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID();
-    }
-
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, char => {
-      const random = Math.random() * 16 | 0;
-      const value = char === 'x' ? random : (random & 0x3 | 0x8);
-
-      return value.toString(16);
-    });
-  }
-
+ 
 
   /**
    * @l.piciollo
@@ -122,7 +110,7 @@ export class PLWorkerService {
    */
   private createWorkerUrl(resolve: Function, init: Function, nameThred: String): string {
     const resolveString = resolve.toString();
-    const uuid = this.createUuid();
+    const uuid = createPlUuid();
     const webWorkerTemplate = `
             ((${init.toString()})('START WORK: ${nameThred} ID: ${uuid}' ))             
             self.addEventListener('message', (e)=> {   
