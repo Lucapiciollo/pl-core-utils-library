@@ -6,7 +6,7 @@
   },
   "allowedNonPeerDependencies": [
     "@fortawesome/fontawesome-free",
-    "@ng-bootstrap/ng-bootstrap",
+     
     "@ngx-translate/http-loader",
     "angular2-uuid",
     "bootstrap",
