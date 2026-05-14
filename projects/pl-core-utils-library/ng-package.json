@@ -6,7 +6,6 @@
   },
   "allowedNonPeerDependencies": [
     "@fortawesome/fontawesome-free",
-    "@ngx-translate/http-loader",
     "angular2-uuid",
     "html-to-image",
     "html2canvas",
