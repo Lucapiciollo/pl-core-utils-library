@@ -7,7 +7,6 @@
  */
 import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpProgressEvent, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { UUID } from "angular2-uuid";
 import { forkJoin, Observable, of, Subject, Subscriber } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { PlHttpRequest } from '../bean/Pl-http-request';
@@ -162,6 +161,21 @@ export enum CONTENT_TYPE {
   providedIn: 'root'
 })
 export class PlHttpService {
+
+
+
+  private createUuid(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, char => {
+      const random = Math.random() * 16 | 0;
+      const value = char === 'x' ? random : (random & 0x3 | 0x8);
+
+      return value.toString(16);
+    });
+  }
 
 
   /**@ignore */
@@ -408,7 +422,7 @@ export class PlHttpService {
 
 
   nativeHttp(plHttpRequest: PlHttpRequest, responseType?: XMLHttpRequestResponseType, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<any> {
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
     if (callBack) callBack(uuid);
     return new Observable<any>(observer => {
@@ -473,7 +487,7 @@ export class PlHttpService {
   GET<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
 
 
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
@@ -529,7 +543,7 @@ export class PlHttpService {
 
    */
   POST<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
@@ -589,7 +603,7 @@ export class PlHttpService {
 
    */
   PATCH<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
@@ -649,7 +663,7 @@ export class PlHttpService {
 
    */
   PUT<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
@@ -708,7 +722,7 @@ export class PlHttpService {
 
    */
   DELETE<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    let uuid = UUID.UUID();
+    const uuid = this.createUuid();
 
     responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
     PlCoreUtils.progressBars[uuid] = { uuid: uuid, totalbyte: 0, byte: 0, changed: new Subject<any>(), blocked: false, url: "", loaded: "0", speed: 0, percent: 0, size: "0", interrupt: new Subject<boolean>() };
