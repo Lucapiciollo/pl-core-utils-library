@@ -47,8 +47,24 @@ export class PlCoreUtils {
   static Broadcast(): {
     execEvent<T = any>(event: TYPE_EVENT | string, object: T): void;
     listenEvent<T = any>(event: TYPE_EVENT | string, callBack: PlBroadcastEventListener<T>): void;
+    removeListenEvent<T = any>(event: TYPE_EVENT | string, callBack: PlBroadcastEventListener<T>): void;
+
+    /**
+     * @deprecated Usa removeListenEvent.
+     */
     removeLlistenEvent<T = any>(event: TYPE_EVENT | string, callBack: PlBroadcastEventListener<T>): void;
   } {
+    const removeEvent = <T = any>(
+      event: TYPE_EVENT | string,
+      callBack: PlBroadcastEventListener<T>
+    ): void => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+
+      document.removeEventListener(event, callBack as EventListener, false);
+    };
+
     return {
       execEvent<T = any>(event: TYPE_EVENT | string, object: T): void {
         if (typeof document === 'undefined') {
@@ -73,16 +89,9 @@ export class PlCoreUtils {
         document.addEventListener(event, callBack as EventListener);
       },
 
-      removeLlistenEvent<T = any>(
-        event: TYPE_EVENT | string,
-        callBack: PlBroadcastEventListener<T>
-      ): void {
-        if (typeof document === 'undefined') {
-          return;
-        }
+      removeListenEvent: removeEvent,
 
-        document.removeEventListener(event, callBack as EventListener, false);
-      }
+      removeLlistenEvent: removeEvent
     };
   }
 }
