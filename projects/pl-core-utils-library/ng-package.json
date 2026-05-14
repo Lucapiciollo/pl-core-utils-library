@@ -9,8 +9,6 @@
     "angular2-uuid",
     "html-to-image",
     "html2canvas",
-    "jquery",
-    "moment",
-    "popper.js"
-  ]
+     "moment" 
+   ]
 }
