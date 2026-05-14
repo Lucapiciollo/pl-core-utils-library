@@ -5,9 +5,6 @@
     "entryFile": "src/public-api.ts"
   },
   "allowedNonPeerDependencies": [
-    "@fortawesome/fontawesome-free",
-    "angular2-uuid",
-    "html-to-image",
-    "html2canvas" 
+    "@fortawesome/fontawesome-free"
     ]
 }
