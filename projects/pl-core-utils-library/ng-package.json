@@ -6,15 +6,13 @@
   },
   "allowedNonPeerDependencies": [
     "@fortawesome/fontawesome-free",
-     
     "@ngx-translate/http-loader",
     "angular2-uuid",
-     "html-to-image",
+    "html-to-image",
     "html2canvas",
     "jquery",
     "moment",
     "ngx-ui-loader",
-    "popper.js",
-    "pl-decorator"
+    "popper.js"
   ]
 }
