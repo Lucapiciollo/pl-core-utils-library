@@ -3,12 +3,15 @@
  */
 
 // Module
-export { PlCoreModule } from './lib/pl-core-utils-library.module';
-
+export {
+    PlCoreModule,
+    PlCoreModuleConfig,
+    PL_CORE_MODULE_CONFIG
+} from './lib/pl-core-utils-library.module';
 // Components
 export { AlertComponent } from './lib/component/alert/alert.component';
 export { PlBaseComponent } from './lib/component/base-component/pl-base-component.component';
- 
+
 // Services
 export { AlertService } from './lib/component/alert/alert.service';
 export { PlAmbientModeLoaderService, BROWSER, BROWSER_VALID, DISABLE_LOG } from './lib/service/pl-ambient-mode.service';

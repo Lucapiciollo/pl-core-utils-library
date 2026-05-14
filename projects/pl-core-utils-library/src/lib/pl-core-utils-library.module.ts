@@ -1,11 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { NgModule, OnDestroy, Optional } from '@angular/core';
+import { NgModule, OnDestroy, Optional, InjectionToken, ModuleWithProviders } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationStart, Router } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+
+export interface PlCoreModuleConfig {
+  browserValid?: BROWSER[];
+  disableLog?: boolean;
+  maxCacheAge?: number;
+  cacheTag?: string;
+  mockPath?: string;
+}
+
+export const PL_CORE_MODULE_CONFIG = new InjectionToken<PlCoreModuleConfig>(
+  'PL_CORE_MODULE_CONFIG'
+);
+
 
 import {
   BROWSER,
@@ -66,17 +79,39 @@ export class PlCoreModule implements OnDestroy {
 
   private routeEventsSubscription: Subscription | null = null;
 
-  /**
-   * Modulo di inizializzazione della libreria.
-   *
-   * Uso:
-   *
-   * imports: [PlCoreModule]
-   *
-   * Per reperire il cambio rotta:
-   *
-   * PlCoreModule.Routing().getIinterrupt()
-   */
+  static forRoot(config: PlCoreModuleConfig = {}): ModuleWithProviders<PlCoreModule> {
+    return {
+      ngModule: PlCoreModule,
+      providers: [
+        {
+          provide: PL_CORE_MODULE_CONFIG,
+          useValue: config
+        },
+        {
+          provide: BROWSER_VALID,
+          useValue: config.browserValid ?? [BROWSER.ALL]
+        },
+        {
+          provide: DISABLE_LOG,
+          useValue: config.disableLog ?? false
+        },
+        {
+          provide: MAX_CACHE_AGE,
+          useValue: config.maxCacheAge ?? 300000
+        },
+        {
+          provide: CACHE_TAG,
+          useValue: config.cacheTag ?? '@cachable@'
+        },
+        {
+          provide: DEFAULT_PATH_MOCK,
+          useValue: config.mockPath ?? 'public/mock'
+        }
+      ]
+    };
+  }
+
+
   constructor(
     private alertService: AlertService,
     private plAmbientModeLoaderService: PlAmbientModeLoaderService,
