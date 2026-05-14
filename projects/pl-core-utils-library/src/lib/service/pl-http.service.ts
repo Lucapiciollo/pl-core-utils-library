@@ -3,165 +3,167 @@
  * @email lucapiciollo@gmail.com
  * @create date 2019-11-06 22:10:04
  * @modify date 2019-11-06 22:10:04
- * @desc [description]
+ * @desc Servizio utility per chiamate HTTP, upload/download, stream e progress.
  */
-import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpProgressEvent, HttpResponse } from '@angular/common/http';
+
+import {
+  HttpClient,
+  HttpEventType,
+  HttpHeaders,
+  HttpParams,
+  HttpProgressEvent,
+  HttpResponse
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of, Subject, Subscriber } from 'rxjs';
+import { forkJoin, Observable, Subject, Subscriber } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
+
 import { PlHttpRequest } from '../bean/Pl-http-request';
 import { PlCoreUtils } from '../pl-core-utils-library.service';
 import { createPlUuid } from '../utils/pl-uuid.util';
-/**@ignore */
-declare const require: any;
-/**@ignore */
-declare const $: any;
-
-
-
 
 /** eventi registrati per PLlibrary */
 export enum TYPE_EVENT_NETWORK {
-  PL_BREACK_NET = "PL:BREACK_NET"
+  PL_BREACK_NET = 'PL:BREACK_NET'
 }
 
 /**
- * @author l.piciollo
- * Tipologica per identificare il tipo di chiamata http che si sta facendo
+ * Tipologica per identificare il tipo di risposta HTTP.
  */
 export enum RESPONSE_TYPE {
-  "TEXT" = "pplication/text",
-  "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "blob",
-  "MS_STREAM" = "ms-stream",
-  "JAVA-ARCHIVE" = "application/java-archive",
-  "EDI-X12" = "application/EDI-X12",
-  "EDIFACT" = "application/EDIFACT",
-  "JAVASCRIPT" = "application/javascript",
-  "OCTET-STREAM" = "application/octet-stream",
-  "OGG" = "application/ogg",
-  "PDF" = "application/pdf",
-  "XHTML+XML" = "application/xhtml+xml",
-  "X-SHOCKWAVE-FLASH" = "application/x-shockwave-flash",
-  "JSON" = "application/json",
-  "LD+JSON" = "application/ld+json",
-  "XML" = "application/xml",
-  "ZIP" = "application/zip",
-  "X-WWW-FORM-URLENCODED" = "application/x-www-form-urlencoded",
-  "MPEG" = "audio/mpeg",
-  "X-MS-WMA" = "audio/x-ms-wma",
-  "VND.RN-REALAUDIO" = "audio/vnd.rn-realaudio",
-  "X-WAV" = "audio/x-wav",
-  "GIF" = "image/gif",
-  "JPEG" = "image/jpeg",
-  "PNG" = "image/png",
-  "TIFF" = "image/tiff",
-  "VND.MICROSOFT.ICON" = "image/vnd.microsoft.icon",
-  "X-ICON" = "image/x-icon",
-  "VND.DJVU" = "image/vnd.djvu",
-  "SVG+XML" = "image/svg+xml",
-  "MIXED" = "multipart/mixed",
-  "ALTERNATIVE" = "multipart/alternative",
-  "RELATED" = "multipart/related",
-  "FORM-DATA" = "multipart/form-data; boundary=something",
-  "CSS" = "text/css",
-  "CSV" = "text/csv",
-  "HTML" = "text/html",
-  "PLAIN" = "text/plain",
-  "MP4" = "video/mp4",
-  "QUICKTIME" = "video/quicktime",
-  "X-MS-WMV" = "video/x-ms-wmv",
-  "X-MSVIDEO" = "video/x-msvideo",
-  "X-FLV" = "video/x-flv",
-  "WEBM" = "video/webm",
-  "VND.ANDROID.PACKAGE-ARCHIVE" = "application/vnd.android.package-archive",
-  "VND.OASIS.OPENDOCUMENT.TEXT" = "application/vnd.oasis.opendocument.text",
-  "VND.OASIS.OPENDOCUMENT.SPREADSHEET" = "application/vnd.oasis.opendocument.spreadsheet",
-  "VND.OASIS.OPENDOCUMENT.PRESENTATION" = "application/vnd.oasis.opendocument.presentation",
-  "VND.OASIS.OPENDOCUMENT.GRAPHICS" = "application/vnd.oasis.opendocument.graphics",
-  "VND.MS-EXCEL" = "application/vnd.ms-excel",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "VND.MS-POWERPOINT" = "application/vnd.ms-powerpoint",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION" = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "MSWORD" = "application/msword",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "VND.MOZILLA.XUL+XML" = "application/vnd.mozilla.xul+xml"
-}
-/**
- * @author l.piciollo
- * Tipologica per identificare il tipo di contenuto http che si sta chiedendo
- */
-export enum CONTENT_TYPE {
-  "TEXT" = "pplication/text",
-  "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "blob",
-  "MS_STREAM" = "ms-stream",
-  "JAVA-ARCHIVE" = "application/java-archive",
-  "EDI-X12" = "application/EDI-X12",
-  "EDIFACT" = "application/EDIFACT",
-  "JAVASCRIPT" = "application/javascript",
-  "OCTET-STREAM" = "application/octet-stream",
-  "OGG" = "application/ogg",
-  "PDF" = "application/pdf",
-  "XHTML+XML" = "application/xhtml+xml",
-  "X-SHOCKWAVE-FLASH" = "application/x-shockwave-flash",
-  "JSON" = "application/json",
-  "LD+JSON" = "application/ld+json",
-  "XML" = "application/xml",
-  "ZIP" = "application/zip",
-  "X-WWW-FORM-URLENCODED" = "application/x-www-form-urlencoded",
-  "MPEG" = "audio/mpeg",
-  "X-MS-WMA" = "audio/x-ms-wma",
-  "VND.RN-REALAUDIO" = "audio/vnd.rn-realaudio",
-  "X-WAV" = "audio/x-wav",
-  "GIF" = "image/gif",
-  "JPEG" = "image/jpeg",
-  "PNG" = "image/png",
-  "TIFF" = "image/tiff",
-  "VND.MICROSOFT.ICON" = "image/vnd.microsoft.icon",
-  "X-ICON" = "image/x-icon",
-  "VND.DJVU" = "image/vnd.djvu",
-  "SVG+XML" = "image/svg+xml",
-  "MIXED" = "multipart/mixed",
-  "ALTERNATIVE" = "multipart/alternative",
-  "RELATED" = "multipart/related",
-  "FORM-DATA" = "multipart/form-data; boundary=something",
-  "CSS" = "text/css",
-  "CSV" = "text/csv",
-  "HTML" = "text/html",
-  "PLAIN" = "text/plain",
-  "MP4" = "video/mp4",
-  "QUICKTIME" = "video/quicktime",
-  "X-MS-WMV" = "video/x-ms-wmv",
-  "X-MSVIDEO" = "video/x-msvideo",
-  "X-FLV" = "video/x-flv",
-  "WEBM" = "video/webm",
-  "VND.ANDROID.PACKAGE-ARCHIVE" = "application/vnd.android.package-archive",
-  "VND.OASIS.OPENDOCUMENT.TEXT" = "application/vnd.oasis.opendocument.text",
-  "VND.OASIS.OPENDOCUMENT.SPREADSHEET" = "application/vnd.oasis.opendocument.spreadsheet",
-  "VND.OASIS.OPENDOCUMENT.PRESENTATION" = "application/vnd.oasis.opendocument.presentation",
-  "VND.OASIS.OPENDOCUMENT.GRAPHICS" = "application/vnd.oasis.opendocument.graphics",
-  "VND.MS-EXCEL" = "application/vnd.ms-excel",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "VND.MS-POWERPOINT" = "application/vnd.ms-powerpoint",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION" = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "MSWORD" = "application/msword",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "VND.MOZILLA.XUL+XML" = "application/vnd.mozilla.xul+xml"
+  TEXT = 'application/text',
+  ARRAYBUFFER = 'arraybuffer',
+  BLOB = 'blob',
+  MS_STREAM = 'ms-stream',
+  JAVA_ARCHIVE = 'application/java-archive',
+  EDI_X12 = 'application/EDI-X12',
+  EDIFACT = 'application/EDIFACT',
+  JAVASCRIPT = 'application/javascript',
+  OCTET_STREAM = 'application/octet-stream',
+  OGG = 'application/ogg',
+  PDF = 'application/pdf',
+  XHTML_XML = 'application/xhtml+xml',
+  X_SHOCKWAVE_FLASH = 'application/x-shockwave-flash',
+  JSON = 'application/json',
+  LD_JSON = 'application/ld+json',
+  XML = 'application/xml',
+  ZIP = 'application/zip',
+  X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded',
+  MPEG = 'audio/mpeg',
+  X_MS_WMA = 'audio/x-ms-wma',
+  VND_RN_REALAUDIO = 'audio/vnd.rn-realaudio',
+  X_WAV = 'audio/x-wav',
+  GIF = 'image/gif',
+  JPEG = 'image/jpeg',
+  PNG = 'image/png',
+  TIFF = 'image/tiff',
+  VND_MICROSOFT_ICON = 'image/vnd.microsoft.icon',
+  X_ICON = 'image/x-icon',
+  VND_DJVU = 'image/vnd.djvu',
+  SVG_XML = 'image/svg+xml',
+  MIXED = 'multipart/mixed',
+  ALTERNATIVE = 'multipart/alternative',
+  RELATED = 'multipart/related',
+  FORM_DATA = 'multipart/form-data; boundary=something',
+  CSS = 'text/css',
+  CSV = 'text/csv',
+  HTML = 'text/html',
+  PLAIN = 'text/plain',
+  MP4 = 'video/mp4',
+  QUICKTIME = 'video/quicktime',
+  X_MS_WMV = 'video/x-ms-wmv',
+  X_MSVIDEO = 'video/x-msvideo',
+  X_FLV = 'video/x-flv',
+  WEBM = 'video/webm',
+  VND_ANDROID_PACKAGE_ARCHIVE = 'application/vnd.android.package-archive',
+  VND_OASIS_OPENDOCUMENT_TEXT = 'application/vnd.oasis.opendocument.text',
+  VND_OASIS_OPENDOCUMENT_SPREADSHEET = 'application/vnd.oasis.opendocument.spreadsheet',
+  VND_OASIS_OPENDOCUMENT_PRESENTATION = 'application/vnd.oasis.opendocument.presentation',
+  VND_OASIS_OPENDOCUMENT_GRAPHICS = 'application/vnd.oasis.opendocument.graphics',
+  VND_MS_EXCEL = 'application/vnd.ms-excel',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_SPREADSHEETML_SHEET = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  VND_MS_POWERPOINT = 'application/vnd.ms-powerpoint',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_PRESENTATIONML_PRESENTATION = 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  MSWORD = 'application/msword',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_WORDPROCESSINGML_DOCUMENT = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  VND_MOZILLA_XUL_XML = 'application/vnd.mozilla.xul+xml'
 }
 
 /**
- * @author l.piciollo
- * Servizio di utilita per chiamate a servizi di BE, espone funzionalità per invocazione al BE
- * funzionalità di download, upload con chiamate asincrone e in background. i servizi espongono tutti un id identificativo
- * per reperire lo stato di proressione di un deterinato avanzamento di richiesta..
+ * Tipologica per identificare il tipo di contenuto HTTP.
  */
+export enum CONTENT_TYPE {
+  TEXT = 'application/text',
+  ARRAYBUFFER = 'arraybuffer',
+  BLOB = 'blob',
+  MS_STREAM = 'ms-stream',
+  JAVA_ARCHIVE = 'application/java-archive',
+  EDI_X12 = 'application/EDI-X12',
+  EDIFACT = 'application/EDIFACT',
+  JAVASCRIPT = 'application/javascript',
+  OCTET_STREAM = 'application/octet-stream',
+  OGG = 'application/ogg',
+  PDF = 'application/pdf',
+  XHTML_XML = 'application/xhtml+xml',
+  X_SHOCKWAVE_FLASH = 'application/x-shockwave-flash',
+  JSON = 'application/json',
+  LD_JSON = 'application/ld+json',
+  XML = 'application/xml',
+  ZIP = 'application/zip',
+  X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded',
+  MPEG = 'audio/mpeg',
+  X_MS_WMA = 'audio/x-ms-wma',
+  VND_RN_REALAUDIO = 'audio/vnd.rn-realaudio',
+  X_WAV = 'audio/x-wav',
+  GIF = 'image/gif',
+  JPEG = 'image/jpeg',
+  PNG = 'image/png',
+  TIFF = 'image/tiff',
+  VND_MICROSOFT_ICON = 'image/vnd.microsoft.icon',
+  X_ICON = 'image/x-icon',
+  VND_DJVU = 'image/vnd.djvu',
+  SVG_XML = 'image/svg+xml',
+  MIXED = 'multipart/mixed',
+  ALTERNATIVE = 'multipart/alternative',
+  RELATED = 'multipart/related',
+  FORM_DATA = 'multipart/form-data; boundary=something',
+  CSS = 'text/css',
+  CSV = 'text/csv',
+  HTML = 'text/html',
+  PLAIN = 'text/plain',
+  MP4 = 'video/mp4',
+  QUICKTIME = 'video/quicktime',
+  X_MS_WMV = 'video/x-ms-wmv',
+  X_MSVIDEO = 'video/x-msvideo',
+  X_FLV = 'video/x-flv',
+  WEBM = 'video/webm',
+  VND_ANDROID_PACKAGE_ARCHIVE = 'application/vnd.android.package-archive',
+  VND_OASIS_OPENDOCUMENT_TEXT = 'application/vnd.oasis.opendocument.text',
+  VND_OASIS_OPENDOCUMENT_SPREADSHEET = 'application/vnd.oasis.opendocument.spreadsheet',
+  VND_OASIS_OPENDOCUMENT_PRESENTATION = 'application/vnd.oasis.opendocument.presentation',
+  VND_OASIS_OPENDOCUMENT_GRAPHICS = 'application/vnd.oasis.opendocument.graphics',
+  VND_MS_EXCEL = 'application/vnd.ms-excel',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_SPREADSHEETML_SHEET = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  VND_MS_POWERPOINT = 'application/vnd.ms-powerpoint',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_PRESENTATIONML_PRESENTATION = 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  MSWORD = 'application/msword',
+  VND_OPENXMLFORMATS_OFFICEDOCUMENT_WORDPROCESSINGML_DOCUMENT = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  VND_MOZILLA_XUL_XML = 'application/vnd.mozilla.xul+xml'
+}
+
+type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlHttpService {
+  private level = 0;
+  private partialItem = '';
+  private decoder = new TextDecoder();
+  private readonly JTOKEN_START_OBJECT = '{';
+  private readonly JTOKEN_END_OBJECT = '}';
 
+  constructor(private http: HttpClient) { }
 
   private createProgressBar(uuid: string): void {
     PlCoreUtils.progressBars[uuid] = {
@@ -179,122 +181,238 @@ export class PlHttpService {
     };
   }
 
+  private completeProgressBar(uuid: string, remove = true): void {
+    const progressBar = PlCoreUtils.progressBars[uuid];
 
-  /**@ignore */
-  public requestOption(params: JSON, header: HttpHeaders, responseType?: RESPONSE_TYPE, contentType?: CONTENT_TYPE | string) {
-    try {
-      let search = new HttpParams();
-      params != null ? null : params = JSON.parse("{}");
-      Object.keys(params).forEach(element => {
-        search = search.append(element, params[element]);
-      });
-      if (header == null) header = new HttpHeaders();
+    if (!progressBar) {
+      return;
+    }
 
-      if (contentType)
-        header.append('Content-Type', contentType);
-      else
-        header.delete('Content-Type')
+    progressBar.changed.complete();
+    progressBar.interrupt.complete();
 
-      let options = { headers: header, params: search };
-      if (responseType) {
-        options["observe"] = "events";
-        options["responseType"] = responseType;
-        options["reportProgress"] = true;
-      }
-      return options;
-    } catch (error) {
-      throw error
+    if (remove) {
+      delete PlCoreUtils.progressBars[uuid];
+      PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
     }
   }
-  //***************************************************************************************************** */
+
+  private completeProgressBarDelayed(uuid: string, delayMs = 3000): void {
+    this.completeProgressBar(uuid, false);
+
+    setTimeout(() => {
+      this.completeProgressBar(uuid, true);
+    }, delayMs);
+  }
+
+  /** @ignore */
+  public requestOption(
+    params: Record<string, any> | null,
+    header: HttpHeaders | null,
+    responseType?: RESPONSE_TYPE,
+    contentType?: CONTENT_TYPE | string
+  ): any {
+    let search = new HttpParams();
+    const safeParams = params ?? {};
+
+    Object.keys(safeParams).forEach(key => {
+      search = search.append(key, safeParams[key]);
+    });
+
+    let headers = header ?? new HttpHeaders();
+
+    if (contentType) {
+      headers = headers.set('Content-Type', contentType);
+    } else {
+      headers = headers.delete('Content-Type');
+    }
+
+    const options: any = {
+      headers,
+      params: search
+    };
+
+    if (responseType) {
+      options.observe = 'events';
+      options.responseType = responseType;
+      options.reportProgress = true;
+    }
+
+    return options;
+  }
 
   private refreshProgress(uuid: string, event?: HttpProgressEvent | any): Subject<any> {
-    try {
-      if (uuid != null && event != null) {
-        PlCoreUtils.progressBars[uuid].changed.next(PlCoreUtils.progressBars[uuid]);
-        PlCoreUtils.progressBars[uuid].byte = event.loaded;
-        PlCoreUtils.progressBars[uuid].totalbyte = event.total;
-        PlCoreUtils.progressBars[uuid].percent = Math.round(100 * event.loaded / (event.total || event.loaded));
-        PlCoreUtils.progressBars[uuid].loaded = (event.loaded / 1024 / 1000).toFixed(3) + "MB";
-        PlCoreUtils.progressBars[uuid].size = ((event.total || event.loaded) / 1024 / 1000).toFixed(3) + "MB";
-      }
-      return PlCoreUtils.progressBars[uuid].changed;
-    } catch (error) {
-      throw error
+    const progressBar = PlCoreUtils.progressBars[uuid];
+
+    if (!progressBar) {
+      return new Subject<any>();
     }
+
+    if (event != null) {
+      progressBar.byte = event.loaded ?? 0;
+      progressBar.totalbyte = event.total ?? event.loaded ?? 0;
+      progressBar.percent = Math.round(100 * (event.loaded ?? 0) / (event.total || event.loaded || 1));
+      progressBar.loaded = ((event.loaded ?? 0) / 1024 / 1000).toFixed(3) + 'MB';
+      progressBar.size = ((event.total || event.loaded || 0) / 1024 / 1000).toFixed(3) + 'MB';
+      progressBar.changed.next(progressBar);
+    }
+
+    return progressBar.changed;
   }
-  //***************************************************************************************************** */
-  private checkEventHttp<T>(event: any, uuid, observer: Subscriber<T>) {
-    let httpEventType = null;
+
+  private checkEventHttp<T>(event: any, uuid: string, observer: Subscriber<T>): void {
     try {
       switch (event.type) {
         case HttpEventType.Sent:
-          break;
         case HttpEventType.ResponseHeader:
           break;
+
         case HttpEventType.DownloadProgress:
-          if (httpEventType == null) httpEventType = HttpEventType.DownloadProgress;
-          if (httpEventType != HttpEventType.DownloadProgress) break;
-          this.refreshProgress(uuid, event);
-          break;
         case HttpEventType.UploadProgress:
-          if (httpEventType == null) httpEventType = HttpEventType.UploadProgress;
-          if (httpEventType != HttpEventType.UploadProgress) break;
           this.refreshProgress(uuid, event);
           break;
+
         case HttpEventType.Response:
-          this.refreshProgress(uuid).complete();
-          observer.next(event)
+          observer.next(event);
           observer.complete();
           break;
-        default: {
-          observer.next(event)
+
+        default:
+          observer.next(event);
           observer.complete();
-        }
+          break;
       }
-    } catch (e) {
-      observer.next(event)
+    } catch {
+      observer.next(event);
       observer.complete();
     }
   }
 
-  /********************************************************************************************************************/
-  constructor(private http: HttpClient) {
-
+  private normalizeUrl(url: string): string {
+    return decodeURIComponent(url).replace(/\*/g, '%2A');
   }
-  /********************************************************************************************************************/
 
+  private createUrlWithQueryParams(url: string, queryParams?: Record<string, any> | null): string {
+    const parsedUrl = new URL(url);
+
+    if (queryParams != null) {
+      Object.keys(queryParams).forEach(key => {
+        parsedUrl.searchParams.set(key, queryParams[key]);
+      });
+    }
+
+    return this.normalizeUrl(parsedUrl.toString());
+  }
+
+  private requestWithAngularHttp<T>(
+    method: HttpMethod,
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    const uuid = createPlUuid();
+
+    responseType = responseType ?? RESPONSE_TYPE.JSON;
+    interrupt = interrupt ?? new Subject<boolean>();
+
+    this.createProgressBar(uuid);
+
+    if (callBack) {
+      callBack(uuid);
+    }
+
+    return new Observable<any>(observer => {
+      try {
+        let header = plHttpRequest.httpHeaders || new HttpHeaders();
+
+        if (plHttpRequest.mocked) {
+          header = header.append('mocked', 'true');
+        }
+
+        const options = this.requestOption(
+          plHttpRequest.queryParams,
+          header,
+          responseType,
+          contentType
+        );
+
+        PlCoreUtils.progressBars[uuid].url = plHttpRequest.url;
+
+        const url = method === 'GET' || method === 'DELETE'
+          ? this.normalizeUrl(plHttpRequest.url)
+          : plHttpRequest.url;
+
+        let request$: Observable<any>;
+
+        switch (method) {
+          case 'GET':
+            request$ = this.http.get<T>(url, options);
+            break;
+
+          case 'POST':
+            request$ = this.http.post<T>(url, plHttpRequest.body, options);
+            break;
+
+          case 'PATCH':
+            request$ = this.http.patch<T>(url, plHttpRequest.body, options);
+            break;
+
+          case 'PUT':
+            request$ = this.http.put<T>(url, plHttpRequest.body, options);
+            break;
+
+          case 'DELETE':
+            request$ = this.http.delete<T>(url, options);
+            break;
+        }
+
+        request$
+          .pipe(
+            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
+            takeUntil(interrupt),
+            finalize(() => {
+              this.completeProgressBarDelayed(uuid);
+            })
+          )
+          .subscribe({
+            next: event => {
+              this.checkEventHttp(event, uuid, observer);
+            },
+            error: err => {
+              observer.error(err);
+            }
+          });
+      } catch (error) {
+        observer.error(error);
+      }
+    });
+  }
 
   /**
-     * l.piciollo
-     * funzione per il download dello straming in formato file, viene prototipato in ambientService
-   * @param streamData
-   * @param nomeFile
-   * @param isTextfile
-   * @param applicationType
+   * Crea un blob URL da stream dati.
    */
   CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
-        let jsEscape = "\uFEFF";
-        let blob = null;
-        applicationType == CONTENT_TYPE.TEXT ? blob = new Blob([jsEscape + streamData], { type: applicationType }) : blob = new Blob([streamData], { type: applicationType });
+        const jsEscape = '\uFEFF';
+        const blob = applicationType === CONTENT_TYPE.TEXT
+          ? new Blob([jsEscape + streamData], { type: applicationType })
+          : new Blob([streamData], { type: applicationType });
+
         resolve(window.URL.createObjectURL(blob));
       } catch (error) {
         reject(error);
       }
     });
-  };
-
-  //***************************************************************************************************** */
+  }
 
   /**
-   * @author l.piciollo
-   * eliminazione del blod in memoria
-   * @param blobUrl
+   * Elimina blob URL dalla memoria.
    */
-  DESTROYBLOB(blobUrl: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+  DESTROYBLOB(blobUrl: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
       try {
         URL.revokeObjectURL(blobUrl);
         resolve(true);
@@ -303,115 +421,139 @@ export class PlHttpService {
       }
     });
   }
-  //***************************************************************************************************** */
 
   /**
-   * l.piciollo
-   * funzione per il download dello straming in formato file, viene prototipato in ambientService
-   * @param streamData array buffer
-   * @param contentType tipo di contenuto
-   * @param filename : nome file
+   * Placeholder storico per download da stream.
    */
-  DOWNLOAD(streamData: ArrayBuffer, contentType: CONTENT_TYPE | string, fileName?: string): Promise<any> { return null };
-
-  //***************************************************************************************************** */
+  DOWNLOAD(streamData: ArrayBuffer, contentType: CONTENT_TYPE | string, fileName?: string): Promise<any> {
+    return Promise.resolve(null);
+  }
 
   /**
-   * l.piciollo
-   * si occupa di effettuare il download di un file contenuta nel blob creato con le altre funzionalità
-   * funzionalità utilizzabile in combinazione con le funzione di creazione image o file
-   * è possibile effettuare anche il download di un file in rete, passando il link al file
-   * @param url : url del blob
-   * @param filename : nome file
+   * Download di un file da URL/blob URL.
    */
-  DOWNLOADURL(url: string, filename: string = "download_temp") {
-    var link = document.createElement('a');
+  DOWNLOADURL(url: string, filename = 'download_temp'): void {
+    const link = document.createElement('a');
+
     if (typeof link.download === 'string') {
       link.href = url;
       link.download = filename;
       link.click();
-      this.revokeURL(url)
-    } else {
-      window.open(url);
+      this.revokeURL(url);
+      return;
     }
-  }
-  //***************************************************************************************************** */
-  /**@ignore */
-  private revokeURL(url) {
-    try { URL.revokeObjectURL(url) } catch (e) { };
-  };
 
-  /********************************************************************************************************************/
-  private level = 0;
-  private partialItem = '';
-  private decoder = new TextDecoder();
-  private JTOKEN_START_OBJECT = '{';
-  private JTOKEN_END_OBJECT = '}';
+    window.open(url);
+  }
+
+  /** @ignore */
+  private revokeURL(url: string): void {
+    try {
+      URL.revokeObjectURL(url);
+    } catch { }
+  }
+
   private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
     const chunk = this.decoder.decode(value);
     let itemStart = 0;
+
     for (let i = 0; i < chunk.length; i++) {
       if (chunk[i] === this.JTOKEN_START_OBJECT) {
         if (this.level === 0) {
           itemStart = i;
         }
+
         this.level++;
       }
+
       if (chunk[i] === this.JTOKEN_END_OBJECT) {
         this.level--;
+
         if (this.level === 0) {
           let item = chunk.substring(itemStart, i + 1);
+
           if (this.partialItem) {
             item = this.partialItem + item;
             this.partialItem = '';
           }
+
           decodedItemCallback(JSON.parse(item));
         }
       }
     }
+
     if (this.level !== 0) {
       this.partialItem = chunk.substring(itemStart);
     }
   }
 
-  STREAM<T>(plttpRequest: PlHttpRequest, interrupt?: AbortSignal, decodeChunk?: (value: Uint8Array, decodedItemCallback: (item: T) => void) => void): Observable<T> {
-    return new Observable(observer => {
+  STREAM<T>(
+    plttpRequest: PlHttpRequest,
+    interrupt?: AbortSignal,
+    decodeChunk?: (value: Uint8Array, decodedItemCallback: (item: T) => void) => void
+  ): Observable<T> {
+    return new Observable<T>(observer => {
       const controller = new AbortController();
       let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-      let url = new URL(plttpRequest.url);
-      if (plttpRequest.queryParams != null) Object.keys(plttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plttpRequest.queryParams[val]); });
+      const url = new URL(plttpRequest.url);
+
+      if (plttpRequest.queryParams != null) {
+        Object.keys(plttpRequest.queryParams).forEach(key => {
+          url.searchParams.set(key, plttpRequest.queryParams[key]);
+        });
+      }
+
       const headersObj = plttpRequest.httpHeaders?.keys().reduce((acc, key) => {
-        acc[key] = plttpRequest.httpHeaders.get(key);
+        const value = plttpRequest.httpHeaders.get(key);
+
+        if (value != null) {
+          acc[key] = value;
+        }
+
         return acc;
       }, {} as Record<string, string>);
+
       (async () => {
         try {
-          const response = await fetch(plttpRequest.url, {
+          const response = await fetch(url.toString(), {
             method: plttpRequest.method,
-            headers: { ...headersObj || {} },
-            body: JSON.stringify(plttpRequest.body || {}),
-            signal: interrupt
+            headers: { ...(headersObj || {}) },
+            body: plttpRequest.body ? JSON.stringify(plttpRequest.body) : undefined,
+            signal: interrupt ?? controller.signal
           });
+
           if (!response.ok || !response.body) {
             observer.error(new Error(`HTTP error! status: ${response.status}`));
             return;
           }
+
           reader = response.body.getReader();
-          const decoder = new TextDecoder();
+
           while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
-            !decodeChunk ? this.decodeChunk<T>(value, (item) => observer.next(item)) : decodeChunk(value, (item) => observer.next(item));
+
+            if (done) {
+              break;
+            }
+
+            if (decodeChunk) {
+              decodeChunk(value, item => observer.next(item));
+            } else {
+              this.decodeChunk<T>(value, item => observer.next(item));
+            }
           }
+
           observer.complete();
         } catch (err) {
-          if ((err as any).name === 'AbortError') {
+          if ((err as any)?.name === 'AbortError') {
             observer.error(new Error('STREAM aborted'));
             return;
           }
+
           observer.error(err);
         }
       })();
+
       return () => {
         try {
           controller.abort();
@@ -420,386 +562,253 @@ export class PlHttpService {
       };
     });
   }
-  /************************************************************************************************ */
 
-
-  nativeHttp(plHttpRequest: PlHttpRequest, responseType?: XMLHttpRequestResponseType, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<any> {
+  nativeHttp(
+    plHttpRequest: PlHttpRequest,
+    responseType?: XMLHttpRequestResponseType,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<any> {
     const uuid = createPlUuid();
+
     this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
+
+    if (callBack) {
+      callBack(uuid);
+    }
+
     return new Observable<any>(observer => {
       const xhr = new XMLHttpRequest();
-      interrupt == null ? interrupt = new Subject<boolean>() : null;
-      interrupt.subscribe(() => {
+      const requestInterrupt = interrupt ?? new Subject<boolean>();
+
+      const externalInterruptSub = requestInterrupt.subscribe(() => {
         xhr.abort();
-      })
-      PlCoreUtils.progressBars[uuid].interrupt.subscribe(() => {
+      });
+
+      const progressInterruptSub = PlCoreUtils.progressBars[uuid].interrupt.subscribe(() => {
         xhr.abort();
-      })
-      PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-      if ('POST|GET|PATCH|DELETE|PUT'.split("|").indexOf(plHttpRequest.method) < -1) {
-        observer.error("Method not valid : POST|GET|PATCH|DELETE|PUT")
+      });
+
+      PlCoreUtils.progressBars[uuid].url = plHttpRequest.url;
+
+      if ('POST|GET|PATCH|DELETE|PUT'.split('|').indexOf(plHttpRequest.method) < 0) {
+        observer.error('Method not valid : POST|GET|PATCH|DELETE|PUT');
+
+        externalInterruptSub.unsubscribe();
+        progressInterruptSub.unsubscribe();
+        this.completeProgressBarDelayed(uuid);
+
+        return undefined;
       }
-      let url = new URL(plHttpRequest.url);
-      if (plHttpRequest.queryParams != null) Object.keys(plHttpRequest.queryParams).forEach(val => { url.searchParams.set(val, plHttpRequest.queryParams[val]); })
-      xhr.open(plHttpRequest.method, decodeURIComponent(url.toString()).replace(/\*/g, "%2A"));
-      if (plHttpRequest.httpHeaders != null) Object.keys(plHttpRequest.httpHeaders).forEach(val => { xhr.setRequestHeader(val, plHttpRequest.httpHeaders[val]); })
-      if (responseType != null) xhr.responseType = responseType;
-      if (contentType != null) xhr.setRequestHeader('Content-Type', contentType);
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable)
-          this.refreshProgress(uuid, event);
-      };
-      xhr.onload = () => {
-        if (xhr.status != 200) {
-          observer.error(`Error ${xhr.status}: ${xhr.statusText}`);
+
+      const url = this.createUrlWithQueryParams(plHttpRequest.url, plHttpRequest.queryParams);
+
+      xhr.open(plHttpRequest.method, url);
+
+      if (plHttpRequest.httpHeaders != null) {
+        if (plHttpRequest.httpHeaders instanceof HttpHeaders) {
+          plHttpRequest.httpHeaders.keys().forEach(key => {
+            const value = plHttpRequest.httpHeaders.get(key);
+
+            if (value != null) {
+              xhr.setRequestHeader(key, value);
+            }
+          });
         } else {
-          of(xhr.response).subscribe(val => {
-            observer.next(val);
-            observer.complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-          })
+          Object.keys(plHttpRequest.httpHeaders).forEach(key => {
+            xhr.setRequestHeader(key, plHttpRequest.httpHeaders[key]);
+          });
+        }
+      }
+
+      if (responseType != null) {
+        xhr.responseType = responseType;
+      }
+
+      if (contentType != null) {
+        xhr.setRequestHeader('Content-Type', contentType);
+      }
+
+      xhr.upload.onprogress = event => {
+        if (event.lengthComputable) {
+          this.refreshProgress(uuid, event);
         }
       };
-      xhr.onerror = (e) => {
-        this.refreshProgress(uuid).complete();
-        observer.error(e);
+
+      xhr.onprogress = event => {
+        if (event.lengthComputable) {
+          this.refreshProgress(uuid, event);
+        }
       };
-      if (plHttpRequest.body instanceof FormData)
+
+      xhr.onload = () => {
+        if (xhr.status < 200 || xhr.status >= 300) {
+          observer.error(`Error ${xhr.status}: ${xhr.statusText}`);
+          this.completeProgressBarDelayed(uuid);
+          return;
+        }
+
+        observer.next(xhr.response);
+        observer.complete();
+        this.completeProgressBarDelayed(uuid);
+      };
+
+      xhr.onerror = e => {
+        observer.error(e);
+        this.completeProgressBarDelayed(uuid);
+      };
+
+      xhr.onabort = () => {
+        observer.error(new Error('Request aborted'));
+        this.completeProgressBarDelayed(uuid);
+      };
+
+      if (plHttpRequest.body instanceof FormData) {
         xhr.send(plHttpRequest.body);
-      else
-        xhr.send(typeof plHttpRequest.body == "string" ? plHttpRequest.body : JSON.stringify(plHttpRequest.body));
-    })
-
-  }
-  /************************************************************************************************ */
-
-  /**
-   * @author l.piciollo
-   * servizio GET per il caricamento di dati, sia in JSON che file specificando il contentType
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
-   * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
-   * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-
-   */
-  GET<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-
-
-    const uuid = createPlUuid();
-
-    responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
-    this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
-    return new Observable<any>(observer => {
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
-        plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
-        const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
-        PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.get<T>(decodeURIComponent(plHttpRequest.url).replace(/\*/g, "%2A"), options)
-          .pipe(
-            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
-            takeUntil(interrupt),
-            finalize(() => {
-              this.refreshProgress(uuid).complete();
-              setTimeout(() => {
-                delete PlCoreUtils.progressBars[uuid];
-                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
-              }, 3000);
-            })
-          )
-          .subscribe((event: any) => {
-            this.checkEventHttp(event, uuid, observer);
-          }, err => {
-            this.refreshProgress(uuid).complete();
-            observer.error(err);
-          }
-            // , () => {
-            //   this.refreshProgress(uuid).complete();
-            //   setTimeout(() => {
-            //     delete PlCoreUtils.progressBars[uuid];
-            //   }, 3000);
-            // }
-          );
-      } catch (error) {
-        console.error(error)
-        throw error
+      } else {
+        xhr.send(
+          typeof plHttpRequest.body === 'string'
+            ? plHttpRequest.body
+            : JSON.stringify(plHttpRequest.body ?? {})
+        );
       }
-    });
-  }
-  /************************************************************************************************ */
 
-  /**
-   * @author l.piciollo
-   * servizio POST per il caricamento di dati, sia in JSON che file specificando il contentType
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
-   * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
-   * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
+      return () => {
+        externalInterruptSub.unsubscribe();
+        progressInterruptSub.unsubscribe();
 
-   */
-  POST<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    const uuid = createPlUuid();
-
-    responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
-    this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
-    return new Observable<any>(observer => {
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
-        plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
-        const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
-        PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.post<T>(plHttpRequest.url, plHttpRequest.body, options)
-          .pipe(
-            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
-            takeUntil(interrupt),
-            finalize(() => {
-              this.refreshProgress(uuid).complete();
-              setTimeout(() => {
-                delete PlCoreUtils.progressBars[uuid];
-                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
-              }, 3000);
-            })
-          )
-          .subscribe((event: any) => {
-            this.checkEventHttp(event, uuid, observer);
-          }, err => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-            observer.error(err);
-          },
-            // () => {
-            //   this.refreshProgress(uuid).complete();
-            //   setTimeout(() => {
-            //     delete PlCoreUtils.progressBars[uuid];
-            //   }, 3000);
-            // }
-          );
-      } catch (error) {
-        throw error
-      }
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+          xhr.abort();
+        }
+      };
     });
   }
 
-  /************************************************************************************************ */
-
-
   /**
-   * @author l.piciollo
-   * servizio PATCH per il caricamento di dati, sia in JSON che file specificando il contentType
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
-   * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
-   * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-
+   * Servizio GET.
    */
-  PATCH<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    const uuid = createPlUuid();
-
-    responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
-    this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
-    return new Observable<any>(observer => {
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
-        plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
-        const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
-        PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.patch<T>(plHttpRequest.url, plHttpRequest.body, options)
-          .pipe(
-            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
-            takeUntil(interrupt),
-            finalize(() => {
-              this.refreshProgress(uuid).complete();
-              setTimeout(() => {
-                delete PlCoreUtils.progressBars[uuid];
-                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
-              }, 3000);
-            })
-          )
-          .subscribe((event: any) => {
-            this.checkEventHttp(event, uuid, observer);
-          }, err => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-            observer.error(err);
-          }
-            // , () => {
-            //   this.refreshProgress(uuid).complete();
-            //   setTimeout(() => {
-            //     delete PlCoreUtils.progressBars[uuid];
-            //   }, 3000);
-            // }
-          );
-      } catch (error) {
-        throw error
-      }
-    });
+  GET<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.requestWithAngularHttp<T>(
+      'GET',
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
   }
 
-  /************************************************************************************************ */
-
-
   /**
-   * @author l.piciollo
-   * servizio PUT per il caricamento di dati, sia in JSON che file specificando il contentType
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
-   * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
-   * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-
+   * Servizio POST.
    */
-  PUT<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    const uuid = createPlUuid();
-
-    responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
-    this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
-    return new Observable<any>(observer => {
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
-        plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
-        const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
-        PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.put<T>(plHttpRequest.url, plHttpRequest.body, options)
-          .pipe(
-            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
-            takeUntil(interrupt),
-            finalize(() => {
-              this.refreshProgress(uuid).complete();
-              setTimeout(() => {
-                delete PlCoreUtils.progressBars[uuid];
-                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
-              }, 3000);
-            })
-          )
-          .subscribe((event: any) => {
-            this.checkEventHttp(event, uuid, observer);
-          }, err => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-            observer.error(err);
-          }
-            // , () => {
-            //   this.refreshProgress(uuid).complete();
-            //   setTimeout(() => {
-            //     delete PlCoreUtils.progressBars[uuid];
-            //   }, 3000);
-            // }
-          );
-      } catch (error) {
-        throw error
-      }
-    });
+  POST<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.requestWithAngularHttp<T>(
+      'POST',
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
   }
 
-  /********************************************************************************************************************/
-
   /**
-   * @author l.piciollo
-   * servizio DELETE per il caricamento di dati, sia in JSON che file specificando il contentType
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param responseType  tipo di risposta attessa (RESPONSE_TYPE|String|null)
-   * @param interrupt     interrupt di servizio aggiuntivo, per killare i processi di chiamata (Subject|null)
-   * @param contentType   tipo di contentuto inviato al BE (CONTENT_TYPE|String|null)
-   * @param callBack      callback per ricavare l'instanza della request creata, utile per risalire ai progressi della request inplCoreUtilsLibraryService.progressBars
-
+   * Servizio PATCH.
    */
-  DELETE<T>(plHttpRequest: PlHttpRequest, responseType?: RESPONSE_TYPE, interrupt?: Subject<boolean>, contentType?: CONTENT_TYPE | string, callBack?: (id: string) => void): Observable<HttpResponse<T>> {
-    const uuid = createPlUuid();
-
-    responseType == null ? responseType = RESPONSE_TYPE.JSON : null;
-    this.createProgressBar(uuid);
-    if (callBack) callBack(uuid);
-    return new Observable<any>(observer => {
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
-        plHttpRequest.mocked ? header = header.append('mocked', "true") : null;
-        const options = this.requestOption(plHttpRequest.queryParams, header, responseType, contentType);
-        PlCoreUtils.progressBars[uuid]["url"] = plHttpRequest.url;
-        let sub = this.http.delete<T>(decodeURIComponent(plHttpRequest.url).replace(/\*/g, "%2A"), options)
-          .pipe(
-            takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
-            takeUntil(interrupt),
-            finalize(() => {
-              this.refreshProgress(uuid).complete();
-              setTimeout(() => {
-                delete PlCoreUtils.progressBars[uuid];
-                PlCoreUtils.progressBars = { ...PlCoreUtils.progressBars };
-              }, 3000);
-            })
-          )
-          .subscribe((event: any) => {
-            this.checkEventHttp(event, uuid, observer);
-          }, err => {
-            this.refreshProgress(uuid).complete();
-            setTimeout(() => {
-              delete PlCoreUtils.progressBars[uuid];
-            }, 3000);
-            observer.error(err);
-          }
-            // , () => {
-            //   this.refreshProgress(uuid).complete();
-            //   setTimeout(() => {
-            //     delete PlCoreUtils.progressBars[uuid];
-            //   }, 3000);
-            // }
-          );
-      } catch (error) {
-        throw error
-      }
-    });
+  PATCH<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.requestWithAngularHttp<T>(
+      'PATCH',
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
   }
 
-  /********************************************************************************************************************/
   /**
-   * @author l.piciollo
-   * applica la chiamata in modalità delete alle api del BE
-   * @param plHttpRequest  oggetto contenente parametri da passare al servizio di chiamata alla rete
-   * @param mocked     impostato a true, indica che il servizio è sotto mock
-   * @return promise
+   * Servizio PUT.
    */
-  FORKJOIN(plHttpRequest: Array<PlHttpRequest>, interrupt?: Subject<boolean>): Observable<Array<HttpResponse<any>>> {
+  PUT<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.requestWithAngularHttp<T>(
+      'PUT',
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
+
+  /**
+   * Servizio DELETE.
+   */
+  DELETE<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.requestWithAngularHttp<T>(
+      'DELETE',
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
+
+  /**
+   * Esegue più GET in parallelo.
+   */
+  FORKJOIN(
+    plHttpRequest: Array<PlHttpRequest>,
+    interrupt?: Subject<boolean>
+  ): Observable<Array<HttpResponse<any>>> {
     return new Observable<Array<HttpResponse<any>>>(observer => {
-      const serviceRequests = [];
-      plHttpRequest.forEach(plHttpRequestObj => {
-        serviceRequests.push(this.GET(plHttpRequestObj, null, interrupt, null, null));
-      });
-      try {
-        interrupt == null ? interrupt = new Subject<boolean>() : null;
-        forkJoin(serviceRequests)
-          .pipe(takeUntil(interrupt))
-          .subscribe(res => {
-            observer.next(<Array<HttpResponse<any>>>res);
-            observer.complete();
-          }, err => {
-            observer.error(err);
-          }, () => {
-          });
-      } catch (error) {
-        throw error
-      }
-    })
-  }
-  /********************************************************************************************************************/
+      const requestInterrupt = interrupt ?? new Subject<boolean>();
+      const serviceRequests = plHttpRequest.map(request =>
+        this.GET(request, undefined, requestInterrupt, undefined, undefined)
+      );
 
+      forkJoin(serviceRequests)
+        .pipe(takeUntil(requestInterrupt))
+        .subscribe({
+          next: res => {
+            observer.next(res as Array<HttpResponse<any>>);
+            observer.complete();
+          },
+          error: err => {
+            observer.error(err);
+          }
+        });
+    });
+  }
 }
