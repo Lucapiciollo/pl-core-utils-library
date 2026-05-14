@@ -311,21 +311,59 @@ export class PlAmbientModeLoaderService {
         * @param nextValue  : valore da sostituire
         */
     JSON["changeValues"] = function (json, previousValue, nextValue, ignore = []) {
-      let recursive = function (json, previousValue, nextValue, ignore) {
-        let k = "";
-        if (json instanceof Object) {
-          for (k in json) {
-            if (json.hasOwnProperty(k) && ignore.indexOf(k) < 0) {
-              recursive(json[k], previousValue, nextValue, ignore);
-              if (json[k] === previousValue) {
-                json[k] = nextValue;
-              }
-            }
-          }
+      const visited = new WeakSet<object>();
+
+      const recursive = (value: any): any => {
+        /**
+         * Se il valore corrente è uguale a previousValue,
+         * lo sostituisco direttamente.
+         */
+        if (value === previousValue) {
+          return nextValue;
         }
+
+        /**
+         * Se non è un oggetto o è null, non posso scendere oltre.
+         */
+        if (value === null || typeof value !== "object") {
+          return value;
+        }
+
+        /**
+         * Evita loop infiniti in caso di riferimenti circolari.
+         */
+        if (visited.has(value)) {
+          return value;
+        }
+
+        visited.add(value);
+
+        /**
+         * Gestione array
+         */
+        if (Array.isArray(value)) {
+          for (let i = 0; i < value.length; i++) {
+            value[i] = recursive(value[i]);
+          }
+
+          return value;
+        }
+
+        /**
+         * Gestione oggetti
+         */
+        for (const key of Object.keys(value)) {
+          if (ignore.includes(key)) {
+            continue;
+          }
+
+          value[key] = recursive(value[key]);
+        }
+
+        return value;
       };
-      recursive(json, previousValue, nextValue, ignore);
-      return json;
+
+      return recursive(json);
     };
     /********************************************************************************************************* */
     /**
@@ -521,20 +559,87 @@ export class PlAmbientModeLoaderService {
       return result;
     };
 
-    JSON["deleteKey"] = function (source, keys) {
-      let recursive = function (source, keys) {
-        let k = "";
-        if (source instanceof Object) {
-          for (k in source) {
-            if (source.hasOwnProperty(k)) {
-              recursive(source[k], keys);
-              keys.map(k => delete source[k]);
+    JSON["deleteKey"] = function (source, keys,
+      valueToMatch?: any | any[]) {
+      const visited = new WeakSet<object>();
+      const hasValueFilter = arguments.length >= 3;
+
+      const normalizeKeys = (keys: string[] | string | null): string[] | null => {
+        if (keys === null) {
+          return null;
+        }
+
+        return Array.isArray(keys) ? keys : [keys];
+      };
+
+      const normalizedKeys = normalizeKeys(keys);
+
+      const valueMatches = (value: any): boolean => {
+        if (!hasValueFilter) {
+          return false;
+        }
+
+        if (Array.isArray(valueToMatch)) {
+          return valueToMatch.includes(value);
+        }
+
+        return value === valueToMatch;
+      };
+
+      const recursive = (current: any): any => {
+        if (current === null || typeof current !== "object") {
+          return current;
+        }
+
+        if (visited.has(current)) {
+          return current;
+        }
+
+        visited.add(current);
+
+        if (Array.isArray(current)) {
+          for (const item of current) {
+            recursive(item);
+          }
+
+          return current;
+        }
+
+        for (const key of Object.keys(current)) {
+          recursive(current[key]);
+
+          const keyMatches =
+            normalizedKeys === null || normalizedKeys.includes(key);
+
+          if (!keyMatches) {
+            continue;
+          }
+
+          /**
+           * Caso classico:
+           * elimino la chiave per nome, senza controllare il valore.
+           */
+          if (!hasValueFilter) {
+            if (normalizedKeys !== null) {
+              delete current[key];
             }
+
+            continue;
+          }
+
+          /**
+           * Caso con valore:
+           * elimino solo se il valore corrisponde.
+           */
+          if (valueMatches(current[key])) {
+            delete current[key];
           }
         }
+
+        return current;
       };
-      recursive(source, keys);
-      return source;
+
+      return recursive(source);
     };
 
 
