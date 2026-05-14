@@ -5,22 +5,18 @@
     "entryFile": "src/public-api.ts"
   },
   "allowedNonPeerDependencies": [
-      "@compodoc/compodoc",
-      "@fortawesome/fontawesome-free",
-      "@compodoc/compodoc" ,
-      "@fortawesome/fontawesome-free" ,
-      "@ng-bootstrap/ng-bootstrap" ,
-      "@ngx-translate/http-loader" ,
-      "angular2-uuid",
-      "bootstrap" ,
-      "html-to-image" ,
-      "html2canvas" ,
-      "jquery" ,
-      "moment" ,
-      "ngx-ui-loader" ,
-      "popper.js",  
-      "@angular/common" ,
-      "@angular/core" ,
-      "pl-decorator" 
-    ]
+    "@compodoc/compodoc",
+    "@fortawesome/fontawesome-free",
+    "@ng-bootstrap/ng-bootstrap",
+    "@ngx-translate/http-loader",
+    "angular2-uuid",
+    "bootstrap",
+    "html-to-image",
+    "html2canvas",
+    "jquery",
+    "moment",
+    "ngx-ui-loader",
+    "popper.js",
+    "pl-decorator"
+  ]
 }
