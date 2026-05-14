@@ -3,8 +3,5 @@
   "dest": "../../dist/pl-core-utils-library",
   "lib": {
     "entryFile": "src/public-api.ts"
-  },
-  "allowedNonPeerDependencies": [
-    "@fortawesome/fontawesome-free"
-    ]
+  }
 }
