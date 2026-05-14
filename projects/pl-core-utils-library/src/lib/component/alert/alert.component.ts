@@ -11,10 +11,10 @@ import { PlCoreUtils } from '../../pl-core-utils-library.service';
 
 
 @Component({
-    selector: 'app-alert',
-    templateUrl: './alert.component.html',
-    styleUrls: ['./alert.component.css'],
-    standalone: false
+  selector: 'app-alert',
+  templateUrl: './alert.component.html',
+  styleUrls: ['./alert.component.css'],
+  standalone: false
 })
 /**
  * Componente grafico per la visualizzazione dell'alert
@@ -37,15 +37,22 @@ export class AlertComponent implements OnInit {
   constructor() { }
 
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.push();
-    PlCoreUtils.Broadcast().listenEvent("CORE:INFO_SERVICE_DIALOG", (message) => {
-      if ('body' in message.detail)
-        this.queueMessageInfo.push(message.detail)
-      else {
-        this.queueMessageInfo.push({ title: null, body: message.detail.body })
+
+    PlCoreUtils.Broadcast().listenEvent(
+      'CORE:INFO_SERVICE_DIALOG',
+      (event: Event) => {
+        const message = event as CustomEvent<{ title?: string | null; body: string }>;
+
+        if (message.detail) {
+          this.queueMessageInfo.push({
+            title: message.detail.title ?? null,
+            body: message.detail.body
+          });
+        }
       }
-    });
+    );
   }
 
   /**
