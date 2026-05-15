@@ -9,24 +9,31 @@
 import { Subject } from 'rxjs';
 import { TYPE_EVENT } from './decorator/decordator';
 
+export interface PlProgressBar {
+  uuid: string;
+  totalbyte: number;
+  byte: number;
+  changed: Subject<PlProgressBar>;
+  blocked: boolean;
+  url: string;
+  loaded: string;
+  speed: number;
+  percent: number;
+  size: string;
+  interrupt: Subject<boolean>;
+}
+
+/**
+ * @deprecated Usa PlProgressBar.
+ */
+export type progressBarItemInterface = PlProgressBar;
+
 /**
  * Interfaccia di presentazione per le progressBar.
  * Qui sono definiti gli attributi esposti dal singolo oggetto.
  */
 export interface progressBarsInterface {
-  [key: string]: {
-    uuid: string;
-    totalbyte: number;
-    byte: number;
-    changed: Subject<any>;
-    blocked: boolean;
-    url: string;
-    loaded: string;
-    speed: number;
-    percent: number;
-    size: string;
-    interrupt: Subject<any>;
-  };
+  [key: string]: PlProgressBar;
 }
 
 export type PlBroadcastEventListener<T = any> = (event: CustomEvent<T>) => void;
