@@ -903,4 +903,26 @@ export class PlHttpService {
       takeUntil(requestInterrupt)
     );
   }
+
+  /**
+ * Metodo generico per eseguire una richiesta HTTP.
+ */
+  REQUEST<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    const method = PlHttpRequest.normalizeMethod(plHttpRequest.method);
+
+    return this.requestWithAngularHttp<T>(
+      method,
+      plHttpRequest,
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
 }
