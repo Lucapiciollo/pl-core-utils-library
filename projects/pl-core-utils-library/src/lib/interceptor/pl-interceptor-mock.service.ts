@@ -3,58 +3,122 @@
  * @email lucapiciollo@gmail.com
  * @create date 2020-11-17 23:04:27
  * @modify date 2020-11-17 23:04:27
- * @desc Intercettore di chiamata http, viene abilitato in caso di chiamate a servizi mock
+ * @desc Intercettore HTTP per la gestione delle chiamate mock.
  */
 
-
-
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Inject, Injectable, InjectionToken } from '@angular/core';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest
+} from '@angular/common/http';
+import {
+  Inject,
+  Injectable,
+  InjectionToken,
+  Optional
+} from '@angular/core';
 import { Observable } from 'rxjs';
+
 import { CACHE_TAG } from '../service/pl-cache-map.service';
 
-
-/** 
- * @author l.piciollo
- * token per la valorizzazione del path di default per risalire alle classi di mock
+/**
+ * Token per la valorizzazione del path di default
+ * usato per risalire ai JSON di mock.
  */
-export const DEFAULT_PATH_MOCK = new InjectionToken<string>('Defaul path for retrieve mock json');
+export const DEFAULT_PATH_MOCK = new InjectionToken<string>(
+  'Default path for retrieve mock json'
+);
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlHttpInterceptorMockService implements HttpInterceptor {
+  constructor(
+    @Optional() @Inject(DEFAULT_PATH_MOCK) protected pathMock: string | null,
+    @Optional() @Inject(CACHE_TAG) protected tagCache: string | null
+  ) {}
 
-  /***************************************************************************************************************************** */
-  constructor(@Inject(DEFAULT_PATH_MOCK) protected pathMock: string,@Inject(CACHE_TAG) protected tagCache: string) {
-
-  }
-  /***************************************************************************************************************************** */
   /**
-   * @author l.piciollo
-   * intercettore per le chiamate di rere.. tutte le chiamate passano da questo intercettore verrà prelevato l'header ed in particolare
-   * il parametro 'mocked', se posto a true, allora viene prelevato il json di tipo get||post||patch||delete||put previsto in risposta al
-   * servizio
-   * @param request
-   * @param next
+   * Se la request contiene header mocked=true, la chiamata viene trasformata
+   * in una GET verso il file JSON corrispondente:
+   *
+   * /assets/{pathMock}/{url-path}/{method}.json
+   *
+   * Esempio:
+   *
+   * GET /api/users con mocked=true
+   * diventa:
+   * /assets/public/mock/api/users/get.json
    */
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    try {
-      if (request.headers.get('mocked') && request.headers.get('mocked').toLowerCase() === "true") {
-        const isCacable = request.url.indexOf(this.tagCache) > -1;
-        const search = new URL(request.url.replace(this.tagCache,"")).search;
-        let newUrl = "/assets/".concat(this.pathMock).concat(new URL(request.url.replace(this.tagCache,"")).pathname).concat("/").concat(request.method.toLowerCase().concat(".json")).concat(search);
-        if (isCacable==true) newUrl=this.tagCache.concat(newUrl);
-        const httpRequest = new HttpRequest("GET", newUrl);
-        request = Object.assign(request, { url: httpRequest.url });
-        request = Object.assign(request, { method: httpRequest.method });
-      }
-      const dupReq = request.clone();
-      return next.handle(dupReq);
-    } catch (error) {
-      throw error
-    }
-  };
-  /***************************************************************************************************************************** */
+  intercept(
+    request: HttpRequest<unknown>,
+    next: HttpHandler
+  ): Observable<HttpEvent<unknown>> {
+    const mocked = request.headers.get('mocked');
 
+    if (mocked?.toLowerCase() !== 'true') {
+      return next.handle(request);
+    }
+
+    const mockRequest = this.createMockRequest(request);
+
+    return next.handle(mockRequest);
+  }
+
+  private createMockRequest(
+    request: HttpRequest<unknown>
+  ): HttpRequest<unknown> {
+    const tagCache = this.tagCache ?? '';
+    const cleanUrl = tagCache
+      ? request.url.replace(tagCache, '')
+      : request.url;
+
+    const parsedUrl = this.createUrl(cleanUrl);
+    const pathMock = this.normalizePath(this.pathMock ?? 'public/mock');
+
+    const methodFile = `${request.method.toLowerCase()}.json`;
+
+    let newUrl = [
+      '/assets',
+      pathMock,
+      this.normalizePath(parsedUrl.pathname),
+      methodFile
+    ]
+      .filter(Boolean)
+      .join('/');
+
+    if (parsedUrl.search) {
+      newUrl = `${newUrl}${parsedUrl.search}`;
+    }
+
+    if (tagCache && request.url.includes(tagCache)) {
+      newUrl = `${tagCache}${newUrl}`;
+    }
+
+    return request.clone({
+      method: 'GET',
+      url: newUrl,
+      headers: request.headers.delete('mocked')
+    });
+  }
+
+  private createUrl(url: string): URL {
+    try {
+      return new URL(url);
+    } catch {
+      const baseUrl =
+        typeof window !== 'undefined' && window.location?.origin
+          ? window.location.origin
+          : 'http://localhost';
+
+      return new URL(url, baseUrl);
+    }
+  }
+
+  private normalizePath(path: string): string {
+    return path
+      .replace(/^\/+/, '')
+      .replace(/\/+$/, '');
+  }
 }
