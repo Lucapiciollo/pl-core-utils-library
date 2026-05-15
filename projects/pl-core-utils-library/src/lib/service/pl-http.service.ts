@@ -906,19 +906,41 @@ export class PlHttpService {
   /**
    * Esegue più GET in parallelo.
    */
+  /**
+ * Esegue più GET in parallelo.
+ */
   FORKJOIN<T = any>(
     plHttpRequest: Array<PlHttpRequest>,
     interrupt?: Subject<boolean>
   ): Observable<Array<HttpResponse<T>>> {
-    const requestInterrupt = interrupt ?? new Subject<boolean>();
+    return new Observable<Array<HttpResponse<T>>>(observer => {
+      const requestInterrupt = interrupt ?? new Subject<boolean>();
 
-    const serviceRequests = plHttpRequest.map(request =>
-      this.GET<T>(request, undefined, requestInterrupt, undefined, undefined)
-    );
+      const serviceRequests = plHttpRequest.map(request =>
+        this.GET<T>(request, undefined, requestInterrupt, undefined, undefined)
+      );
 
-    return forkJoin(serviceRequests).pipe(
-      takeUntil(requestInterrupt)
-    );
+      const subscription = forkJoin(serviceRequests)
+        .pipe(takeUntil(requestInterrupt))
+        .subscribe({
+          next: res => {
+            observer.next(res as Array<HttpResponse<T>>);
+            observer.complete();
+          },
+          error: err => {
+            observer.error(err);
+          }
+        });
+
+      return () => {
+        subscription.unsubscribe();
+
+        if (!requestInterrupt.closed) {
+          requestInterrupt.next(true);
+          requestInterrupt.complete();
+        }
+      };
+    });
   }
 
   /**
