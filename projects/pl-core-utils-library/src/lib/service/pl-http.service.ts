@@ -449,7 +449,7 @@ export class PlHttpService {
             break;
         }
 
-        request$
+        const subscription = request$
           .pipe(
             takeUntil(PlCoreUtils.progressBars[uuid].interrupt),
             takeUntil(interrupt),
@@ -465,8 +465,15 @@ export class PlHttpService {
               observer.error(err);
             }
           });
+
+        return () => {
+          subscription.unsubscribe();
+        };
       } catch (error) {
         observer.error(error);
+        this.completeProgressBarDelayed(uuid);
+
+        return () => { };
       }
     });
   }
@@ -811,90 +818,90 @@ export class PlHttpService {
   /**
    * Servizio POST.
    */
- POST<T>(
-  plHttpRequest: PlHttpRequest,
-  responseType?: RESPONSE_TYPE,
-  interrupt?: Subject<boolean>,
-  contentType?: CONTENT_TYPE | string,
-  callBack?: (id: string) => void
-): Observable<HttpResponse<T>> {
-  return this.REQUEST<T>(
-    new PlHttpRequest({
-      ...plHttpRequest,
-      method: 'POST'
-    }),
-    responseType,
-    interrupt,
-    contentType,
-    callBack
-  );
-}
+  POST<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.REQUEST<T>(
+      new PlHttpRequest({
+        ...plHttpRequest,
+        method: 'POST'
+      }),
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
 
   /**
    * Servizio PATCH.
    */
- PATCH<T>(
-  plHttpRequest: PlHttpRequest,
-  responseType?: RESPONSE_TYPE,
-  interrupt?: Subject<boolean>,
-  contentType?: CONTENT_TYPE | string,
-  callBack?: (id: string) => void
-): Observable<HttpResponse<T>> {
-  return this.REQUEST<T>(
-    new PlHttpRequest({
-      ...plHttpRequest,
-      method: 'PATCH'
-    }),
-    responseType,
-    interrupt,
-    contentType,
-    callBack
-  );
-}
+  PATCH<T>(
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.REQUEST<T>(
+      new PlHttpRequest({
+        ...plHttpRequest,
+        method: 'PATCH'
+      }),
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
 
   /**
    * Servizio PUT.
    */
   PUT<T>(
-  plHttpRequest: PlHttpRequest,
-  responseType?: RESPONSE_TYPE,
-  interrupt?: Subject<boolean>,
-  contentType?: CONTENT_TYPE | string,
-  callBack?: (id: string) => void
-): Observable<HttpResponse<T>> {
-  return this.REQUEST<T>(
-    new PlHttpRequest({
-      ...plHttpRequest,
-      method: 'PUT'
-    }),
-    responseType,
-    interrupt,
-    contentType,
-    callBack
-  );
-}
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.REQUEST<T>(
+      new PlHttpRequest({
+        ...plHttpRequest,
+        method: 'PUT'
+      }),
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
 
   /**
    * Servizio DELETE.
    */
   DELETE<T>(
-  plHttpRequest: PlHttpRequest,
-  responseType?: RESPONSE_TYPE,
-  interrupt?: Subject<boolean>,
-  contentType?: CONTENT_TYPE | string,
-  callBack?: (id: string) => void
-): Observable<HttpResponse<T>> {
-  return this.REQUEST<T>(
-    new PlHttpRequest({
-      ...plHttpRequest,
-      method: 'DELETE'
-    }),
-    responseType,
-    interrupt,
-    contentType,
-    callBack
-  );
-}
+    plHttpRequest: PlHttpRequest,
+    responseType?: RESPONSE_TYPE,
+    interrupt?: Subject<boolean>,
+    contentType?: CONTENT_TYPE | string,
+    callBack?: (id: string) => void
+  ): Observable<HttpResponse<T>> {
+    return this.REQUEST<T>(
+      new PlHttpRequest({
+        ...plHttpRequest,
+        method: 'DELETE'
+      }),
+      responseType,
+      interrupt,
+      contentType,
+      callBack
+    );
+  }
 
   /**
    * Esegue più GET in parallelo.
