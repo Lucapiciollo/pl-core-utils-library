@@ -523,7 +523,9 @@ export class PlHttpService {
           const response = await fetch(url.toString(), {
             method: plttpRequest.method,
             headers: { ...(headersObj || {}) },
-            body: plttpRequest.body ? JSON.stringify(plttpRequest.body) : undefined,
+            body: !['GET', 'DELETE'].includes(plttpRequest.method) && plttpRequest.body
+              ? JSON.stringify(plttpRequest.body)
+              : undefined,
             signal: interrupt ?? controller.signal
           });
 
