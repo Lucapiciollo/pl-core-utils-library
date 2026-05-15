@@ -33,7 +33,9 @@ interface AlertBroadcastPayload {
 })
 export class AlertService {
   private readonly oldAlert: typeof window.alert =
-    typeof window !== 'undefined' ? window.alert.bind(window) : (() => undefined);
+    typeof window !== 'undefined'
+      ? window.alert.bind(window)
+      : (() => undefined);
 
   private componentRef: ComponentRef<AlertComponent> | null = null;
   private alertEnabled = false;
@@ -67,16 +69,16 @@ export class AlertService {
       return;
     }
 
-    window.alert = ((title?: any, message?: any): void => {
+    window.alert = ((...args: any[]): void => {
       const payload: AlertBroadcastPayload =
-        arguments.length > 1
+        args.length > 1
           ? {
-              title: String(title ?? ''),
-              body: String(message ?? '')
+              title: String(args[0] ?? ''),
+              body: String(args[1] ?? '')
             }
           : {
               title: null,
-              body: String(title ?? '')
+              body: String(args[0] ?? '')
             };
 
       PlCoreUtils.Broadcast().execEvent<AlertBroadcastPayload>(
