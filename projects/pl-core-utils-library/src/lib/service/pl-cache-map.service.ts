@@ -1,80 +1,144 @@
-import { HttpRequest, HttpResponse } from '@angular/common/http';
-import { Injectable, InjectionToken, Injector } from '@angular/core';
+/**
+ * @author @l.piciollo
+ * @email lucapiciollo@gmail.com
+ * @create date 2020-11-17 23:04:27
+ * @modify date 2020-11-17 23:04:27
+ * @desc Servizio cache map per gestione cache temporanea delle chiamate HTTP.
+ */
 
-export interface CacheEntry {
-  url: string;
-  response: HttpResponse<any>
-  entryTime: number;
+import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+
+/**
+ * Token per identificare il tag usato nelle chiamate cacheabili.
+ */
+export const CACHE_TAG = new InjectionToken<string>('CACHE_TAG');
+
+/**
+ * Token per identificare il tempo massimo di validità cache.
+ */
+export const MAX_CACHE_AGE = new InjectionToken<number>('MAX_CACHE_AGE');
+
+export interface PlCacheItem<T = any> {
+  value: T;
+  timestamp: number;
+  maxAge: number;
 }
-
-/**
- * @author l.piciollo
- * token per inizializzare la durata della cache
- * @example { provide: MAX_CACHE_AGE, useValue: 300000 }
- */
-export const MAX_CACHE_AGE = new InjectionToken<Number>('DefaulTimeOut for cache');
-/**
- * @author l.piciollo
- * token per identificare le chiamate che devono esse messe in cache o meno
- * @example  { provide: CACHE_TAG, useValue: "@cachable@" } 
- */
-export const CACHE_TAG = new InjectionToken<String>('tag identificativo per le richieste http');
-
-
-/**
- * @author l.piciollo
- * servizio di caching per richieste http.. si applica in genere al chiamate get che non subiscono cambiamenti continui da parte del BE
- * anteporre alla url del BE il tag identificatore del cache   @cachable@
- * @example @cachable@/stations/station-type?isSubMenu=1
- */
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlCacheMapService {
-  
-  /**@ignore */
-  constructor(public injector: Injector) { }
-  
-  /**@ignore */
-  private cacheMap = new Map<string, CacheEntry>();
-  
+  private readonly cache = new Map<string, PlCacheItem>();
+
+  constructor(
+    @Optional() @Inject(MAX_CACHE_AGE) private readonly maxCacheAge: number | null,
+    @Optional() @Inject(CACHE_TAG) private readonly cacheTag: string | null
+  ) {}
+
   /**
-   * @author l.piciollo
-   * funzionalita di storicizzazione della cache. 
-   * @param req 
+   * Restituisce il tag cache configurato.
    */
-  public get(req: HttpRequest<any>): HttpResponse<any> | null {
-    let url = req.url;
-    try { url = req.urlWithParams.replace(String(this.injector.get(CACHE_TAG)), '') } catch (e) { }
-    const entry = this.cacheMap.get(url);
-    if (!entry) {
+  getCacheTag(): string {
+    return this.cacheTag ?? '@cachable@';
+  }
+
+  /**
+   * Restituisce il tempo massimo cache configurato.
+   */
+  getMaxCacheAge(): number {
+    return this.maxCacheAge ?? 300000;
+  }
+
+  /**
+   * Verifica se una URL contiene il tag cache.
+   */
+  hasCacheTag(url: string): boolean {
+    return url.includes(this.getCacheTag());
+  }
+
+  /**
+   * Rimuove il tag cache da una URL.
+   */
+  removeCacheTag(url: string): string {
+    return url.replace(this.getCacheTag(), '');
+  }
+
+  /**
+   * Salva un valore in cache.
+   */
+  set<T = any>(key: string, value: T, maxAge = this.getMaxCacheAge()): void {
+    this.cache.set(key, {
+      value,
+      timestamp: Date.now(),
+      maxAge
+    });
+  }
+
+  /**
+   * Recupera un valore dalla cache.
+   */
+  get<T = any>(key: string): T | null {
+    const item = this.cache.get(key);
+
+    if (!item) {
       return null;
-    }    
-    const isExpired = (Date.now() - entry.entryTime) > Number(this.injector.get(MAX_CACHE_AGE));
-    return isExpired ? null : entry.response;
+    }
+
+    if (this.isExpired(item)) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return item.value as T;
   }
 
   /**
-   * @author l.piciollo 
-   * funzionalità di recupero della cache.
-  */
-  public put(req: HttpRequest<any>, res: HttpResponse<any>): void {
-    let url = req.url;
-    try { url = req.urlWithParams.replace(String(this.injector.get(CACHE_TAG)), '') } catch (e) { }
-    const entry: CacheEntry = { url: url, response: res, entryTime: Date.now() };
-    this.cacheMap.set(url, entry);
-    this.deleteExpiredCache();
-  }
-
-  /**
-   * @ignore
+   * Verifica se una chiave è presente ed è ancora valida.
    */
-  private deleteExpiredCache() {
-    this.cacheMap.forEach(entry => {
-      if ((Date.now() - entry.entryTime) > Number(this.injector.get(MAX_CACHE_AGE))) {
-        this.cacheMap.delete(entry.url);
-      }
-    })
+  has(key: string): boolean {
+    const item = this.cache.get(key);
+
+    if (!item) {
+      return false;
+    }
+
+    if (this.isExpired(item)) {
+      this.cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Rimuove una chiave dalla cache.
+   */
+  delete(key: string): boolean {
+    return this.cache.delete(key);
+  }
+
+  /**
+   * Pulisce tutta la cache.
+   */
+  clear(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Restituisce tutte le chiavi presenti.
+   */
+  keys(): string[] {
+    return Array.from(this.cache.keys());
+  }
+
+  /**
+   * Restituisce la dimensione della cache.
+   */
+  size(): number {
+    return this.cache.size;
+  }
+
+  private isExpired(item: PlCacheItem): boolean {
+    return Date.now() - item.timestamp > item.maxAge;
   }
 }

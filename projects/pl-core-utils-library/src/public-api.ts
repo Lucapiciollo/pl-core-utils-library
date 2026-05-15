@@ -24,7 +24,8 @@ export {
 export {
   MAX_CACHE_AGE,
   CACHE_TAG,
-  PlCacheMapService
+  PlCacheMapService,
+  PlCacheItem
 } from './lib/service/pl-cache-map.service';
 export { PlGraphicService } from './lib/service/pl-graphic.service';
 export {
