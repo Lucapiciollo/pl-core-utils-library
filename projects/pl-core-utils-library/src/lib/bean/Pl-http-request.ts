@@ -79,4 +79,39 @@ export class PlHttpRequest {
   static isValidMethod(method: string): method is PlHttpMethod {
     return ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(method);
   }
+
+  clone(config: PlHttpRequestConfig = {}): PlHttpRequest {
+    return new PlHttpRequest({
+      url: config.url ?? this.url,
+      method: config.method ?? this.method,
+      body: config.body ?? this.body,
+      queryParams: config.queryParams ?? this.queryParams,
+      httpHeaders: config.httpHeaders ?? this.httpHeaders,
+      mocked: config.mocked ?? this.mocked
+    });
+  }
+
+  withHeaders(httpHeaders: HttpHeaders | Record<string, any> | null): PlHttpRequest {
+    return this.clone({
+      httpHeaders
+    });
+  }
+
+  withQueryParams(queryParams: Record<string, any> | null): PlHttpRequest {
+    return this.clone({
+      queryParams
+    });
+  }
+
+  withBody(body: any): PlHttpRequest {
+    return this.clone({
+      body
+    });
+  }
+
+  withMocked(mocked = true): PlHttpRequest {
+    return this.clone({
+      mocked
+    });
+  }
 }
