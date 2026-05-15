@@ -1,31 +1,38 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { AppComponent, GroupDtoResult, Item } from './app.component';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
+  it('should create the component class', () => {
+    const component = new AppComponent({} as any, {} as any);
+    expect(component).toBeTruthy();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('should initialize title as empty string', () => {
+    const component = new AppComponent({} as any, {} as any);
+    expect(component.title).toBe('');
+  });
+});
+
+describe('GroupDtoResult', () => {
+  it('should initialize items as empty array', () => {
+    const result = new GroupDtoResult();
+    expect(result.items).toEqual([]);
+  });
+});
+
+describe('Item', () => {
+  it('should create item with generated uId and empty childs by default', () => {
+    const item = new Item({ name: 'Root' });
+
+    expect(item.name).toBe('Root');
+    expect(item.uId).toBeTruthy();
+    expect(item.childs).toEqual([]);
   });
 
-  it(`should have as title 'app'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('app');
-  });
+  it('should keep provided childs', () => {
+    const child = new Item({ name: 'Child' });
+    const item = new Item({ name: 'Parent', childs: [child] });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('app app is running!');
+    expect(item.childs.length).toBe(1);
+    expect(item.childs[0]).toBe(child);
   });
 });

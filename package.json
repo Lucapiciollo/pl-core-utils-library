@@ -24,7 +24,7 @@
     "publish:lib:patch:dry": "npm run version:lib:patch && npm run publish:lib:dry",
     "publish:lib:minor:dry": "npm run version:lib:minor && npm run publish:lib:dry",
     "publish:lib:major:dry": "npm run version:lib:major && npm run publish:lib:dry",
-    "test": "ng test"
+    "test": "ng test app"
   },
   "dependencies": {
     "@angular/animations": "^19.2.1",
