@@ -14,7 +14,8 @@
     "publish:lib": "npm run build:pack && cd dist/pl-core-utils-library && npm publish",
     "version:lib:patch": "cd projects/pl-core-utils-library && npm version patch --no-git-tag-version",
     "version:lib:minor": "cd projects/pl-core-utils-library && npm version minor --no-git-tag-version",
-    "version:lib:major": "cd projects/pl-core-utils-library && npm version major --no-git-tag-version"
+    "version:lib:major": "cd projects/pl-core-utils-library && npm version major --no-git-tag-version",
+    "prepublish:lib": "npm run verify:lib && npm run publish:lib:dry"
   },
   "dependencies": {
     "@angular/animations": "^19.2.1",
