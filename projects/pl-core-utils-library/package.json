@@ -1,6 +1,6 @@
 {
   "name": "pl-core-utils-library",
-  "version": "2.1.3",
+  "version": "3.0.0",
   "author": "@l.piciollo",
   "license": "MIT",
   "description": "Angular core utility library with HTTP helpers, workers, graphic utilities, broadcast events and base components.",
@@ -13,6 +13,21 @@
     "broadcast",
     "library"
   ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "npm --prefix ../.. run build:lib",
+    "pack": "npm --prefix ../.. run pack:lib",
+    "verify": "npm --prefix ../.. run verify:lib",
+    "check": "npm --prefix ../.. run check:lib-package",
+    "publish:dry": "npm --prefix ../.. run publish:lib:dry",
+    "publish:public": "npm --prefix ../.. run publish:lib",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "publish:lib:patch:dry": "npm run version:lib:patch && npm run publish:lib:dry",
+    "publish:lib:minor:dry": "npm run version:lib:minor && npm run publish:lib:dry",
+    "publish:lib:major:dry": "npm run version:lib:major && npm run publish:lib:dry"
+  },
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
