@@ -5,14 +5,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "test": "ng test",
-    "lint": "ng lint",
-    "typedoc": "compodoc -d public/pl-core-utils-library/documentation -p tsconfig.json -s -n Portable-Core --theme Postmark --disablePrivate --disableCoverage --disableStyleTab --disableTemplateTab --hideGenerator --disableSourceCode",
-    "sonar": "sonar-scanner",
-    "build-dev": "ng build --project=pl-core-utils-library",
-    "build-prod": "ng build --aot --source-map=false",
+    "build": "ng build",
     "build:lib": "ng build pl-core-utils-library",
-    "pack:lib": "npm run build:lib && cd dist/pl-core-utils-library && npm pack"
+    "pack:lib": "npm run build:lib && cd dist/pl-core-utils-library && npm pack",
+    "verify:lib": "npm run build:lib && npm run pack:lib  ",
+    "test": "ng test"
   },
   "dependencies": {
     "@angular/animations": "^19.2.1",
@@ -38,7 +35,7 @@
     "ngx-ui-loader": "^13.0.0",
     "pl-core-utils-library": "file:projects/pl-core-utils-library",
     "pl-decorator": "^1.4.28",
-     "rxjs": "~7.8.0",
+    "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
