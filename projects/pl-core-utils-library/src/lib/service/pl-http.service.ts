@@ -594,12 +594,12 @@ export class PlHttpService {
 
       if ('POST|GET|PATCH|DELETE|PUT'.split('|').indexOf(plHttpRequest.method) < 0) {
         observer.error('Method not valid : POST|GET|PATCH|DELETE|PUT');
-
-        externalInterruptSub.unsubscribe();
-        progressInterruptSub.unsubscribe();
         this.completeProgressBarDelayed(uuid);
 
-        return undefined;
+        return () => {
+          externalInterruptSub.unsubscribe();
+          progressInterruptSub.unsubscribe();
+        };
       }
 
       const url = this.createUrlWithQueryParams(plHttpRequest.url, plHttpRequest.queryParams);
