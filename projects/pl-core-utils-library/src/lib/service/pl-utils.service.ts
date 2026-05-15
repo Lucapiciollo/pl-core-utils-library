@@ -1,75 +1,145 @@
 import { Injectable } from '@angular/core';
-import { fromEvent, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { fromEvent, Observable, of, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
 
 /**
- * @author l.piciollo
- * classe di servizio che espone metodi di utilità
+ * Dimensione finestra.
+ */
+export interface PlWindowSize {
+  W: number;
+  h: number;
+}
+
+/**
+ * Input per ricerca dicotomica.
+ */
+export interface PlBinaryFindInput<T = any> {
+  arr: T[];
+  searchElement: T;
+}
+
+/**
+ * Classe di servizio che espone metodi di utilità.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class PlUtilsService {
-  private traceSizeWindowOBS: Subscription;
-  constructor() { }
-  /********************************************************************************************************* */
+  private traceSizeWindowOBS: Subscription | null = null;
+
+  constructor() {}
+
   /**
-   * @l.piciollo
-   * ricerca dicotomica di un elemento in un array ordinato
-   * @param input : valore da cercare
+   * Ricerca dicotomica di un elemento in un array ordinato.
+   *
+   * Ritorna l'indice dell'elemento trovato.
+   * Se non trovato, ritorna -1.
    */
-  public binaryFind = function (input: any): Promise<any> {
-    return new Promise<any>((ok, ko) => {
+  public binaryFind<T = any>(input: PlBinaryFindInput<T>): Promise<number> {
+    return new Promise<number>(resolve => {
       let minIndex = 0;
       let maxIndex = input.arr.length - 1;
-      let currentIndex;
-      let currentElement;
+
       while (minIndex <= maxIndex) {
-        currentIndex = Math.floor((minIndex + maxIndex) / 2);
-        currentElement = input.arr[currentIndex];
+        const currentIndex = Math.floor((minIndex + maxIndex) / 2);
+        const currentElement = input.arr[currentIndex];
+
         if (currentElement < input.searchElement) {
           minIndex = currentIndex + 1;
-        } else if (currentElement > input.searchElement) {
-          maxIndex = currentIndex - 1;
-        } else {
-          ok(currentIndex);
-          return currentIndex;
+          continue;
         }
+
+        if (currentElement > input.searchElement) {
+          maxIndex = currentIndex - 1;
+          continue;
+        }
+
+        resolve(currentIndex);
+        return;
       }
-      ok(-1);
-      return -1;
-    })
-  };
-  /****************************************************************************************** */
 
-  /**
-   * @author l.piciollo
-   * abilita il trace del ridimensionamento dello schermo.. ritorna la misura della larghezza
-   */
-   public traceSizeWindow(): Observable<any> {
-    return  fromEvent(window, 'resize')
-        .pipe(
-          debounceTime(200),
-          distinctUntilChanged(),
-          map(() =>{ return {W:window.innerWidth, h:window.innerHeight}}),
-        );
+      resolve(-1);
+    });
   }
 
   /**
-   * @author l.piciollo
-   * disabilita il trace del controllo dimesione schermo
+   * Versione sincrona della ricerca dicotomica.
    */
-  public stopTraceSizeWindow() {
-    try {
-      this.traceSizeWindowOBS.unsubscribe();
-    } catch (e) {
-      throw e;
+  public binaryFindSync<T = any>(input: PlBinaryFindInput<T>): number {
+    let minIndex = 0;
+    let maxIndex = input.arr.length - 1;
+
+    while (minIndex <= maxIndex) {
+      const currentIndex = Math.floor((minIndex + maxIndex) / 2);
+      const currentElement = input.arr[currentIndex];
+
+      if (currentElement < input.searchElement) {
+        minIndex = currentIndex + 1;
+        continue;
+      }
+
+      if (currentElement > input.searchElement) {
+        maxIndex = currentIndex - 1;
+        continue;
+      }
+
+      return currentIndex;
     }
+
+    return -1;
   }
 
+  /**
+   * Abilita il trace del ridimensionamento dello schermo.
+   * Ritorna la misura della larghezza e altezza finestra.
+   */
+  public traceSizeWindow(): Observable<PlWindowSize> {
+    if (typeof window === 'undefined') {
+      return of({
+        W: 0,
+        h: 0
+      });
+    }
 
- 
+    return fromEvent(window, 'resize').pipe(
+      debounceTime(200),
+      startWith(null),
+      map(() => this.getWindowSize()),
+      distinctUntilChanged((prev, curr) => prev.W === curr.W && prev.h === curr.h)
+    );
+  }
 
+  /**
+   * Avvia internamente il trace del resize.
+   * Utile se vuoi mantenere una subscription interna al servizio.
+   */
+  public startTraceSizeWindow(callback: (size: PlWindowSize) => void): Subscription {
+    this.stopTraceSizeWindow();
 
+    this.traceSizeWindowOBS = this.traceSizeWindow().subscribe(callback);
 
+    return this.traceSizeWindowOBS;
+  }
+
+  /**
+   * Disabilita il trace del controllo dimensione schermo.
+   */
+  public stopTraceSizeWindow(): void {
+    this.traceSizeWindowOBS?.unsubscribe();
+    this.traceSizeWindowOBS = null;
+  }
+
+  private getWindowSize(): PlWindowSize {
+    if (typeof window === 'undefined') {
+      return {
+        W: 0,
+        h: 0
+      };
+    }
+
+    return {
+      W: window.innerWidth,
+      h: window.innerHeight
+    };
+  }
 }

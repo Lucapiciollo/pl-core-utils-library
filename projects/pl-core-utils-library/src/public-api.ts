@@ -35,7 +35,11 @@ export {
   TYPE_EVENT_NETWORK
 } from './lib/service/pl-http.service';
  
-export { PlUtilsService } from './lib/service/pl-utils.service';
+export {
+  PlUtilsService,
+  PlWindowSize,
+  PlBinaryFindInput
+} from './lib/service/pl-utils.service';
 export { PLWorkerService } from './lib/service/pl-worker.service';
 
 // Interceptors
