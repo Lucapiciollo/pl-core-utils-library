@@ -3,58 +3,121 @@
  * @email lucapiciollo@gmail.com
  * @create date 2020-11-24 14:47:50
  * @modify date 2020-11-24 14:47:50
- * @desc [description]
+ * @desc Servizio per la gestione dell'alert custom della libreria.
  */
-import { ApplicationRef, ComponentFactoryResolver, EmbeddedViewRef, Injectable, Injector } from '@angular/core';
+
+import {
+  ApplicationRef,
+  ComponentFactoryResolver,
+  ComponentRef,
+  EmbeddedViewRef,
+  Injectable,
+  Injector
+} from '@angular/core';
+
 import { PlCoreUtils } from '../../pl-core-utils-library.service';
 import { AlertComponent } from './alert.component';
 
+interface AlertBroadcastPayload {
+  title: string | null;
+  body: string;
+}
 
-
-@Injectable({
-  providedIn: "root"
-})
 /**
- * Classe di servizio per il componente Alert. al momento dell'import del servizio.. questo si occupa di sovrascrivere
- * le funzionalita di alert della classe window. Alla chiamata di alert(), quindi, verrà visualizzata una schermata di alert
- * con grafica bootstrap.
+ * Classe di servizio per il componente Alert.
+ * Al momento dell'abilitazione sovrascrive window.alert().
+ * Alla chiamata di alert(), viene visualizzato un alert custom tramite AlertComponent.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class AlertService {
+  private readonly oldAlert: typeof window.alert =
+    typeof window !== 'undefined' ? window.alert.bind(window) : (() => undefined);
 
-  /***************************************************************************************************************************** */
-  private oldAlert = window.alert;
-  private componentRef = null;
+  private componentRef: ComponentRef<AlertComponent> | null = null;
+  private alertEnabled = false;
 
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private appRef: ApplicationRef,
     private injector: Injector
   ) {
-    (<any>window.alert) = function (title: string, message: string) {
-      if (arguments.length > 1) {
-        PlCoreUtils.Broadcast().execEvent("CORE:INFO_SERVICE_DIALOG", { title: title, body: message });
-      } else {
-        PlCoreUtils.Broadcast().execEvent("CORE:INFO_SERVICE_DIALOG", { title: null, body: title });
-      }
-      return
-    }
+    this.overrideWindowAlert();
   }
 
   /**
-   * funzionalità per disabilitare il componente e ripristinare alert() nativo messo a disposizione da window.
+   * Funzionalità per abilitare/disabilitare il componente
+   * e ripristinare alert() nativo messo a disposizione da window.
    */
-  public enableAlertMessage(enable: boolean) {
+  public enableAlertMessage(enable: boolean): void {
     if (enable) {
-      this.componentRef = this.componentFactoryResolver.resolveComponentFactory(AlertComponent).create(this.injector);
-      this.appRef.attachView(this.componentRef.hostView);
-      const domElem = (this.componentRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
-      document.body.appendChild(domElem);
-    } else {
-      this.appRef.detachView(this.componentRef.hostView);
-      this.componentRef.destroy();
-      (<any>window.alert) = this.oldAlert;
+      this.createAlertComponent();
+      this.alertEnabled = true;
+      return;
     }
+
+    this.destroyAlertComponent();
+    this.restoreWindowAlert();
+    this.alertEnabled = false;
   }
 
+  private overrideWindowAlert(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
 
+    window.alert = ((title?: any, message?: any): void => {
+      const payload: AlertBroadcastPayload =
+        arguments.length > 1
+          ? {
+              title: String(title ?? ''),
+              body: String(message ?? '')
+            }
+          : {
+              title: null,
+              body: String(title ?? '')
+            };
+
+      PlCoreUtils.Broadcast().execEvent<AlertBroadcastPayload>(
+        'CORE:INFO_SERVICE_DIALOG',
+        payload
+      );
+    }) as typeof window.alert;
+  }
+
+  private restoreWindowAlert(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.alert = this.oldAlert;
+  }
+
+  private createAlertComponent(): void {
+    if (this.componentRef || typeof document === 'undefined') {
+      return;
+    }
+
+    this.componentRef = this.componentFactoryResolver
+      .resolveComponentFactory(AlertComponent)
+      .create(this.injector);
+
+    this.appRef.attachView(this.componentRef.hostView);
+
+    const domElem = (this.componentRef.hostView as EmbeddedViewRef<unknown>)
+      .rootNodes[0] as HTMLElement;
+
+    document.body.appendChild(domElem);
+  }
+
+  private destroyAlertComponent(): void {
+    if (!this.componentRef) {
+      return;
+    }
+
+    this.appRef.detachView(this.componentRef.hostView);
+    this.componentRef.destroy();
+    this.componentRef = null;
+  }
 }
