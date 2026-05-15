@@ -1,6 +1,23 @@
+/**
+ * Per assicurare che le estensioni runtime (metodi su Array, String, Object, JSON) siano disponibili,
+ * importa e richiama PlAmbientModeLoaderService nel main.ts del tuo progetto consumer:
+ *
+ *   import { PlAmbientModeLoaderService } from 'pl-core-utils-library';
+ *   // Nel costruttore principale o in APP_INITIALIZER:
+ *   plAmbientModeLoaderService.detect().subscribe();
+ *
+ * Così le estensioni saranno attive a runtime per tutto il progetto.
+ */
+// Prototype Extensions (estensioni globali)
+export * from './prototype-extensions';
+
+import './lib/utils/pl-to-async-iterator';
+
+ 
 /*
  * Public API Surface of pl-core-utils-library
  */
+ 
 
 // Module
 export {
@@ -21,7 +38,7 @@ export {
   BROWSER,
   BROWSER_VALID,
   DISABLE_LOG,
-  PlAmbientModeResult
+   
 } from './lib/service/pl-ambient-mode.service';
 
 export {

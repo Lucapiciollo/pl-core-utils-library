@@ -19,6 +19,14 @@ export class PlNetworkService {
    * per retrocompatibilità, ma può non funzionare in tutti gli ambienti.
     * @returns Promise con header e query params correnti.
    */
+  /**
+   * Restituisce headers HTTP e query params della pagina corrente.
+   * Utile per debug, diagnostica o per propagare info di contesto lato client.
+   * Nota: la lettura degli header tramite XMLHttpRequest sincrona è mantenuta per retrocompatibilità, ma può non funzionare in tutti gli ambienti.
+   * @returns Promise con header e query params correnti.
+   * @example
+   * service.getLocalHttpHeaders().then(({ headers, params }) => console.log(headers, params));
+   */
   public getLocalHttpHeaders(): Promise<PlLocalHttpInfo> {
     return new Promise<PlLocalHttpInfo>((resolve, reject) => {
       try {
@@ -43,7 +51,10 @@ export class PlNetworkService {
     });
   }
 
-  /** Legge gli header HTTP del documento corrente tramite chiamata locale sincrona. */
+  /**
+   * Legge gli header HTTP del documento corrente tramite chiamata locale sincrona.
+   * @returns Record con header HTTP della pagina.
+   */
   private readCurrentDocumentHeaders(): Record<string, string> {
     try {
       const req = new XMLHttpRequest();
@@ -57,7 +68,11 @@ export class PlNetworkService {
     }
   }
 
-  /** Effettua il parse dei query param della URL corrente in un record key/value. */
+  /**
+   * Effettua il parse dei query param della URL corrente in un record key/value.
+   * @param search Stringa query (es: location.search).
+   * @returns Record con i parametri query.
+   */
   private parseQueryParams(search: string): Record<string, string> {
     const params: Record<string, string> = {};
     const query = search.startsWith('?') ? search.substring(1) : search;
@@ -81,7 +96,13 @@ export class PlNetworkService {
     return params;
   }
 
-  /** @ignore */
+  /**
+   * Effettua il parse di una stringa header HTTP in un record key/value.
+   * @param httpHeaders Stringa header HTTP (formato raw).
+   * @returns Record con header HTTP.
+   * @example
+   * const headers = service['parseHttpHeaders']('X-Token: abc\nX-Id: 123');
+   */
   private parseHttpHeaders(httpHeaders: string): Record<string, string> {
     if (!httpHeaders) {
       return {};

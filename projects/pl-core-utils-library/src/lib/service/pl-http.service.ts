@@ -159,6 +159,13 @@ export class PlHttpService {
 
   constructor(private http: HttpClient) { }
 
+  /**
+   * Converte un oggetto headers generico o HttpHeaders in un oggetto HttpHeaders.
+   * @param headers Oggetto headers (HttpHeaders o Record<string, any>).
+   * @returns Oggetto HttpHeaders pronto per l’uso nelle chiamate Angular HttpClient.
+   * @example
+   * const headers = service.toHttpHeaders({ Authorization: 'Bearer token' });
+   */
   private toHttpHeaders(headers?: HttpHeaders | Record<string, any> | null): HttpHeaders {
     if (!headers) {
       return new HttpHeaders();
@@ -181,6 +188,10 @@ export class PlHttpService {
     return httpHeaders;
   }
 
+  /**
+   * Crea una nuova progress bar associata a una richiesta HTTP.
+   * @param uuid Identificativo univoco della progress bar.
+   */
   private createProgressBar(uuid: string): void {
     PlCoreUtils.progressBars[uuid] = {
       uuid,
@@ -197,6 +208,11 @@ export class PlHttpService {
     };
   }
 
+  /**
+   * Completa e rimuove la progress bar associata a una richiesta HTTP.
+   * @param uuid Identificativo progress bar.
+   * @param remove Se true rimuove la progress bar, altrimenti la completa soltanto.
+   */
   private completeProgressBar(uuid: string, remove = true): void {
     const progressBar = PlCoreUtils.progressBars[uuid];
 
@@ -213,6 +229,11 @@ export class PlHttpService {
     }
   }
 
+  /**
+   * Completa la progress bar con un ritardo opzionale (default 3s).
+   * @param uuid Identificativo progress bar.
+   * @param delayMs Millisecondi di ritardo prima della rimozione.
+   */
   private completeProgressBarDelayed(uuid: string, delayMs = 3000): void {
     this.completeProgressBar(uuid, false);
 
@@ -222,6 +243,16 @@ export class PlHttpService {
   }
 
   /** @ignore */
+  /**
+   * Costruisce le opzioni per una richiesta HTTP Angular (headers, params, responseType, ecc).
+   * @param params Parametri query string.
+   * @param header Headers HTTP.
+   * @param responseType Tipo di risposta atteso.
+   * @param contentType Content-Type esplicito.
+   * @returns Oggetto opzioni per HttpClient.
+   * @example
+   * const options = service.requestOption({ id: 1 }, null, RESPONSE_TYPE.JSON, CONTENT_TYPE.JSON);
+   */
   public requestOption(
     params: Record<string, any> | null,
     header: HttpHeaders | null,
@@ -261,6 +292,12 @@ export class PlHttpService {
     return options;
   }
 
+  /**
+   * Aggiorna lo stato della progress bar associata a una richiesta HTTP.
+   * @param uuid Identificativo progress bar.
+   * @param event Evento di progresso HTTP.
+   * @returns Subject che emette lo stato aggiornato della progress bar.
+   */
   private refreshProgress(uuid: string, event?: HttpProgressEvent | any): Subject<any> {
     const progressBar = PlCoreUtils.progressBars[uuid];
 
@@ -280,6 +317,12 @@ export class PlHttpService {
     return progressBar.changed;
   }
 
+  /**
+   * Gestisce i vari eventi HTTP (progress, risposta, errore) e aggiorna la progress bar.
+   * @param event Evento HTTP.
+   * @param uuid Identificativo progress bar.
+   * @param observer Observer RxJS per la risposta.
+   */
   private checkEventHttp<T>(event: any, uuid: string, observer: Subscriber<T>): void {
     try {
       switch (event.type) {
@@ -308,10 +351,21 @@ export class PlHttpService {
     }
   }
 
+  /**
+   * Normalizza una URL decodificandola e sostituendo i caratteri speciali.
+   * @param url URL da normalizzare.
+   * @returns URL normalizzata.
+   */
   private normalizeUrl(url: string): string {
     return decodeURIComponent(url).replace(/\*/g, '%2A');
   }
 
+  /**
+   * Crea una URL con i parametri query forniti.
+   * @param url URL base.
+   * @param queryParams Parametri query string.
+   * @returns URL completa di query string.
+   */
   private createUrlWithQueryParams(url: string, queryParams?: Record<string, any> | null): string {
     const parsedUrl = this.createUrl(url);
 
@@ -328,6 +382,11 @@ export class PlHttpService {
     return this.normalizeUrl(parsedUrl.toString());
   }
 
+  /**
+   * Crea un oggetto URL robusto anche in ambienti non-browser.
+   * @param url Stringa URL.
+   * @returns Oggetto URL.
+   */
   private createUrl(url: string): URL {
     try {
       return new URL(url);
@@ -341,6 +400,11 @@ export class PlHttpService {
     }
   }
 
+  /**
+   * Normalizza il metodo HTTP in uno dei valori accettati.
+   * @param method Metodo HTTP (stringa).
+   * @returns Metodo normalizzato o null se non valido.
+   */
   private normalizeMethod(method: any): PlHttpMethod | null {
     const normalizedMethod = String(method ?? '').trim().toUpperCase();
 
@@ -351,6 +415,11 @@ export class PlHttpService {
     return null;
   }
 
+  /**
+   * Applica gli header HTTP a una richiesta XMLHttpRequest.
+   * @param xhr Oggetto XMLHttpRequest.
+   * @param headers Headers da applicare.
+   */
   private applyXhrHeaders(xhr: XMLHttpRequest, headers?: HttpHeaders | Record<string, any> | null): void {
     if (!headers) {
       return;
@@ -377,6 +446,19 @@ export class PlHttpService {
     });
   }
 
+  /**
+   * Esegue una richiesta HTTP tramite Angular HttpClient con gestione avanzata di progress, interrupt e callback.
+   * @param method Metodo HTTP (GET, POST, ecc).
+   * @param plHttpRequest Oggetto richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress bar.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.requestWithAngularHttp('GET', new PlHttpRequest({ url: '/api/data' }), RESPONSE_TYPE.JSON)
+   *   .subscribe(res => console.log(res));
+   */
   private requestWithAngularHttp<T>(
     method: PlHttpMethod,
     plHttpRequest: PlHttpRequest,
@@ -476,6 +558,14 @@ export class PlHttpService {
    * @param applicationType MIME type da associare al blob.
    * @returns Promise con blob URL creato.
    */
+  /**
+   * Crea un blob URL da uno stream binario (es. per download file).
+   * @param streamData Contenuto binario da trasformare in blob.
+   * @param applicationType MIME type da associare al blob.
+   * @returns Promise con blob URL creato.
+   * @example
+   * service.CREATEBLOB(arrayBuffer, CONTENT_TYPE.PDF).then(url => ...);
+   */
   CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE | string = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
@@ -503,6 +593,13 @@ export class PlHttpService {
     * @param blobUrl Blob URL da revocare.
     * @returns Promise `true` se l'operazione completa senza errori.
    */
+  /**
+   * Elimina un blob URL dalla memoria del browser.
+   * @param blobUrl Blob URL da revocare.
+   * @returns Promise `true` se l'operazione completa senza errori.
+   * @example
+   * service.DESTROYBLOB(url).then(() => ...);
+   */
   DESTROYBLOB(blobUrl: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       try {
@@ -520,6 +617,15 @@ export class PlHttpService {
     * @param contentType Content type del file.
     * @param fileName Nome file di destinazione.
     * @returns Promise `true` a download avviato.
+   */
+  /**
+   * Effettua il download di uno stream dati come file locale.
+   * @param streamData Dato binario da scaricare.
+   * @param contentType Content type del file.
+   * @param fileName Nome file di destinazione.
+   * @returns Promise `true` a download avviato.
+   * @example
+   * service.DOWNLOAD(arrayBuffer, CONTENT_TYPE.PDF, 'file.pdf');
    */
   DOWNLOAD(
     streamData: ArrayBuffer,
@@ -546,6 +652,13 @@ export class PlHttpService {
    * Download di un file da URL/blob URL.
     * @param url URL o blob URL sorgente.
     * @param filename Nome file di download.
+   */
+  /**
+   * Download di un file da URL/blob URL (browser only).
+   * @param url URL o blob URL sorgente.
+   * @param filename Nome file di download.
+   * @example
+   * service.DOWNLOADURL(blobUrl, 'file.pdf');
    */
   DOWNLOADURL(url: string, filename = 'download_temp'): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') {
@@ -581,6 +694,11 @@ export class PlHttpService {
 
 
 
+  /**
+   * Decodifica incrementale di chunk JSON per streaming.
+   * @param value Chunk binario.
+   * @param decodedItemCallback Callback per ogni item decodificato.
+   */
   private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
     const chunk = this.decoder.decode(value);
     let itemStart = 0;
@@ -615,6 +733,11 @@ export class PlHttpService {
     }
   }
 
+  /**
+   * Converte headers generici in Record<string, string> per fetch/streaming.
+   * @param headers Headers da convertire.
+   * @returns Record<string, string>.
+   */
   private toHeaderRecord(headers?: HttpHeaders | Record<string, any> | null): Record<string, string> {
     if (!headers) {
       return {};
@@ -649,6 +772,16 @@ export class PlHttpService {
     * @param interrupt Segnale di abort esterno opzionale.
     * @param decodeChunk Decoder custom opzionale per il chunk.
     * @returns Observable che emette gli item decodificati.
+   */
+  /**
+   * Esegue una richiesta fetch in streaming e emette gli item decodificati chunk-by-chunk.
+   * Se `decodeChunk` non è fornito, usa il decoder JSON incrementale interno.
+   * @param plttpRequest Richiesta HTTP da eseguire in streaming.
+   * @param interrupt Segnale di abort esterno opzionale.
+   * @param decodeChunk Decoder custom opzionale per il chunk.
+   * @returns Observable che emette gli item decodificati.
+   * @example
+   * service.STREAM(new PlHttpRequest({ url: '/api/stream' })).subscribe(item => ...);
    */
   STREAM<T>(
     plttpRequest: PlHttpRequest,
@@ -734,6 +867,18 @@ export class PlHttpService {
     * @param contentType Content-Type esplicito.
     * @param callBack Callback invocata con id progress bar.
     * @returns Observable con risposta raw XHR.
+   */
+  /**
+   * Esegue la request con XMLHttpRequest (fallback compatibilità/browser legacy).
+   * Supporta interrupt esterno e progressbar interna.
+   * @param plHttpRequest Richiesta HTTP da eseguire.
+   * @param responseType Tipo risposta XMLHttpRequest.
+   * @param interrupt Subject per interrompere la richiesta.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback invocata con id progress bar.
+   * @returns Observable con risposta raw XHR.
+   * @example
+   * service.nativeHttp(new PlHttpRequest({ url: '/api/data' }), 'json').subscribe(res => ...);
    */
   nativeHttp(
     plHttpRequest: PlHttpRequest,
@@ -857,6 +1002,17 @@ export class PlHttpService {
     * @param callBack Callback con id progress.
     * @returns Observable con evento di risposta HTTP.
    */
+  /**
+   * Servizio GET (shortcut per REQUEST con method GET).
+   * @param plHttpRequest Configurazione richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.GET(new PlHttpRequest({ url: '/api/data' })).subscribe(res => ...);
+   */
   GET<T>(
     plHttpRequest: PlHttpRequest,
     responseType?: RESPONSE_TYPE,
@@ -884,6 +1040,17 @@ export class PlHttpService {
     * @param contentType Content-Type esplicito.
     * @param callBack Callback con id progress.
     * @returns Observable con evento di risposta HTTP.
+   */
+  /**
+   * Servizio POST (shortcut per REQUEST con method POST).
+   * @param plHttpRequest Configurazione richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.POST(new PlHttpRequest({ url: '/api/data', body: { foo: 'bar' } })).subscribe(res => ...);
    */
   POST<T>(
     plHttpRequest: PlHttpRequest,
@@ -913,6 +1080,17 @@ export class PlHttpService {
     * @param callBack Callback con id progress.
     * @returns Observable con evento di risposta HTTP.
    */
+  /**
+   * Servizio PATCH (shortcut per REQUEST con method PATCH).
+   * @param plHttpRequest Configurazione richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.PATCH(new PlHttpRequest({ url: '/api/data', body: { foo: 'bar' } })).subscribe(res => ...);
+   */
   PATCH<T>(
     plHttpRequest: PlHttpRequest,
     responseType?: RESPONSE_TYPE,
@@ -940,6 +1118,17 @@ export class PlHttpService {
     * @param contentType Content-Type esplicito.
     * @param callBack Callback con id progress.
     * @returns Observable con evento di risposta HTTP.
+   */
+  /**
+   * Servizio PUT (shortcut per REQUEST con method PUT).
+   * @param plHttpRequest Configurazione richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.PUT(new PlHttpRequest({ url: '/api/data', body: { foo: 'bar' } })).subscribe(res => ...);
    */
   PUT<T>(
     plHttpRequest: PlHttpRequest,
@@ -969,6 +1158,17 @@ export class PlHttpService {
     * @param callBack Callback con id progress.
     * @returns Observable con evento di risposta HTTP.
    */
+  /**
+   * Servizio DELETE (shortcut per REQUEST con method DELETE).
+   * @param plHttpRequest Configurazione richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.DELETE(new PlHttpRequest({ url: '/api/data' })).subscribe(res => ...);
+   */
   DELETE<T>(
     plHttpRequest: PlHttpRequest,
     responseType?: RESPONSE_TYPE,
@@ -993,6 +1193,17 @@ export class PlHttpService {
    * @param plHttpRequest Lista richieste GET da eseguire.
    * @param interrupt Subject opzionale di interruzione globale.
    * @returns Observable con array di risposte HTTP.
+   */
+  /**
+   * Esegue più chiamate GET in parallelo e restituisce il risultato aggregato.
+   * @param plHttpRequest Lista richieste GET da eseguire.
+   * @param interrupt Subject opzionale di interruzione globale.
+   * @returns Observable con array di risposte HTTP.
+   * @example
+   * service.FORKJOIN([
+   *   new PlHttpRequest({ url: '/api/1' }),
+   *   new PlHttpRequest({ url: '/api/2' })
+   * ]).subscribe(responses => ...);
    */
   FORKJOIN<T = any>(
     plHttpRequest: Array<PlHttpRequest>,
@@ -1036,6 +1247,18 @@ export class PlHttpService {
    * @param contentType Content-Type esplicito.
    * @param callBack Callback con id progress.
    * @returns Observable con evento di risposta HTTP.
+   */
+  /**
+   * Metodo generico per eseguire una richiesta HTTP in base al method del `PlHttpRequest`.
+   * @param plHttpRequest Configurazione completa richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   * @example
+   * service.REQUEST(new PlHttpRequest({ url: '/api/data', method: 'POST', body: { foo: 'bar' } }))
+   *   .subscribe(res => ...);
    */
   REQUEST<T>(
     plHttpRequest: PlHttpRequest,

@@ -37,7 +37,7 @@ interface JSON {
     json2flatObj: (json: any, ignore?: Array<string>) => any;
     findKey: (json: any, keyFind: any, ignore?: Array<string>) => any;
     findByKeyAndValue: (json, keyFind, valueFind, ignore?: Array<string>) => any;
-    deleteKey: <T>(json: T, keys: Array<string>) => T;
+    deleteKey: <T>(json: T, keys: Array<string>, valueToMatch?: any[] | any) => T;
 }
 
 

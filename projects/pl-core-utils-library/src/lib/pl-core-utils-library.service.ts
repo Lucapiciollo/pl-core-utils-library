@@ -38,11 +38,27 @@ export class PlCoreUtils {
   /**
    * Variabile contenente le progress di ajax download/upload.
    */
+  /**
+   * Mappa globale delle progress bar attive (download/upload ajax).
+   * @type {progressBarsInterface}
+   * @example
+   * PlCoreUtils.progressBars['uuid']?.percent
+   */
   public static progressBars: progressBarsInterface = {};
 
   /**
    * Metodi per lancio, registrazione e cancellazione eventi.
     * @returns API broadcast con funzioni di publish/subscribe/unsubscribe.
+   */
+  /**
+   * API broadcast per publish/subscribe/unsubscribe eventi custom su document (browser).
+   * Permette di lanciare, ascoltare e rimuovere eventi custom tipizzati.
+   * @returns API broadcast con funzioni di execEvent, listenEvent, removeListenEvent.
+   * @example
+   * const api = PlCoreUtils.Broadcast();
+   * api.listenEvent('MY_EVENT', (e) => ...);
+   * api.execEvent('MY_EVENT', { foo: 1 });
+   * api.removeListenEvent('MY_EVENT', callback);
    */
   static Broadcast(): {
     execEvent<T = any>(event: TYPE_EVENT | string, object: T): void;

@@ -24,6 +24,19 @@ export class PLWorkerService {
    * @param singolInstance Se true crea un nuovo worker URL anche se la funzione era già mappata.
   * @returns Promise con il risultato prodotto dal worker.
    */
+  /**
+   * Esegue una funzione asincrona o sincrona in un Web Worker (thread separato) se supportato, altrimenti fallback su main thread.
+   * Utile per virtualizzare task pesanti senza bloccare l’UI.
+   * Nota: workerFunction e initProcess non devono essere arrow function se vuoi serializzarle correttamente dentro il worker.
+   * @param workerFunction Funzione/Promise da virtualizzare in thread separato.
+   * @param nameThred Nome thread (per log/debug).
+   * @param initProcess Funzione richiamata per log di start/end processo.
+   * @param data Parametri da passare alla funzione workerFunction.
+   * @param singolInstance Se true forza nuovo worker URL anche se già mappata.
+   * @returns Promise con il risultato prodotto dal worker.
+   * @example
+   * service.run(async (input) => { return await heavyTask(input); }, 'HeavyTask', console.log, { foo: 1 });
+   */
   public run<T = any>(
     workerFunction: (input: any) => Promise<T> | T,
     nameThred: string,
@@ -52,6 +65,14 @@ export class PLWorkerService {
    * @param data Dati da inviare al worker.
     * @returns Promise con il payload di risposta del worker.
    */
+  /**
+   * Esegue uno script worker da URL/blob URL.
+   * @param url URL del worker.
+   * @param data Dati da inviare al worker.
+   * @returns Promise con il payload di risposta del worker.
+   * @example
+   * service.runUrl('worker.js', { foo: 1 }).then(res => ...);
+   */
   public runUrl<T = any>(url: string, data?: any): Promise<T> {
     if (!this.isWorkerSupported()) {
       return Promise.reject(new Error("Can't run worker in this environment"));
@@ -74,6 +95,13 @@ export class PLWorkerService {
    * @param promise Promise restituita da run/runUrl.
     * @returns Istanza worker associata oppure `undefined`.
    */
+  /**
+   * Recupera il worker associato a una Promise restituita da run/runUrl.
+   * @param promise Promise restituita da run/runUrl.
+   * @returns Istanza worker associata oppure `undefined`.
+   * @example
+   * const worker = service.getWorker(promise);
+   */
   public getWorker<T = any>(promise: Promise<T>): Worker | undefined {
     return this.promiseToWorkerMap.get(promise);
   }
@@ -82,6 +110,12 @@ export class PLWorkerService {
    * Termina il worker associato a una Promise.
    *
    * @param promise Promise restituita da run/runUrl.
+   */
+  /**
+   * Termina il worker associato a una Promise restituita da run/runUrl.
+   * @param promise Promise restituita da run/runUrl.
+   * @example
+   * service.terminateWorker(promise);
    */
   public terminateWorker<T = any>(promise: Promise<T>): void {
     this.removePromise(promise);

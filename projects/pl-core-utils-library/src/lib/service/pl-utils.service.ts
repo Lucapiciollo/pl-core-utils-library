@@ -29,13 +29,19 @@ export class PlUtilsService {
 
   constructor() {}
 
+
   /**
-   * Ricerca dicotomica di un elemento in un array ordinato.
+   * Ricerca dicotomica asincrona di un elemento in un array ordinato.
    *
-   * Ritorna l'indice dell'elemento trovato.
-   * Se non trovato, ritorna -1.
-    * @param input Array ordinato e valore da ricercare.
-    * @returns Promise con indice trovato o `-1`.
+   * @param input Oggetto `{ arr, searchElement }` dove `arr` è l'array ordinato e `searchElement` il valore da cercare.
+   * @returns Promise che risolve con l'indice dell'elemento trovato, o `-1` se non presente.
+   *
+   * @example
+   * const idx = await utils.binaryFind({ arr: [1, 2, 3, 4], searchElement: 3 }); // idx = 2
+   *
+   * // Con oggetti custom:
+   * const arr = [{id: 1}, {id: 2}];
+   * const idx = await utils.binaryFind({ arr, searchElement: {id: 2} });
    */
   public binaryFind<T = any>(input: PlBinaryFindInput<T>): Promise<number> {
     return new Promise<number>(resolve => {
@@ -64,10 +70,15 @@ export class PlUtilsService {
     });
   }
 
+
   /**
-   * Versione sincrona della ricerca dicotomica.
-    * @param input Array ordinato e valore da ricercare.
-    * @returns Indice trovato o `-1`.
+   * Ricerca dicotomica sincrona di un elemento in un array ordinato.
+   *
+   * @param input Oggetto `{ arr, searchElement }` come per `binaryFind`.
+   * @returns Indice dell'elemento trovato, o `-1` se non presente.
+   *
+   * @example
+   * const idx = utils.binaryFindSync({ arr: [10, 20, 30], searchElement: 20 }); // idx = 1
    */
   public binaryFindSync<T = any>(input: PlBinaryFindInput<T>): number {
     let minIndex = 0;
@@ -93,10 +104,14 @@ export class PlUtilsService {
     return -1;
   }
 
+
   /**
-   * Abilita il trace del ridimensionamento dello schermo.
-   * Ritorna la misura della larghezza e altezza finestra.
-    * @returns Observable con dimensione finestra corrente.
+   * Osserva le dimensioni della finestra browser in tempo reale.
+   *
+   * @returns Observable che emette `{ W, h }` a ogni resize.
+   *
+   * @example
+   * utils.traceSizeWindow().subscribe(size => console.log(size.W, size.h));
    */
   public traceSizeWindow(): Observable<PlWindowSize> {
     if (typeof window === 'undefined') {
@@ -114,11 +129,18 @@ export class PlUtilsService {
     );
   }
 
+
   /**
-   * Avvia internamente il trace del resize.
-   * Utile se vuoi mantenere una subscription interna al servizio.
-    * @param callback Funzione richiamata a ogni update dimensione finestra.
-    * @returns Subscription attiva sul resize.
+   * Avvia il trace delle dimensioni finestra con callback custom.
+   * Mantiene la subscription internamente (utile per componenti singleton).
+   *
+   * @param callback Funzione chiamata a ogni resize con `{ W, h }`.
+   * @returns Subscription attiva (puoi chiamare `.unsubscribe()` per fermare).
+   *
+   * @example
+   * const sub = utils.startTraceSizeWindow(size => console.log(size));
+   * // ...
+   * sub.unsubscribe();
    */
   public startTraceSizeWindow(callback: (size: PlWindowSize) => void): Subscription {
     this.stopTraceSizeWindow();
@@ -128,8 +150,12 @@ export class PlUtilsService {
     return this.traceSizeWindowOBS;
   }
 
+
   /**
-   * Disabilita il trace del controllo dimensione schermo.
+   * Ferma il trace delle dimensioni finestra avviato con `startTraceSizeWindow`.
+   *
+   * @example
+   * utils.stopTraceSizeWindow();
    */
   public stopTraceSizeWindow(): void {
     this.traceSizeWindowOBS?.unsubscribe();

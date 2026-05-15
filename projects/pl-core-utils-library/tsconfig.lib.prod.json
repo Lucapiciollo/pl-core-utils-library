@@ -4,6 +4,10 @@
   "compilerOptions": {
     "declarationMap": false
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
   "angularCompilerOptions": {
     "compilationMode": "partial"
   }

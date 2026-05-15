@@ -21,6 +21,14 @@ export class PlGraphicService {
     * @param imageUrl URL immagine SVG da convertire.
     * @returns Promise con data URL base64 dell'immagine.
    */
+  /**
+   * Converte un'immagine SVG caricata da URL in una stringa base64 (data URL).
+   * Usa XMLHttpRequest sincrono per retrocompatibilità.
+   * @param imageUrl URL immagine SVG da convertire.
+   * @returns Promise con data URL base64 dell'immagine.
+   * @example
+   * service.image2base64('/assets/logo.svg').then(base64 => ...);
+   */
   public image2base64(imageUrl: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
@@ -56,6 +64,14 @@ export class PlGraphicService {
     * @param elementSVG Elemento SVG/HTML da serializzare.
     * @param nameFile Nome file da scaricare.
     * @returns Observable che emette `true` a completamento download.
+   */
+  /**
+   * Esporta un elemento SVG/HTML in un file .svg scaricabile (browser only).
+   * @param elementSVG Elemento SVG/HTML da serializzare.
+   * @param nameFile Nome file da scaricare.
+   * @returns Observable che emette `true` a completamento download.
+   * @example
+   * service.svg2File(document.getElementById('mysvg'), 'export.svg').subscribe();
    */
   public svg2File(elementSVG: HTMLElement | SVGElement, nameFile: string): Observable<boolean> {
     return new Observable<boolean>(observer => {

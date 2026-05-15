@@ -12,7 +12,15 @@ export interface PlHttpRequestConfig {
 }
 
 /**
- * Modello richiesta HTTP usato da PlHttpService.
+ * Modello richiesta HTTP tipizzato usato da PlHttpService.
+ * Permette di costruire richieste fortemente tipizzate e di utilizzare factory statiche per ogni metodo.
+ * @example
+ * // GET
+ * const req = PlHttpRequest.get({ url: '/api/data', queryParams: { id: 1 } });
+ * // POST
+ * const req = PlHttpRequest.post({ url: '/api/data', body: { foo: 'bar' } });
+ * // Uso diretto
+ * const req = new PlHttpRequest({ url: '/api/data', method: 'PATCH', body: { ... } });
  */
 export class PlHttpRequest {
   url: string;
@@ -25,6 +33,8 @@ export class PlHttpRequest {
   /**
    * Crea una richiesta HTTP tipizzata.
    * @param data Configurazione iniziale della richiesta.
+   * @example
+   * const req = new PlHttpRequest({ url: '/api', method: 'GET' });
    */
   constructor(data: PlHttpRequestConfig = {}) {
     this.url = data.url ?? '';
@@ -39,6 +49,8 @@ export class PlHttpRequest {
    * Factory per richiesta GET.
    * @param config Configurazione della richiesta senza metodo.
    * @returns Nuova istanza `PlHttpRequest` con metodo `GET`.
+   * @example
+   * const req = PlHttpRequest.get({ url: '/api/data', queryParams: { id: 1 } });
    */
   static get(config: Omit<PlHttpRequestConfig, 'method'> = {}): PlHttpRequest {
     return new PlHttpRequest({
@@ -51,6 +63,8 @@ export class PlHttpRequest {
    * Factory per richiesta POST.
    * @param config Configurazione della richiesta senza metodo.
    * @returns Nuova istanza `PlHttpRequest` con metodo `POST`.
+   * @example
+   * const req = PlHttpRequest.post({ url: '/api/data', body: { foo: 'bar' } });
    */
   static post(config: Omit<PlHttpRequestConfig, 'method'> = {}): PlHttpRequest {
     return new PlHttpRequest({
@@ -63,6 +77,8 @@ export class PlHttpRequest {
    * Factory per richiesta PATCH.
    * @param config Configurazione della richiesta senza metodo.
    * @returns Nuova istanza `PlHttpRequest` con metodo `PATCH`.
+   * @example
+   * const req = PlHttpRequest.patch({ url: '/api/data', body: { foo: 'bar' } });
    */
   static patch(config: Omit<PlHttpRequestConfig, 'method'> = {}): PlHttpRequest {
     return new PlHttpRequest({
@@ -75,6 +91,8 @@ export class PlHttpRequest {
    * Factory per richiesta PUT.
    * @param config Configurazione della richiesta senza metodo.
    * @returns Nuova istanza `PlHttpRequest` con metodo `PUT`.
+   * @example
+   * const req = PlHttpRequest.put({ url: '/api/data', body: { foo: 'bar' } });
    */
   static put(config: Omit<PlHttpRequestConfig, 'method'> = {}): PlHttpRequest {
     return new PlHttpRequest({
