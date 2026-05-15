@@ -568,6 +568,32 @@ export class PlHttpService {
     });
   }
 
+  private applyXhrHeaders(xhr: XMLHttpRequest, headers?: HttpHeaders | Record<string, any> | null): void {
+    if (!headers) {
+      return;
+    }
+
+    if (headers instanceof HttpHeaders) {
+      headers.keys().forEach(key => {
+        const value = headers.get(key);
+
+        if (value !== null) {
+          xhr.setRequestHeader(key, value);
+        }
+      });
+
+      return;
+    }
+
+    Object.keys(headers).forEach(key => {
+      const value = headers[key];
+
+      if (value !== undefined && value !== null) {
+        xhr.setRequestHeader(key, String(value));
+      }
+    });
+  }
+
   nativeHttp(
     plHttpRequest: PlHttpRequest,
     responseType?: XMLHttpRequestResponseType,
@@ -611,21 +637,7 @@ export class PlHttpService {
 
       xhr.open(plHttpRequest.method, url);
 
-      if (plHttpRequest.httpHeaders != null) {
-        if (plHttpRequest.httpHeaders instanceof HttpHeaders) {
-          plHttpRequest.httpHeaders.keys().forEach(key => {
-            const value = plHttpRequest.httpHeaders.get(key);
-
-            if (value != null) {
-              xhr.setRequestHeader(key, value);
-            }
-          });
-        } else {
-          Object.keys(plHttpRequest.httpHeaders).forEach(key => {
-            xhr.setRequestHeader(key, plHttpRequest.httpHeaders[key]);
-          });
-        }
-      }
+      this.applyXhrHeaders(xhr, plHttpRequest.httpHeaders as HttpHeaders | Record<string, any> | null);
 
       if (responseType != null) {
         xhr.responseType = responseType;
