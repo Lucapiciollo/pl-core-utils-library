@@ -34,7 +34,7 @@ export {
   CONTENT_TYPE,
   TYPE_EVENT_NETWORK
 } from './lib/service/pl-http.service';
-export { PlNetworkService } from './lib/service/pl-network.service';
+ 
 export { PlUtilsService } from './lib/service/pl-utils.service';
 export { PLWorkerService } from './lib/service/pl-worker.service';
 
@@ -69,3 +69,8 @@ export {
   PlHttpMethod,
   PlHttpRequestConfig
 } from './lib/bean/Pl-http-request';
+
+export {
+  PlNetworkService,
+  PlLocalHttpInfo
+} from './lib/service/pl-network.service';

@@ -1,45 +1,103 @@
-import { Injectable } from '@angular/core';
-
 /**
  * @author l.piciollo
- * Servizio di utilita per funzionalita di rete
+ * Servizio di utilità per funzionalità di rete.
  */
+
+import { Injectable } from '@angular/core';
+
+export interface PlLocalHttpInfo {
+  headers: Record<string, string>;
+  params: Record<string, string>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PlNetworkService {
+  constructor() {}
 
-  constructor() { }
-  /****************************************************************************************** */
   /**
-   * @author l.piciollo
-   * ritorna i parametri di HEADER della sessione corrente.. location. host che ospita il portale
+   * Ritorna gli header della richiesta corrente e i query params della URL.
+   *
+   * Nota:
+   * la lettura degli header tramite XMLHttpRequest sincrona è mantenuta
+   * per retrocompatibilità, ma può non funzionare in tutti gli ambienti.
    */
-  public getLocalHttpHeaders(): Promise<Object> {
-    var req = new XMLHttpRequest();
-    req.open('GET', <any>document.location, false);
-    req.send(null);
-    var headers = this.parseHttpHeaders(req.getAllResponseHeaders());
-    return new Promise<Object>((response, error) => {
+  public getLocalHttpHeaders(): Promise<PlLocalHttpInfo> {
+    return new Promise<PlLocalHttpInfo>((resolve, reject) => {
       try {
-        var s1 = location.search.substring(1, location.search.length).split('&'), r = {}, s2, i;
-        s1.forEach(element => {
-          s2 = element.split('=');
-          r[decodeURIComponent(s2[0]).toLowerCase()] = decodeURIComponent(s2[1]);
-        })
-        response({ headers: headers, params: r });
-      } catch (e) {
-        error(e);
-      }
-    })
-  };
+        if (typeof document === 'undefined' || typeof location === 'undefined') {
+          resolve({
+            headers: {},
+            params: {}
+          });
+          return;
+        }
 
-/****************************************************************************************** */
-  /**@ignore */
-  private parseHttpHeaders(httpHeaders) {
-    return httpHeaders.split("\n")
-      .map(x => x.split(/: */, 2))
-      .filter(x => x[0])
-      .reduce((ac, x) => { ac[x[0]] = x[1]; return ac; }, {});
+        const headers = this.readCurrentDocumentHeaders();
+        const params = this.parseQueryParams(location.search);
+
+        resolve({
+          headers,
+          params
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  private readCurrentDocumentHeaders(): Record<string, string> {
+    try {
+      const req = new XMLHttpRequest();
+
+      req.open('GET', document.location.href, false);
+      req.send(null);
+
+      return this.parseHttpHeaders(req.getAllResponseHeaders());
+    } catch {
+      return {};
+    }
+  }
+
+  private parseQueryParams(search: string): Record<string, string> {
+    const params: Record<string, string> = {};
+    const query = search.startsWith('?') ? search.substring(1) : search;
+
+    if (!query) {
+      return params;
+    }
+
+    query.split('&').forEach(item => {
+      if (!item) {
+        return;
+      }
+
+      const [rawKey, rawValue = ''] = item.split('=');
+      const key = decodeURIComponent(rawKey).toLowerCase();
+      const value = decodeURIComponent(rawValue);
+
+      params[key] = value;
+    });
+
+    return params;
+  }
+
+  /** @ignore */
+  private parseHttpHeaders(httpHeaders: string): Record<string, string> {
+    if (!httpHeaders) {
+      return {};
+    }
+
+    return httpHeaders
+      .split('\n')
+      .map(header => header.trim())
+      .filter(Boolean)
+      .map(header => header.split(/: */, 2))
+      .filter(([key]) => !!key)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value ?? '';
+        return acc;
+      }, {} as Record<string, string>);
   }
 }
