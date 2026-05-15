@@ -1,0 +1,40 @@
+name: Library Verify
+
+on:
+  push:
+    branches:
+      - refactoring
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify-library:
+    name: Verify library build and package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check library package
+        run: npm run check:lib-package
+
+      - name: Build library
+        run: npm run build:lib
+
+      - name: Pack library
+        run: npm run pack:lib
+
+      - name: Build workspace
+        run: npm run build
