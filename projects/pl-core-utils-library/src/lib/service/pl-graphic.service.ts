@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { CONTENT_TYPE, PlHttpService } from './pl-http.service';
 
 /**
- * Classe di servizio per utilità grafiche.
+ * Classe di servizio per utility grafiche.
  */
 @Injectable({
   providedIn: 'root'
@@ -15,11 +15,18 @@ export class PlGraphicService {
   constructor(private plHttpService: PlHttpService) {}
 
   /**
-   * Converte un'immagine esposta tramite URL/blob URL in formato base64.
+   * Converte un'immagine SVG caricata da URL in base64.
+   *
+   * Nota: usa XMLHttpRequest sincrono per retrocompatibilità con il comportamento storico.
    */
   public image2base64(imageUrl: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
+        if (typeof XMLHttpRequest === 'undefined' || typeof window === 'undefined') {
+          reject(new Error('image2base64 is available only in browser environments'));
+          return;
+        }
+
         const xhr = new XMLHttpRequest();
 
         xhr.open('GET', imageUrl, false);
@@ -43,11 +50,16 @@ export class PlGraphicService {
   }
 
   /**
-   * Esporta un elemento SVG in un file.
+   * Esporta un elemento SVG in un file .svg.
    */
-  public svg2File(elementSVG: HTMLElement, nameFile: string): Observable<boolean> {
+  public svg2File(elementSVG: HTMLElement | SVGElement, nameFile: string): Observable<boolean> {
     return new Observable<boolean>(observer => {
       try {
+        if (typeof XMLSerializer === 'undefined' || typeof URL === 'undefined') {
+          observer.error(new Error('svg2File is available only in browser environments'));
+          return;
+        }
+
         let source = new XMLSerializer().serializeToString(elementSVG);
 
         if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
@@ -57,7 +69,7 @@ export class PlGraphicService {
           );
         }
 
-        if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+        if (!source.match(/^<svg[^>]+xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink"/)) {
           source = source.replace(
             /^<svg/,
             '<svg xmlns:xlink="http://www.w3.org/1999/xlink"'
@@ -85,10 +97,10 @@ export class PlGraphicService {
   /**
    * Converte un elemento SVG/HTML in JPEG tramite html-to-image.
    */
-  public svgToJpeg(elementSVG: HTMLElement): Observable<string> {
+  public svgToJpeg(elementSVG: HTMLElement | SVGElement): Observable<string> {
     return new Observable<string>(observer => {
       htmlToImage
-        .toJpeg(elementSVG, {
+        .toJpeg(elementSVG as HTMLElement, {
           quality: 1,
           backgroundColor: 'white'
         })
@@ -105,21 +117,21 @@ export class PlGraphicService {
   /**
    * Crea un canvas a partire da un elemento DOM.
    *
-   * Non tutti gli SVG complessi potrebbero essere renderizzati correttamente.
-   * Restituisce l'URL blob del canvas e passa il canvas alla callback.
+   * Restituisce l'URL blob del canvas e passa il canvas alla callback, se presente.
    */
   public domToCanvas(
     elementoDom: HTMLElement,
     call?: (canvas: HTMLCanvasElement) => void
   ): Observable<string> {
     return new Observable<string>(observer => {
-      if (typeof window === 'undefined') {
+      if (typeof window === 'undefined' || typeof URL === 'undefined') {
         observer.error(new Error('domToCanvas is available only in browser environments'));
         return;
       }
 
       html2canvas(elementoDom, {
-        allowTaint: true
+        allowTaint: true,
+        useCORS: true
       })
         .then(canvas => {
           canvas.toBlob(blob => {
@@ -150,6 +162,11 @@ export class PlGraphicService {
   public canvasToImg(canvas: HTMLCanvasElement): Observable<string> {
     return new Observable<string>(observer => {
       try {
+        if (typeof URL === 'undefined') {
+          observer.error(new Error('canvasToImg is available only in browser environments'));
+          return;
+        }
+
         canvas.toBlob(blob => {
           if (!blob) {
             observer.error(new Error('Unable to create canvas blob'));
@@ -168,23 +185,25 @@ export class PlGraphicService {
   }
 
   /**
-   * Crea una immagine a partire da un SVG.
-   * Restituisce il dataURL e passa il canvas alla callback.
+   * Crea una immagine dataURL a partire da un SVG.
+   * Restituisce il dataURL e passa il canvas alla callback, se presente.
    */
   public svgToImage(
-    svgElement: SVGGraphicsElement,
+    svgElement: SVGGraphicsElement | SVGElement | HTMLElement,
     call?: (canvas: HTMLCanvasElement) => void
   ): Observable<string> {
     return new Observable<string>(observer => {
       try {
-        if (typeof document === 'undefined') {
+        if (typeof document === 'undefined' || typeof URL === 'undefined') {
           observer.error(new Error('svgToImage is available only in browser environments'));
           return;
         }
 
         const canvas = document.createElement('canvas');
-        const width = svgElement.scrollWidth || svgElement.getBoundingClientRect().width;
-        const height = svgElement.scrollHeight || svgElement.getBoundingClientRect().height;
+        const rect = svgElement.getBoundingClientRect();
+
+        const width = (svgElement as HTMLElement).scrollWidth || rect.width || 300;
+        const height = (svgElement as HTMLElement).scrollHeight || rect.height || 150;
 
         canvas.width = width;
         canvas.height = height;
@@ -206,7 +225,7 @@ export class PlGraphicService {
 
         img.onload = () => {
           try {
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, 0, 0, width, height);
 
             const dataURL = canvas.toDataURL();
 
