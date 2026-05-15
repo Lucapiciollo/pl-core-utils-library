@@ -1,25 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { NgModule, OnDestroy, Optional, InjectionToken, ModuleWithProviders } from '@angular/core';
+import {
+  InjectionToken,
+  ModuleWithProviders,
+  NgModule,
+  OnDestroy,
+  Optional
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationStart, Router } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-export interface PlCoreModuleConfig {
-  browserValid?: BROWSER[];
-  disableLog?: boolean;
-  maxCacheAge?: number;
-  cacheTag?: string;
-  mockPath?: string;
-}
-
-export const PL_CORE_MODULE_CONFIG = new InjectionToken<PlCoreModuleConfig>(
-  'PL_CORE_MODULE_CONFIG'
-);
-
-
+import { AlertComponent } from './component/alert/alert.component';
+import { AlertService } from './component/alert/alert.service';
+import { PlBaseComponent } from './component/base-component/pl-base-component.component';
+import {
+  DEFAULT_PATH_MOCK,
+  PlHttpInterceptorMockService
+} from './interceptor/pl-interceptor-mock.service';
 import {
   BROWSER,
   BROWSER_VALID,
@@ -27,16 +27,25 @@ import {
   PlAmbientModeLoaderService
 } from './service/pl-ambient-mode.service';
 import { CACHE_TAG, MAX_CACHE_AGE } from './service/pl-cache-map.service';
-import {
-  DEFAULT_PATH_MOCK,
-  PlHttpInterceptorMockService
-} from './interceptor/pl-interceptor-mock.service';
-import { AlertComponent } from './component/alert/alert.component';
-import { AlertService } from './component/alert/alert.service';
-import { PlBaseComponent } from './component/base-component/pl-base-component.component';
+
+export interface PlCoreModuleConfig {
+  browserValid?: BROWSER[];
+  disableLog?: boolean;
+  maxCacheAge?: number;
+  cacheTag?: string;
+  mockPath?: string;
+  enableAlert?: boolean;
+}
+
+export const PL_CORE_MODULE_CONFIG = new InjectionToken<PlCoreModuleConfig>(
+  'PL_CORE_MODULE_CONFIG'
+);
 
 @NgModule({
-  declarations: [AlertComponent, PlBaseComponent],
+  declarations: [
+    AlertComponent,
+    PlBaseComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -44,13 +53,26 @@ import { PlBaseComponent } from './component/base-component/pl-base-component.co
     NgbModule
   ],
   exports: [
+    CommonModule,
     HttpClientModule,
-    PlBaseComponent,
-    CommonModule
+    PlBaseComponent
   ],
   providers: [
     PlAmbientModeLoaderService,
 
+    /**
+     * Default retrocompatibili.
+     * Restano qui per chi usa ancora imports: [PlCoreModule].
+     */
+    { provide: BROWSER_VALID, useValue: [BROWSER.ALL] },
+    { provide: DISABLE_LOG, useValue: false },
+    { provide: MAX_CACHE_AGE, useValue: 300000 },
+    { provide: CACHE_TAG, useValue: '@cachable@' },
+    { provide: DEFAULT_PATH_MOCK, useValue: 'public/mock' },
+
+    /**
+     * Intercettore mock storico della libreria.
+     */
     {
       provide: HTTP_INTERCEPTORS,
       useClass: PlHttpInterceptorMockService,
@@ -95,24 +117,31 @@ export class PlCoreModule implements OnDestroy {
     };
   }
 
-
+  /**
+   * Modulo di inizializzazione della libreria.
+   *
+   * Uso base:
+   *
+   * imports: [PlCoreModule]
+   *
+   * Uso configurabile:
+   *
+   * imports: [
+   *   PlCoreModule.forRoot({
+   *     mockPath: 'assets/mock',
+   *     cacheTag: '@cachable@',
+   *     maxCacheAge: 300000,
+   *     disableLog: false
+   *   })
+   * ]
+   */
   constructor(
     private alertService: AlertService,
     private plAmbientModeLoaderService: PlAmbientModeLoaderService,
     @Optional() private router?: Router
   ) {
-    try {
-      this.alertService.enableAlertMessage(true);
-
-      this.routeEventsSubscription =
-        this.router?.events
-          .pipe(filter(event => event instanceof NavigationStart))
-          .subscribe(() => {
-            PlCoreModule.interrupter.next(true);
-          }) ?? null;
-    } catch (e) {
-      console.error(e);
-    }
+    this.initializeAlert();
+    this.initializeRoutingInterrupt();
   }
 
   ngOnDestroy(): void {
@@ -131,5 +160,25 @@ export class PlCoreModule implements OnDestroy {
         return PlCoreModule.interrupter;
       }
     };
+  }
+
+  private initializeAlert(): void {
+    try {
+      this.alertService.enableAlertMessage(true);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private initializeRoutingInterrupt(): void {
+    if (!this.router) {
+      return;
+    }
+
+    this.routeEventsSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationStart))
+      .subscribe(() => {
+        PlCoreModule.interrupter.next(true);
+      });
   }
 }
