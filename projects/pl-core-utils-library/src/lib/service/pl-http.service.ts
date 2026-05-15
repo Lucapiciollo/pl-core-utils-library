@@ -28,127 +28,129 @@ export enum TYPE_EVENT_NETWORK {
 }
 
 /**
- * Tipologica per identificare il tipo di risposta HTTP.
+ * Tipologica per identificare il tipo di chiamata http che si sta facendo.
+ * Mantiene le chiavi storiche con trattino per retrocompatibilità.
  */
 export enum RESPONSE_TYPE {
-  "TEXT" = "application/text",
-  "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "blob",
-  "MS_STREAM" = "ms-stream",
-  "JAVA-ARCHIVE" = "application/java-archive",
-  "EDI-X12" = "application/EDI-X12",
-  "EDIFACT" = "application/EDIFACT",
-  "JAVASCRIPT" = "application/javascript",
-  "OCTET-STREAM" = "application/octet-stream",
-  "OGG" = "application/ogg",
-  "PDF" = "application/pdf",
-  "XHTML+XML" = "application/xhtml+xml",
-  "X-SHOCKWAVE-FLASH" = "application/x-shockwave-flash",
-  "JSON" = "application/json",
-  "LD+JSON" = "application/ld+json",
-  "XML" = "application/xml",
-  "ZIP" = "application/zip",
-  "X-WWW-FORM-URLENCODED" = "application/x-www-form-urlencoded",
-  "MPEG" = "audio/mpeg",
-  "X-MS-WMA" = "audio/x-ms-wma",
-  "VND.RN-REALAUDIO" = "audio/vnd.rn-realaudio",
-  "X-WAV" = "audio/x-wav",
-  "GIF" = "image/gif",
-  "JPEG" = "image/jpeg",
-  "PNG" = "image/png",
-  "TIFF" = "image/tiff",
-  "VND.MICROSOFT.ICON" = "image/vnd.microsoft.icon",
-  "X-ICON" = "image/x-icon",
-  "VND.DJVU" = "image/vnd.djvu",
-  "SVG+XML" = "image/svg+xml",
-  "MIXED" = "multipart/mixed",
-  "ALTERNATIVE" = "multipart/alternative",
-  "RELATED" = "multipart/related",
-  "FORM-DATA" = "multipart/form-data; boundary=something",
-  "CSS" = "text/css",
-  "CSV" = "text/csv",
-  "HTML" = "text/html",
-  "PLAIN" = "text/plain",
-  "MP4" = "video/mp4",
-  "QUICKTIME" = "video/quicktime",
-  "X-MS-WMV" = "video/x-ms-wmv",
-  "X-MSVIDEO" = "video/x-msvideo",
-  "X-FLV" = "video/x-flv",
-  "WEBM" = "video/webm",
-  "VND.ANDROID.PACKAGE-ARCHIVE" = "application/vnd.android.package-archive",
-  "VND.OASIS.OPENDOCUMENT.TEXT" = "application/vnd.oasis.opendocument.text",
-  "VND.OASIS.OPENDOCUMENT.SPREADSHEET" = "application/vnd.oasis.opendocument.spreadsheet",
-  "VND.OASIS.OPENDOCUMENT.PRESENTATION" = "application/vnd.oasis.opendocument.presentation",
-  "VND.OASIS.OPENDOCUMENT.GRAPHICS" = "application/vnd.oasis.opendocument.graphics",
-  "VND.MS-EXCEL" = "application/vnd.ms-excel",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "VND.MS-POWERPOINT" = "application/vnd.ms-powerpoint",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION" = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "MSWORD" = "application/msword",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "VND.MOZILLA.XUL+XML" = "application/vnd.mozilla.xul+xml"
+  'TEXT' = 'application/text',
+  'ARRAYBUFFER' = 'arraybuffer',
+  'BLOB' = 'blob',
+  'MS_STREAM' = 'ms-stream',
+  'JAVA-ARCHIVE' = 'application/java-archive',
+  'EDI-X12' = 'application/EDI-X12',
+  'EDIFACT' = 'application/EDIFACT',
+  'JAVASCRIPT' = 'application/javascript',
+  'OCTET-STREAM' = 'application/octet-stream',
+  'OGG' = 'application/ogg',
+  'PDF' = 'application/pdf',
+  'XHTML+XML' = 'application/xhtml+xml',
+  'X-SHOCKWAVE-FLASH' = 'application/x-shockwave-flash',
+  'JSON' = 'application/json',
+  'LD+JSON' = 'application/ld+json',
+  'XML' = 'application/xml',
+  'ZIP' = 'application/zip',
+  'X-WWW-FORM-URLENCODED' = 'application/x-www-form-urlencoded',
+  'MPEG' = 'audio/mpeg',
+  'X-MS-WMA' = 'audio/x-ms-wma',
+  'VND.RN-REALAUDIO' = 'audio/vnd.rn-realaudio',
+  'X-WAV' = 'audio/x-wav',
+  'GIF' = 'image/gif',
+  'JPEG' = 'image/jpeg',
+  'PNG' = 'image/png',
+  'TIFF' = 'image/tiff',
+  'VND.MICROSOFT.ICON' = 'image/vnd.microsoft.icon',
+  'X-ICON' = 'image/x-icon',
+  'VND.DJVU' = 'image/vnd.djvu',
+  'SVG+XML' = 'image/svg+xml',
+  'MIXED' = 'multipart/mixed',
+  'ALTERNATIVE' = 'multipart/alternative',
+  'RELATED' = 'multipart/related',
+  'FORM-DATA' = 'multipart/form-data; boundary=something',
+  'CSS' = 'text/css',
+  'CSV' = 'text/csv',
+  'HTML' = 'text/html',
+  'PLAIN' = 'text/plain',
+  'MP4' = 'video/mp4',
+  'QUICKTIME' = 'video/quicktime',
+  'X-MS-WMV' = 'video/x-ms-wmv',
+  'X-MSVIDEO' = 'video/x-msvideo',
+  'X-FLV' = 'video/x-flv',
+  'WEBM' = 'video/webm',
+  'VND.ANDROID.PACKAGE-ARCHIVE' = 'application/vnd.android.package-archive',
+  'VND.OASIS.OPENDOCUMENT.TEXT' = 'application/vnd.oasis.opendocument.text',
+  'VND.OASIS.OPENDOCUMENT.SPREADSHEET' = 'application/vnd.oasis.opendocument.spreadsheet',
+  'VND.OASIS.OPENDOCUMENT.PRESENTATION' = 'application/vnd.oasis.opendocument.presentation',
+  'VND.OASIS.OPENDOCUMENT.GRAPHICS' = 'application/vnd.oasis.opendocument.graphics',
+  'VND.MS-EXCEL' = 'application/vnd.ms-excel',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET' = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'VND.MS-POWERPOINT' = 'application/vnd.ms-powerpoint',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION' = 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'MSWORD' = 'application/msword',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT' = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'VND.MOZILLA.XUL+XML' = 'application/vnd.mozilla.xul+xml'
 }
 
 /**
- * Tipologica per identificare il tipo di contenuto HTTP.
+ * Tipologica per identificare il tipo di contenuto http che si sta chiedendo.
+ * Mantiene le chiavi storiche con trattino per retrocompatibilità.
  */
 export enum CONTENT_TYPE {
-  "TEXT" = "application/text",
-  "ARRAYBUFFER" = "arraybuffer",
-  "BLOB" = "blob",
-  "MS_STREAM" = "ms-stream",
-  "JAVA-ARCHIVE" = "application/java-archive",
-  "EDI-X12" = "application/EDI-X12",
-  "EDIFACT" = "application/EDIFACT",
-  "JAVASCRIPT" = "application/javascript",
-  "OCTET-STREAM" = "application/octet-stream",
-  "OGG" = "application/ogg",
-  "PDF" = "application/pdf",
-  "XHTML+XML" = "application/xhtml+xml",
-  "X-SHOCKWAVE-FLASH" = "application/x-shockwave-flash",
-  "JSON" = "application/json",
-  "LD+JSON" = "application/ld+json",
-  "XML" = "application/xml",
-  "ZIP" = "application/zip",
-  "X-WWW-FORM-URLENCODED" = "application/x-www-form-urlencoded",
-  "MPEG" = "audio/mpeg",
-  "X-MS-WMA" = "audio/x-ms-wma",
-  "VND.RN-REALAUDIO" = "audio/vnd.rn-realaudio",
-  "X-WAV" = "audio/x-wav",
-  "GIF" = "image/gif",
-  "JPEG" = "image/jpeg",
-  "PNG" = "image/png",
-  "TIFF" = "image/tiff",
-  "VND.MICROSOFT.ICON" = "image/vnd.microsoft.icon",
-  "X-ICON" = "image/x-icon",
-  "VND.DJVU" = "image/vnd.djvu",
-  "SVG+XML" = "image/svg+xml",
-  "MIXED" = "multipart/mixed",
-  "ALTERNATIVE" = "multipart/alternative",
-  "RELATED" = "multipart/related",
-  "FORM-DATA" = "multipart/form-data; boundary=something",
-  "CSS" = "text/css",
-  "CSV" = "text/csv",
-  "HTML" = "text/html",
-  "PLAIN" = "text/plain",
-  "MP4" = "video/mp4",
-  "QUICKTIME" = "video/quicktime",
-  "X-MS-WMV" = "video/x-ms-wmv",
-  "X-MSVIDEO" = "video/x-msvideo",
-  "X-FLV" = "video/x-flv",
-  "WEBM" = "video/webm",
-  "VND.ANDROID.PACKAGE-ARCHIVE" = "application/vnd.android.package-archive",
-  "VND.OASIS.OPENDOCUMENT.TEXT" = "application/vnd.oasis.opendocument.text",
-  "VND.OASIS.OPENDOCUMENT.SPREADSHEET" = "application/vnd.oasis.opendocument.spreadsheet",
-  "VND.OASIS.OPENDOCUMENT.PRESENTATION" = "application/vnd.oasis.opendocument.presentation",
-  "VND.OASIS.OPENDOCUMENT.GRAPHICS" = "application/vnd.oasis.opendocument.graphics",
-  "VND.MS-EXCEL" = "application/vnd.ms-excel",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "VND.MS-POWERPOINT" = "application/vnd.ms-powerpoint",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION" = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "MSWORD" = "application/msword",
-  "VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "VND.MOZILLA.XUL+XML" = "application/vnd.mozilla.xul+xml"
+  'TEXT' = 'application/text',
+  'ARRAYBUFFER' = 'arraybuffer',
+  'BLOB' = 'blob',
+  'MS_STREAM' = 'ms-stream',
+  'JAVA-ARCHIVE' = 'application/java-archive',
+  'EDI-X12' = 'application/EDI-X12',
+  'EDIFACT' = 'application/EDIFACT',
+  'JAVASCRIPT' = 'application/javascript',
+  'OCTET-STREAM' = 'application/octet-stream',
+  'OGG' = 'application/ogg',
+  'PDF' = 'application/pdf',
+  'XHTML+XML' = 'application/xhtml+xml',
+  'X-SHOCKWAVE-FLASH' = 'application/x-shockwave-flash',
+  'JSON' = 'application/json',
+  'LD+JSON' = 'application/ld+json',
+  'XML' = 'application/xml',
+  'ZIP' = 'application/zip',
+  'X-WWW-FORM-URLENCODED' = 'application/x-www-form-urlencoded',
+  'MPEG' = 'audio/mpeg',
+  'X-MS-WMA' = 'audio/x-ms-wma',
+  'VND.RN-REALAUDIO' = 'audio/vnd.rn-realaudio',
+  'X-WAV' = 'audio/x-wav',
+  'GIF' = 'image/gif',
+  'JPEG' = 'image/jpeg',
+  'PNG' = 'image/png',
+  'TIFF' = 'image/tiff',
+  'VND.MICROSOFT.ICON' = 'image/vnd.microsoft.icon',
+  'X-ICON' = 'image/x-icon',
+  'VND.DJVU' = 'image/vnd.djvu',
+  'SVG+XML' = 'image/svg+xml',
+  'MIXED' = 'multipart/mixed',
+  'ALTERNATIVE' = 'multipart/alternative',
+  'RELATED' = 'multipart/related',
+  'FORM-DATA' = 'multipart/form-data; boundary=something',
+  'CSS' = 'text/css',
+  'CSV' = 'text/csv',
+  'HTML' = 'text/html',
+  'PLAIN' = 'text/plain',
+  'MP4' = 'video/mp4',
+  'QUICKTIME' = 'video/quicktime',
+  'X-MS-WMV' = 'video/x-ms-wmv',
+  'X-MSVIDEO' = 'video/x-msvideo',
+  'X-FLV' = 'video/x-flv',
+  'WEBM' = 'video/webm',
+  'VND.ANDROID.PACKAGE-ARCHIVE' = 'application/vnd.android.package-archive',
+  'VND.OASIS.OPENDOCUMENT.TEXT' = 'application/vnd.oasis.opendocument.text',
+  'VND.OASIS.OPENDOCUMENT.SPREADSHEET' = 'application/vnd.oasis.opendocument.spreadsheet',
+  'VND.OASIS.OPENDOCUMENT.PRESENTATION' = 'application/vnd.oasis.opendocument.presentation',
+  'VND.OASIS.OPENDOCUMENT.GRAPHICS' = 'application/vnd.oasis.opendocument.graphics',
+  'VND.MS-EXCEL' = 'application/vnd.ms-excel',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET' = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'VND.MS-POWERPOINT' = 'application/vnd.ms-powerpoint',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION' = 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'MSWORD' = 'application/msword',
+  'VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT' = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'VND.MOZILLA.XUL+XML' = 'application/vnd.mozilla.xul+xml'
 }
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -163,7 +165,7 @@ export class PlHttpService {
   private readonly JTOKEN_START_OBJECT = '{';
   private readonly JTOKEN_END_OBJECT = '}';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   private createProgressBar(uuid: string): void {
     PlCoreUtils.progressBars[uuid] = {
@@ -205,7 +207,6 @@ export class PlHttpService {
     }, delayMs);
   }
 
-  /** @ignore */
   /** @ignore */
   public requestOption(
     params: Record<string, any> | null,
@@ -298,15 +299,68 @@ export class PlHttpService {
   }
 
   private createUrlWithQueryParams(url: string, queryParams?: Record<string, any> | null): string {
-    const parsedUrl = new URL(url);
+    const parsedUrl = this.createUrl(url);
 
     if (queryParams != null) {
       Object.keys(queryParams).forEach(key => {
-        parsedUrl.searchParams.set(key, queryParams[key]);
+        const value = queryParams[key];
+
+        if (value !== undefined && value !== null) {
+          parsedUrl.searchParams.set(key, value);
+        }
       });
     }
 
     return this.normalizeUrl(parsedUrl.toString());
+  }
+
+  private createUrl(url: string): URL {
+    try {
+      return new URL(url);
+    } catch {
+      const baseUrl =
+        typeof window !== 'undefined' && window.location?.origin
+          ? window.location.origin
+          : 'http://localhost';
+
+      return new URL(url, baseUrl);
+    }
+  }
+
+  private normalizeMethod(method: any): HttpMethod | null {
+    const normalizedMethod = String(method ?? '').trim().toUpperCase();
+
+    if (['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(normalizedMethod)) {
+      return normalizedMethod as HttpMethod;
+    }
+
+    return null;
+  }
+
+  private applyXhrHeaders(xhr: XMLHttpRequest, headers?: HttpHeaders | Record<string, any> | null): void {
+    if (!headers) {
+      return;
+    }
+
+    if (headers instanceof HttpHeaders) {
+      headers.keys().forEach(key => {
+        const value = headers.get(key);
+
+        if (value !== null) {
+          xhr.setRequestHeader(key, value);
+        }
+      });
+
+      return;
+    }
+
+    Object.keys(headers).forEach(key => {
+      const value = headers[key];
+
+      if (value !== undefined && value !== null) {
+        xhr.setRequestHeader(key, String(value));
+      }
+    });
   }
 
   private requestWithAngularHttp<T>(
@@ -345,9 +399,10 @@ export class PlHttpService {
 
         PlCoreUtils.progressBars[uuid].url = plHttpRequest.url;
 
-        const url = method === 'GET' || method === 'DELETE'
-          ? this.normalizeUrl(plHttpRequest.url)
-          : plHttpRequest.url;
+        const url =
+          method === 'GET' || method === 'DELETE'
+            ? this.normalizeUrl(plHttpRequest.url)
+            : plHttpRequest.url;
 
         let request$: Observable<any>;
 
@@ -402,9 +457,10 @@ export class PlHttpService {
     return new Promise<string>((resolve, reject) => {
       try {
         const jsEscape = '\uFEFF';
-        const blob = applicationType === CONTENT_TYPE.TEXT
-          ? new Blob([jsEscape + streamData], { type: applicationType })
-          : new Blob([streamData], { type: applicationType });
+        const blob =
+          applicationType === CONTENT_TYPE.TEXT
+            ? new Blob([jsEscape + streamData], { type: applicationType })
+            : new Blob([streamData], { type: applicationType });
 
         resolve(window.URL.createObjectURL(blob));
       } catch (error) {
@@ -455,7 +511,7 @@ export class PlHttpService {
   private revokeURL(url: string): void {
     try {
       URL.revokeObjectURL(url);
-    } catch { }
+    } catch {}
   }
 
   private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
@@ -500,11 +556,15 @@ export class PlHttpService {
     return new Observable<T>(observer => {
       const controller = new AbortController();
       let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-      const url = new URL(plttpRequest.url);
+      const url = this.createUrl(plttpRequest.url);
 
       if (plttpRequest.queryParams != null) {
         Object.keys(plttpRequest.queryParams).forEach(key => {
-          url.searchParams.set(key, plttpRequest.queryParams[key]);
+          const value = plttpRequest.queryParams[key];
+
+          if (value !== undefined && value !== null) {
+            url.searchParams.set(key, value);
+          }
         });
       }
 
@@ -520,12 +580,13 @@ export class PlHttpService {
 
       (async () => {
         try {
+          const method = String(plttpRequest.method ?? 'GET').trim().toUpperCase();
+          const hasBody = !['GET', 'DELETE'].includes(method);
+
           const response = await fetch(url.toString(), {
-            method: plttpRequest.method,
+            method,
             headers: { ...(headersObj || {}) },
-            body: !['GET', 'DELETE'].includes(plttpRequest.method) && plttpRequest.body
-              ? JSON.stringify(plttpRequest.body)
-              : undefined,
+            body: hasBody && plttpRequest.body ? JSON.stringify(plttpRequest.body) : undefined,
             signal: interrupt ?? controller.signal
           });
 
@@ -565,34 +626,8 @@ export class PlHttpService {
         try {
           controller.abort();
           reader?.cancel();
-        } catch { }
+        } catch {}
       };
-    });
-  }
-
-  private applyXhrHeaders(xhr: XMLHttpRequest, headers?: HttpHeaders | Record<string, any> | null): void {
-    if (!headers) {
-      return;
-    }
-
-    if (headers instanceof HttpHeaders) {
-      headers.keys().forEach(key => {
-        const value = headers.get(key);
-
-        if (value !== null) {
-          xhr.setRequestHeader(key, value);
-        }
-      });
-
-      return;
-    }
-
-    Object.keys(headers).forEach(key => {
-      const value = headers[key];
-
-      if (value !== undefined && value !== null) {
-        xhr.setRequestHeader(key, String(value));
-      }
     });
   }
 
@@ -625,7 +660,9 @@ export class PlHttpService {
 
       PlCoreUtils.progressBars[uuid].url = plHttpRequest.url;
 
-      if ('POST|GET|PATCH|DELETE|PUT'.split('|').indexOf(plHttpRequest.method) < 0) {
+      const method = this.normalizeMethod(plHttpRequest.method);
+
+      if (!method) {
         observer.error('Method not valid : POST|GET|PATCH|DELETE|PUT');
         this.completeProgressBarDelayed(uuid);
 
@@ -637,9 +674,12 @@ export class PlHttpService {
 
       const url = this.createUrlWithQueryParams(plHttpRequest.url, plHttpRequest.queryParams);
 
-      xhr.open(plHttpRequest.method, url);
+      xhr.open(method, url);
 
-      this.applyXhrHeaders(xhr, plHttpRequest.httpHeaders as HttpHeaders | Record<string, any> | null);
+      this.applyXhrHeaders(
+        xhr,
+        plHttpRequest.httpHeaders as HttpHeaders | Record<string, any> | null
+      );
 
       if (responseType != null) {
         xhr.responseType = responseType;
