@@ -16,6 +16,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "npm --prefix ../.. run build:lib",
+    "build:plain": "npm --prefix ../.. run build:lib:plain",
+    "obfuscate": "npm --prefix ../.. run obfuscate:lib",
     "pack": "npm --prefix ../.. run pack:lib",
     "verify": "npm --prefix ../.. run verify:lib",
     "check": "npm --prefix ../.. run check:lib-package",
