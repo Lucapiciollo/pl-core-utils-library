@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2019-11-06 22:10:04
- * @modify date 2019-11-06 22:10:04
- * @desc Servizio utility per chiamate HTTP, upload/download, stream e progress.
- */
-
 import {
   HttpClient,
   HttpEventType,
@@ -479,14 +471,11 @@ export class PlHttpService {
   }
 
   /**
-   * Crea un blob URL da stream dati.
+   * Crea un blob URL da uno stream binario.
+   * @param streamData Contenuto binario da trasformare in blob.
+   * @param applicationType MIME type da associare al blob.
+   * @returns Promise con blob URL creato.
    */
-  /**
-   * Crea un blob URL da stream dati.
-   */
-  /**
- * Crea un blob URL da stream dati.
- */
   CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE | string = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
@@ -511,6 +500,8 @@ export class PlHttpService {
 
   /**
    * Elimina blob URL dalla memoria.
+    * @param blobUrl Blob URL da revocare.
+    * @returns Promise `true` se l'operazione completa senza errori.
    */
   DESTROYBLOB(blobUrl: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
@@ -525,6 +516,10 @@ export class PlHttpService {
 
   /**
    * Effettua il download di uno stream dati come file.
+    * @param streamData Dato binario da scaricare.
+    * @param contentType Content type del file.
+    * @param fileName Nome file di destinazione.
+    * @returns Promise `true` a download avviato.
    */
   DOWNLOAD(
     streamData: ArrayBuffer,
@@ -549,6 +544,8 @@ export class PlHttpService {
 
   /**
    * Download di un file da URL/blob URL.
+    * @param url URL o blob URL sorgente.
+    * @param filename Nome file di download.
    */
   DOWNLOADURL(url: string, filename = 'download_temp'): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') {
@@ -645,8 +642,14 @@ export class PlHttpService {
       return acc;
     }, {} as Record<string, string>);
   }
-
-
+  /**
+   * Esegue una richiesta fetch in streaming e emette gli item decodificati chunk-by-chunk.
+   * Se `decodeChunk` non è fornito, usa il decoder JSON incrementale interno.
+    * @param plttpRequest Richiesta HTTP da eseguire in streaming.
+    * @param interrupt Segnale di abort esterno opzionale.
+    * @param decodeChunk Decoder custom opzionale per il chunk.
+    * @returns Observable che emette gli item decodificati.
+   */
   STREAM<T>(
     plttpRequest: PlHttpRequest,
     interrupt?: AbortSignal,
@@ -722,6 +725,16 @@ export class PlHttpService {
     });
   }
 
+  /**
+   * Esegue la request con XMLHttpRequest (fallback compatibilità/browser legacy).
+   * Supporta interrupt esterno e progressbar interna.
+    * @param plHttpRequest Richiesta HTTP da eseguire.
+    * @param responseType Tipo risposta XMLHttpRequest.
+    * @param interrupt Subject per interrompere la richiesta.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback invocata con id progress bar.
+    * @returns Observable con risposta raw XHR.
+   */
   nativeHttp(
     plHttpRequest: PlHttpRequest,
     responseType?: XMLHttpRequestResponseType,
@@ -837,6 +850,12 @@ export class PlHttpService {
 
   /**
    * Servizio GET.
+    * @param plHttpRequest Configurazione richiesta.
+    * @param responseType Tipo risposta atteso.
+    * @param interrupt Subject di interruzione.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback con id progress.
+    * @returns Observable con evento di risposta HTTP.
    */
   GET<T>(
     plHttpRequest: PlHttpRequest,
@@ -859,6 +878,12 @@ export class PlHttpService {
 
   /**
    * Servizio POST.
+    * @param plHttpRequest Configurazione richiesta.
+    * @param responseType Tipo risposta atteso.
+    * @param interrupt Subject di interruzione.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback con id progress.
+    * @returns Observable con evento di risposta HTTP.
    */
   POST<T>(
     plHttpRequest: PlHttpRequest,
@@ -881,6 +906,12 @@ export class PlHttpService {
 
   /**
    * Servizio PATCH.
+    * @param plHttpRequest Configurazione richiesta.
+    * @param responseType Tipo risposta atteso.
+    * @param interrupt Subject di interruzione.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback con id progress.
+    * @returns Observable con evento di risposta HTTP.
    */
   PATCH<T>(
     plHttpRequest: PlHttpRequest,
@@ -903,6 +934,12 @@ export class PlHttpService {
 
   /**
    * Servizio PUT.
+    * @param plHttpRequest Configurazione richiesta.
+    * @param responseType Tipo risposta atteso.
+    * @param interrupt Subject di interruzione.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback con id progress.
+    * @returns Observable con evento di risposta HTTP.
    */
   PUT<T>(
     plHttpRequest: PlHttpRequest,
@@ -925,6 +962,12 @@ export class PlHttpService {
 
   /**
    * Servizio DELETE.
+    * @param plHttpRequest Configurazione richiesta.
+    * @param responseType Tipo risposta atteso.
+    * @param interrupt Subject di interruzione.
+    * @param contentType Content-Type esplicito.
+    * @param callBack Callback con id progress.
+    * @returns Observable con evento di risposta HTTP.
    */
   DELETE<T>(
     plHttpRequest: PlHttpRequest,
@@ -946,11 +989,11 @@ export class PlHttpService {
   }
 
   /**
-   * Esegue più GET in parallelo.
+   * Esegue più chiamate GET in parallelo e restituisce il risultato aggregato.
+   * @param plHttpRequest Lista richieste GET da eseguire.
+   * @param interrupt Subject opzionale di interruzione globale.
+   * @returns Observable con array di risposte HTTP.
    */
-  /**
- * Esegue più GET in parallelo.
- */
   FORKJOIN<T = any>(
     plHttpRequest: Array<PlHttpRequest>,
     interrupt?: Subject<boolean>
@@ -986,8 +1029,14 @@ export class PlHttpService {
   }
 
   /**
- * Metodo generico per eseguire una richiesta HTTP.
- */
+   * Metodo generico per eseguire una richiesta HTTP in base al method del `PlHttpRequest`.
+   * @param plHttpRequest Configurazione completa richiesta.
+   * @param responseType Tipo risposta atteso.
+   * @param interrupt Subject di interruzione.
+   * @param contentType Content-Type esplicito.
+   * @param callBack Callback con id progress.
+   * @returns Observable con evento di risposta HTTP.
+   */
   REQUEST<T>(
     plHttpRequest: PlHttpRequest,
     responseType?: RESPONSE_TYPE,

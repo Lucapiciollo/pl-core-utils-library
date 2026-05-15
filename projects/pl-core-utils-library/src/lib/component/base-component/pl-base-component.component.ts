@@ -1,12 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-12-22 16:42:38
- * @modify date 2020-12-22 16:42:38
- * @desc Componente base per l'estensione di componenti.
- * Utile per la condivisione di servizi e funzionalità basilari comuni a tutti i componenti.
- */
-
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -119,12 +110,15 @@ export class PlBaseComponent
   }
 
   @Log('debug')
+  /** Inizializza il componente esteso. */
   ngOnInit(): void {}
 
   @Log('debug')
+  /** Hook post-inizializzazione del content projection. */
   ngAfterContentInit(): void {}
 
   @Log('debug')
+  /** Rilascia subscription e subject usati dalla base class. */
   ngOnDestroy(): void {
     this.queryParamsObs?.unsubscribe();
     this.paramsObs?.unsubscribe();
@@ -139,13 +133,18 @@ export class PlBaseComponent
     this.data.complete();
   }
 
+  /** Hook post-inizializzazione della view. */
   ngAfterViewInit(): void {}
 
+  /** Hook eseguito dopo ogni check della view. */
   ngAfterViewChecked(): void {}
 
+  /** Hook eseguito dopo ogni check del contenuto proiettato. */
   ngAfterContentChecked(): void {}
 
+  /** Hook di change detection custom. */
   ngDoCheck(): void {}
 
+  /** Hook chiamato al cambio degli input. */
   ngOnChanges(changes: SimpleChanges): void {}
 }

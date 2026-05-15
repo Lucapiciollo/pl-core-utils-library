@@ -1,13 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-11-24 12:37:01
- * @modify date 2020-11-24 12:37:01
- * @desc Componente per la mostra di messaggi alert().
- * Il componente è in grado di accodare tutte le richieste di messaggio
- * pervenute dal sistema tramite Broadcast e le mostra in modalità FIFO.
- */
-
 import {
   Component,
   ElementRef,
@@ -72,6 +62,7 @@ export class AlertComponent implements OnInit, OnDestroy {
 
   constructor() {}
 
+  /** Registra il listener broadcast e inizializza la coda con push intercettato. */
   ngOnInit(): void {
     this.push();
 
@@ -81,6 +72,7 @@ export class AlertComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Rimuove il listener broadcast alla distruzione del componente. */
   ngOnDestroy(): void {
     PlCoreUtils.Broadcast().removeListenEvent<AlertBroadcastPayload>(
       'CORE:INFO_SERVICE_DIALOG',
@@ -101,6 +93,7 @@ export class AlertComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
+  /** Apre il prossimo messaggio disponibile in coda. */
   private openDialog(): void {
     const nextMessage = this.queueMessageInfo.splice(0, 1)[0];
 
@@ -114,6 +107,7 @@ export class AlertComponent implements OnInit, OnDestroy {
     };
   }
 
+  /** Intercetta push della coda per aprire automaticamente il dialog quando libero. */
   private push(): void {
     const component = this;
     const originalPush = this.queueMessageInfo.push;

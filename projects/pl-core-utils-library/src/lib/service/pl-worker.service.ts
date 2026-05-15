@@ -1,12 +1,5 @@
 import { Injectable } from '@angular/core';
 import { createPlUuid } from '../utils/pl-uuid.util';
-
-/**
- * @author l.piciollo
- * Classe di virtualizzazione worker process.
- * Si occupa di virtualizzare blocchi di codice che possono girare in background,
- * scaricando il browser da appesantimenti dovuti a calcoli impattanti.
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -29,6 +22,7 @@ export class PLWorkerService {
    * @param initProcess Funzione richiamata per i log di start/end processo.
    * @param data Oggetto contenente i parametri da passare alla funzione workerFunction.
    * @param singolInstance Se true crea un nuovo worker URL anche se la funzione era già mappata.
+  * @returns Promise con il risultato prodotto dal worker.
    */
   public run<T = any>(
     workerFunction: (input: any) => Promise<T> | T,
@@ -56,6 +50,7 @@ export class PLWorkerService {
    *
    * @param url URL del worker.
    * @param data Dati da inviare al worker.
+    * @returns Promise con il payload di risposta del worker.
    */
   public runUrl<T = any>(url: string, data?: any): Promise<T> {
     if (!this.isWorkerSupported()) {
@@ -77,6 +72,7 @@ export class PLWorkerService {
    * Recupera il worker associato a una Promise.
    *
    * @param promise Promise restituita da run/runUrl.
+    * @returns Istanza worker associata oppure `undefined`.
    */
   public getWorker<T = any>(promise: Promise<T>): Worker | undefined {
     return this.promiseToWorkerMap.get(promise);

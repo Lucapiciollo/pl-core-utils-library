@@ -34,6 +34,8 @@ export class PlUtilsService {
    *
    * Ritorna l'indice dell'elemento trovato.
    * Se non trovato, ritorna -1.
+    * @param input Array ordinato e valore da ricercare.
+    * @returns Promise con indice trovato o `-1`.
    */
   public binaryFind<T = any>(input: PlBinaryFindInput<T>): Promise<number> {
     return new Promise<number>(resolve => {
@@ -64,6 +66,8 @@ export class PlUtilsService {
 
   /**
    * Versione sincrona della ricerca dicotomica.
+    * @param input Array ordinato e valore da ricercare.
+    * @returns Indice trovato o `-1`.
    */
   public binaryFindSync<T = any>(input: PlBinaryFindInput<T>): number {
     let minIndex = 0;
@@ -92,6 +96,7 @@ export class PlUtilsService {
   /**
    * Abilita il trace del ridimensionamento dello schermo.
    * Ritorna la misura della larghezza e altezza finestra.
+    * @returns Observable con dimensione finestra corrente.
    */
   public traceSizeWindow(): Observable<PlWindowSize> {
     if (typeof window === 'undefined') {
@@ -112,6 +117,8 @@ export class PlUtilsService {
   /**
    * Avvia internamente il trace del resize.
    * Utile se vuoi mantenere una subscription interna al servizio.
+    * @param callback Funzione richiamata a ogni update dimensione finestra.
+    * @returns Subscription attiva sul resize.
    */
   public startTraceSizeWindow(callback: (size: PlWindowSize) => void): Subscription {
     this.stopTraceSizeWindow();

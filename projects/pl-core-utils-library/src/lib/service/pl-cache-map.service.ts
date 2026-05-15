@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-11-17 23:04:27
- * @modify date 2020-11-17 23:04:27
- * @desc Servizio cache map per gestione cache temporanea delle chiamate HTTP.
- */
-
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 
 /**
@@ -37,6 +29,7 @@ export class PlCacheMapService {
 
   /**
    * Restituisce il tag cache configurato.
+    * @returns Tag cache corrente.
    */
   getCacheTag(): string {
     return this.cacheTag ?? '@cachable@';
@@ -44,6 +37,7 @@ export class PlCacheMapService {
 
   /**
    * Restituisce il tempo massimo cache configurato.
+    * @returns Durata massima cache in millisecondi.
    */
   getMaxCacheAge(): number {
     return this.maxCacheAge ?? 300000;
@@ -51,6 +45,8 @@ export class PlCacheMapService {
 
   /**
    * Verifica se una URL contiene il tag cache.
+    * @param url URL da verificare.
+    * @returns `true` se la URL contiene il tag cache.
    */
   hasCacheTag(url: string): boolean {
     return url.includes(this.getCacheTag());
@@ -58,6 +54,8 @@ export class PlCacheMapService {
 
   /**
    * Rimuove il tag cache da una URL.
+    * @param url URL da normalizzare.
+    * @returns URL senza cache tag.
    */
   removeCacheTag(url: string): string {
     return url.replace(this.getCacheTag(), '');
@@ -65,6 +63,9 @@ export class PlCacheMapService {
 
   /**
    * Salva un valore in cache.
+    * @param key Chiave cache.
+    * @param value Valore da memorizzare.
+    * @param maxAge Durata elemento cache in millisecondi.
    */
   set<T = any>(key: string, value: T, maxAge = this.getMaxCacheAge()): void {
     this.cache.set(key, {
@@ -76,6 +77,8 @@ export class PlCacheMapService {
 
   /**
    * Recupera un valore dalla cache.
+    * @param key Chiave cache.
+    * @returns Valore trovato oppure `null` se assente/scaduto.
    */
   get<T = any>(key: string): T | null {
     const item = this.cache.get(key);
@@ -94,6 +97,8 @@ export class PlCacheMapService {
 
   /**
    * Verifica se una chiave è presente ed è ancora valida.
+    * @param key Chiave cache.
+    * @returns `true` se esiste un elemento non scaduto.
    */
   has(key: string): boolean {
     const item = this.cache.get(key);
@@ -112,6 +117,8 @@ export class PlCacheMapService {
 
   /**
    * Rimuove una chiave dalla cache.
+    * @param key Chiave cache da eliminare.
+    * @returns `true` se la chiave è stata rimossa.
    */
   delete(key: string): boolean {
     return this.cache.delete(key);
@@ -126,6 +133,7 @@ export class PlCacheMapService {
 
   /**
    * Restituisce tutte le chiavi presenti.
+    * @returns Lista delle chiavi cache.
    */
   keys(): string[] {
     return Array.from(this.cache.keys());
@@ -133,6 +141,7 @@ export class PlCacheMapService {
 
   /**
    * Restituisce la dimensione della cache.
+    * @returns Numero elementi presenti in cache.
    */
   size(): number {
     return this.cache.size;

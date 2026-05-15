@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-11-24 14:47:50
- * @modify date 2020-11-24 14:47:50
- * @desc Servizio per la gestione dell'alert custom della libreria.
- */
-
 import {
   ApplicationRef,
   ComponentFactoryResolver,
@@ -64,6 +56,7 @@ export class AlertService {
     this.alertEnabled = false;
   }
 
+  /** Sostituisce `window.alert` con un broadcast verso il componente alert. */
   private overrideWindowAlert(): void {
     if (typeof window === 'undefined') {
       return;
@@ -88,6 +81,7 @@ export class AlertService {
     }) as typeof window.alert;
   }
 
+  /** Ripristina l'implementazione nativa di `window.alert`. */
   private restoreWindowAlert(): void {
     if (typeof window === 'undefined') {
       return;
@@ -96,6 +90,7 @@ export class AlertService {
     window.alert = this.oldAlert;
   }
 
+  /** Crea e aggancia dinamicamente il componente alert al `body`. */
   private createAlertComponent(): void {
     if (this.componentRef || typeof document === 'undefined') {
       return;
@@ -113,6 +108,7 @@ export class AlertService {
     document.body.appendChild(domElem);
   }
 
+  /** Distrugge il componente alert dinamico se presente. */
   private destroyAlertComponent(): void {
     if (!this.componentRef) {
       return;

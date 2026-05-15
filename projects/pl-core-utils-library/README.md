@@ -1,637 +1,406 @@
+# pl-core-utils-library
+
+Libreria Angular con utilità core per:
+
+- chiamate HTTP con progress e interrupt
+- cache lato client con TTL
+- mock automatico via interceptor
+- utility browser/ambiente
+- utility grafiche (canvas, svg, download)
+- worker in background
+- decorator applicativi
+- base component condiviso
+
+## Requisiti
+
+- Angular 19+
+- RxJS 7+
+
+## Installazione
+
+```bash
+npm i pl-core-utils-library
+```
+
+## Setup modulo
+
+### Configurazione base
+
+```ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { PlCoreModule } from 'pl-core-utils-library';
 
-  
+@NgModule({
+  imports: [
+    BrowserModule,
+    PlCoreModule
+  ]
+})
+export class AppModule {}
+```
 
-# Welcome to pl-core-utils-library!
+### Configurazione consigliata (`forRoot`)
 
-  
+```ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { PlCoreModule, BROWSER } from 'pl-core-utils-library';
 
-Libreria core di supporto per nuove e vecchie applicazioni, si occupa di esporre allo sviluppatore, diversi servizi gia pronti e collaudati che si occupano di gestire tutto il flusso di controllo sulla navigazione di pagine, servizi di rete e tanto altro come intercettare il browser utilizzato e di specializzare altre funzionalità eventualmente mancanti per il tipo di browser. All'interno del pacchetto è presente la documentazione che illustra le varie funzionalità del pacchetto.
+@NgModule({
+  imports: [
+    BrowserModule,
+    PlCoreModule.forRoot({
+      browserValid: [BROWSER.CHROME, BROWSER.EDGE, BROWSER.FIREFOX],
+      disableLog: false,
+      maxCacheAge: 300000,
+      cacheTag: '@cachable@',
+      mockPath: 'public/mock',
+      enableAlert: true
+    })
+  ]
+})
+export class AppModule {}
+```
 
-  
-  
+## API pubbliche esposte
 
-## Feature
+La libreria esporta da `public-api.ts`:
 
-  
+### Modulo
 
-1. Servizi di rete per chiamte ajax, tutti i metodi esposti possono essere dismessi, in modo da non lasciare appese le chiamate ajax come ad esempio il cambio di rotta applicativo, o altro.
+- `PlCoreModule`
+- `PlCoreModuleConfig`
+- `PL_CORE_MODULE_CONFIG`
 
-2. servizio di cache di rete, viene gestita in autonomia la storicizzazione della cache per le chiamate configurate. è possibilità tramite questo servizio risalire alla cache evitando ulteriori chiamate al BE
+### Componenti
 
-3. componente per la mostra delle progressioni o avanzamenti in atto, richiamando la sua apertura è possibile risalire a tutti i processi background al mmomento attivi e killare la loro esecuzione uono ad uno
+- `AlertComponent`
+- `PlBaseComponent`
 
-4. Servizio di intercettazione del browser, è in grado di innescare il processo di autenticazione del sistema ospitante e installare funzionalita aggiuntive in base al sistema. Ad esempio stando su IE viene adattato il meccanismo di download dei file,in quanto il comportamento è diverso da browser in browser
+### Servizi
 
-5. Supporto per il blocco browser dichiarati non compatibili, il blocco viene automaticamente al momento dello startup applicativo
+- `AlertService`
+- `PlAmbientModeLoaderService`
+- `PlCacheMapService`
+- `PlGraphicService`
+- `PlHttpService`
+- `PlNetworkService`
+- `PlUtilsService`
+- `PLWorkerService`
 
-6. Aggiunto supporto per virtualizzazione di processo complesso. Possibilita di virtualizzare i processi pesanti in modo che non impattano le performance applicative
+### Interceptor e token
 
-7. Aggiunte funzionalita grafiche, come screenshot della pagina
+- `PlHttpInterceptorMockService`
+- `DEFAULT_PATH_MOCK`
 
-8. Aggiunto sistema di intercettazione realtime per il controllo della dimensione della pagina, per identificare le sue dimensioni
+### Utility, tipi e bean
 
-9. Inserimento automatido di nuove funzionalità per le stringhe, array e json
+- `PlCoreUtils`
+- `PlProgressBar`
+- `progressBarItemInterface` (deprecated)
+- `progressBarsInterface`
+- `PlBroadcastEventListener`
+- `createPlUuid`
+- `PlHttpRequest`
+- `PlHttpMethod`
+- `PlHttpRequestConfig`
 
-10. Servizio per reperire informazioni dall'header della pagina correntemente visualizzata.
+### Enum e costanti
 
-11. Classe di utilita per funzionalità come la ricerca binaria
+- `TYPE_EVENT_NETWORK`
+- `RESPONSE_TYPE`
+- `CONTENT_TYPE`
+- `BROWSER`
+- `BROWSER_VALID`
+- `DISABLE_LOG`
+- `MAX_CACHE_AGE`
+- `CACHE_TAG`
 
-12. Aggiunti decoratori di utilità per velocizzare processi di conversione o inibizione dei component DOM
+### Decorator
 
-13. Servizio di Mock, possibilità di eseguire in autonomina simulazioni di chiamata alla rete
+- `PLPermission`
+- `PLTraceHooks`
+- `PLTraceMethod`
+- `TYPE_EVENT`
 
-14. Aggiunte funzionalita lato rete per la creazione di BLOB e la rimozione dello stesso.
-  
-15. Creazione di BaseComponent, la sua extension permette di inglobbare tutti i servizi pronti e disponibili, inoltre riceve i parametri di rotta
+## Configurazione dettagliata
 
-16. Modifcata interfaccia RxJs per l'inserimento di una funzionalita, polling, per richiamare il BE in modo iterativo in base alle configurazioni.
+### Cache HTTP
 
-## Chiamate HTTP
+La cache è gestita dal servizio `PlCacheMapService`.
 
-  
+- `CACHE_TAG`: tag da includere nella URL per considerare una request “cacheabile”
+- `MAX_CACHE_AGE`: durata in millisecondi della cache
 
-Il sistema viene equipagiato con servizi utili per le chiamate al BE, tali chiamate hanno la possibilità di essere terminate in caso di determinati eventi
+Esempio URL cacheabile:
 
-  
+```ts
+const url = '@cachable@/api/anagrafica/clienti';
+```
 
-    callMock(p1: any, p2: any): Observable<any> {
-        return new Observable<any>(obs => {
-            let plHttpRequest: PlHttpRequest = new PlHttpRequest(
-                environment.http.api.mock,
-                Object({ api: "api", files: "files" }),
-                Object({ api: p1, files: p2 }),
-                null);
-        this.httpService.GETFILE(plHttpRequest, RESPONSE_TYPE.ARRAYBUFFER, (idAjax => {
-            setTimeout((id) => {
-               PlCoreUtils.progressBars[id].interrupt.next(true);
-            }, 10,idAjax);
-        }), null).subscribe(sb => {
-        obs.next(sb);
-        obs.complete()
-        }, error => {
-            obs.error(error);
-        }, () => { })
-        })
-    }
+### Browser ambient mode
 
-in questo esempio si termina il servizio dopo 10 millisecondi, ovviamente in caso di un download di file, questo termina lo scaricamento dello stesso. L'evento di termine puo essere anche avviato diversamente, tramite un pulsante ad esempio.
+`PlAmbientModeLoaderService` usa:
 
-  
+- `BROWSER_VALID`: browser consentiti
+- `DISABLE_LOG`: disabilita `console.log`
 
-E' possibile dichiarare url contenenti dei pathParams, il sistema provvederò in autonomia alla sua valorizzazione.
+Uso:
 
-  
-  
+```ts
+constructor(private ambient: PlAmbientModeLoaderService) {}
 
-    mock: {
-        url: "@cachable@/example/:api/:files",
-        mocked: true,
-        method:"GET"
-    }
+ngOnInit(): void {
+  const result = this.ambient.detect();
+  console.log(result.browser, result.supported);
+}
+```
 
-passando l'oggetto sopra al plHttpRequest, questo provvederà in autonomia a sostituire i valori dei parametri, con ad esempio "api e "files"
+### Mock interceptor
 
-    let plHttpRequest: PlHttpRequest = new PlHttpRequest(
-        environment.http.api.mock,
-        Object({ api: "api", files: "files" }),
-        Object({ api: p1, files: p2 }),
-        null);
+Con header `mocked: true`, l’interceptor converte la request in:
 
-  
+`/assets/{mockPath}/{url-path}/{method}.json`
 
->si avverte che le chiavi dell'oggetto contenente i valori da impostare nei pathparams, deve essere lo stesso del pathparam stesso con l'esclusione dei ":", in caso non si verificasse questo match.. la sostituzione non avverà, con la conseguente mal formattazione della URL.
+Esempio:
 
-  
+- request: `GET /api/users` con `mocked: true`
+- path mock: `public/mock`
+- file letto: `/assets/public/mock/api/users/get.json`
 
-## Esempio abilitazione cache delle chiamate di rete
+## Uso di `PlHttpRequest`
 
-il sistema come gia detto mette a disposizione anche un servizio di cache, per evitare appesantimenti di rete, per via di chiamate repentine al BE che hanno stessa request ed ovviamente stessa response. per la configurazione della cache è opportuno inserire una semplice annotazione nella url del servizio.
+```ts
+import { PlHttpRequest } from 'pl-core-utils-library';
 
-  
+const request = new PlHttpRequest({
+  url: '/api/users',
+  method: 'GET',
+  queryParams: { page: 1, size: 20 },
+  httpHeaders: { Authorization: 'Bearer token' },
+  mocked: false
+});
+```
 
-    /**
-        @author l.piciollo
-        si riporta un esempio di una api riconosciuta come storable, grazie al tag @cachable@ presente nella URL.
-        si nota come i parametri sono passati con {0} e {1}.. il sistema è equipagiato da una funzionalita che specializza
-        le stringhe ad avere il format function.. quindi .. è possibile formattare la url richimandola in questo modo:
-        E.S.
-        let url = environment.exampleApi.format("P1","P2")
-        quindi avviene una formattazione per posizione dei paraetri..
-        exampleApi: `@cachable@/example/cacable/api?param1={0}&param2={1}`
-    */
-    exampleApi: `@cachable@/example/cache/api?param1={0}&param2={1}`,
-    exampleApeNoCache: `example/no/cache/api?param1={0}&param2={1}`
+Factory statiche:
 
-  
+```ts
+PlHttpRequest.get({ url: '/api/users' });
+PlHttpRequest.post({ url: '/api/users', body: { name: 'Mario' } });
+PlHttpRequest.put({ url: '/api/users/1', body: { name: 'Mario Rossi' } });
+PlHttpRequest.patch({ url: '/api/users/1', body: { active: true } });
+PlHttpRequest.delete({ url: '/api/users/1' });
+```
 
->come si può notare, alla url è stato anteposto il **@cachable@** , questo sta ad indicare che la url dovrà essere sottoposta al motore di cache sia in chiamata verso la rete che in risposta verso il client.
+## Uso di `PlHttpService`
 
-  
+### GET / POST / PATCH / PUT / DELETE
 
->di default il tag da inserire è **@cacable** , si puo sostituire con qualsiasi valore, configurando opportunamente il servizio nel modulo di avvio dell'applicazione.
+```ts
+import { RESPONSE_TYPE, PlHttpRequest } from 'pl-core-utils-library';
 
-  
+const req = PlHttpRequest.get({
+  url: '/api/users',
+  queryParams: { page: 1 }
+});
 
-{ provide: MAX_CACHE_AGE, useValue: 300000 },
+this.http.GET(req, RESPONSE_TYPE.JSON).subscribe({
+  next: (event) => console.log(event),
+  error: (err) => console.error(err)
+});
+```
 
-{ provide: CACHE_TAG, useValue: "@cachable@" }
+### Monitor progress + interrupt
 
-  
+```ts
+const req = PlHttpRequest.get({ url: '/api/files/big-download' });
 
-> come per il tag, è possibile anche configurare il tempo valido per la cache.. scaduto il tempo la chiamata verrà eliminata dalla cache in modo da poter poi richiedere al BE nuovi aggiornamenti
+this.http.GET(req, RESPONSE_TYPE.BLOB, undefined, undefined, (idAjax) => {
+  PlCoreUtils.progressBars[idAjax].changed.subscribe(progress => {
+    console.log(progress.percent, progress.loaded, progress.size);
+  });
 
-  
+  // eventuale stop manuale
+  // PlCoreUtils.progressBars[idAjax].interrupt.next(true);
+});
+```
 
-## Apertura progress bars
+### Stream JSON incrementale
 
-E' stato realizzato un sistema di accodamento delle chiamate al BE, le stesse possono essere monitorate nella loro progressione oppure stoppare la loro esecuzione.
+```ts
+const req = PlHttpRequest.post({
+  url: '/api/stream/events',
+  body: { topic: 'audit' }
+});
 
->questa funzionalità è utile ovviamente in caso di chiamate a download o upload file, in quanto possono compiere diverso tempo.. per le chiamate "semplici", ovviamente non trova giovamento questa utilità.
+this.http.STREAM<any>(req).subscribe({
+  next: item => console.log('chunk', item),
+  error: err => console.error(err),
+  complete: () => console.log('done')
+});
+```
 
-ci sono due modi per mostrare le progress bar
+### Download e blob
 
-  
+```ts
+this.http.DOWNLOAD(arrayBufferData, CONTENT_TYPE.PDF, 'report.pdf');
 
-1. Visualizzazione di tutte le progressioni messe in coda
+this.http.CREATEBLOB(arrayBufferData, CONTENT_TYPE.PDF)
+  .then(url => this.http.DOWNLOADURL(url, 'file.pdf'));
+```
 
-2. Visualizzazione della singola chiamata
+## `PlCacheMapService`
 
-  
+Metodi principali:
 
-Per la visualizzazione di tutte le code, è opportuno invocare il seguente comando
+- `set(key, value, maxAge?)`
+- `get(key)`
+- `has(key)`
+- `delete(key)`
+- `clear()`
+- `keys()`
+- `size()`
+- `hasCacheTag(url)`
+- `removeCacheTag(url)`
 
-  
+Esempio:
 
-    this.progressService.showQueueDownload(".test");
+```ts
+this.cache.set('users:page1', users, 60000);
+const cached = this.cache.get<User[]>('users:page1');
+```
 
+## `PlGraphicService`
 
- ![alt text](https://firebasestorage.googleapis.com/v0/b/pl-schematics.appspot.com/o/img%2FProgressBar.PNG?alt=media&token=34f86e01-0552-4b45-bc58-af3eb04ca64b)
+Metodi principali:
 
->come si vede, occorre passare una classe css la quale serve per rintracciare il contenitore dove inserire la finestra che mostra le progress bar.
+- `image2base64(imageUrl)`
+- `svg2File(elementSVG, nameFile)`
+- `svgToJpeg(elementSVG)`
+- `domToCanvas(elementoDom, call?)`
+- `canvasToImg(canvas)`
+- `svgToImage(svgElement, call?)`
 
-  
+Esempio:
 
->tutte le chiamate che stanno ancora in esecuzione, mostrano un pulsante di annullamento della stessa chiamata.
+```ts
+this.graphic.svgToJpeg(this.svgRef.nativeElement).subscribe(dataUrl => {
+  console.log('jpeg base64', dataUrl);
+});
+```
 
-  
+## `PLWorkerService`
 
-per la visualizzazione di una singola chiamata.. occorre risalire all'id staccato dal sistema al momento della chiamata al BE e mettersi in tail sulla progressione. Quindi è possibile creare due funzioni di utilità che si occupano di registrarsi agli eventi di progressione, e al kill della sua esecuzione.
+Esegue funzioni in Web Worker quando disponibili.
 
-  
+```ts
+const promise = this.worker.run<number>(
+  (input) => {
+    let total = 0;
+    for (let i = 0; i < input.max; i++) total += i;
+    return total;
+  },
+  'sum-worker',
+  console.log,
+  { max: 5_000_000 }
+);
 
-    /**
-        @author l.piciollo
-        funzionlita per rimanere in ascolto su una progressione di chiamata al be.. utile per risalire allo stato di chiamate al BE
-        per il caricamento/scaricamento file. la funzione ritorna un Subject... dove possibile sottoscriversi per icevere i dati
-        in modalità realtime. utile per costruire barre di progressione a runtime.
-        @param IDAjax : id della chiamata ajax precedentemente chiamata, l'id viene restituido dalla callback in ingresso alle chiamate
-    */
+promise.then(result => console.log(result));
+```
 
-    TAILAJXCALL(IDAjax:string): any {
-         try {
-            return PlCoreUtils.progressBars[IDAjax].changed;
-         } catch (error) {
-            throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
-        }
-    }
+Metodi utili:
 
-    /********************************************************************************************************************/
+- `run(workerFunction, nameThread, initProcess?, data?, singolInstance?)`
+- `runUrl(url, data?)`
+- `getWorker(promise)`
+- `terminateWorker(promise)`
 
-    /**
-        @author l.piciollo
-        funzionalità per la terminazione di una chiamata di rete che magari prende piu tempo del previsto.. passando in ingresso l'id AJAX
-        staccato al momento della chiamata è utile per killare upload/download file.
-        @param IDAjax : id della chiamata ajax precedentemente chiamata, l'id viene restituido dalla callback in ingresso alle chiamate
-    */
+## `PlUtilsService`
 
-    KILLAJXCALL(IDAjax:string) {
-        try {
-            PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
-        } catch (error) {
-            throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, true)
-        }
-    }
+- `binaryFind(input)`
+- `binaryFindSync(input)`
+- `traceSizeWindow()`
+- `startTraceSizeWindow(callback)`
+- `stopTraceSizeWindow()`
 
-  
+Esempio:
 
-per registrarsi è possibile procedere in questo modo
+```ts
+this.utils.traceSizeWindow().subscribe(size => {
+  console.log(size.W, size.h);
+});
+```
 
-  
+## `PlNetworkService`
 
-    /**
-        @author l.piciollo
-        esempio di chiamata http
-    */
+Recupera info locali HTTP/URL:
 
-    callMock(p1: any, p2: any): Observable<any> {
-        return new Observable<any>(obs => {
-            this.httpService.POST(environment.http.api.mock.url, {},null, (idAjax)=>{
-                PlCoreUtils.progressBars[IDAjax].changed.subscribe(info=>{
-                console.log(info)
-            })
-            }, null, environment.http.api.mock.mock).subscribe(sb => {
-                obs.next(sb);
-                obs.complete()
-            }, error => {
-                obs.error(error);
-            }, () => { })
-            })
-        }
-    }
+```ts
+this.network.getLocalHttpHeaders().then(info => {
+  console.log(info.headers, info.params);
+});
+```
 
-  
+## `PlCoreUtils.Broadcast()`
 
->allo stesso modo è possibile stoppare la chiamata al servizio nel seguente modo
+Event bus basato su `CustomEvent`:
 
-  
+```ts
+PlCoreUtils.Broadcast().listenEvent('APP:READY', (event) => {
+  console.log(event.detail);
+});
 
-PlCoreUtils.progressBars[IDAjax].interrupt.next(true);
+PlCoreUtils.Broadcast().execEvent('APP:READY', { ok: true });
+```
 
-  
-  
-  
+## `AlertService` e override di `window.alert`
 
-## Esempi decoratori
+Quando abilitato, `AlertService` intercetta `window.alert(...)` e mostra il messaggio via `AlertComponent`.
 
-   
+```ts
+constructor(private alertService: AlertService) {}
 
-    /**
-        abilitazione del trace log dei cicli di hook delle classi,
-        vengono loggati tutti i cicli di vita del componente
-    */
-    @PLTraceHooks( )
-    export class AppComponent
- 
+ngOnInit(): void {
+  this.alertService.enableAlertMessage(true);
+  window.alert('Titolo', 'Messaggio custom');
+}
+```
 
-    /**
-        decoratore configurabile, se attivato, inibisce la creazione di componenti DOM in base a
-        dei parametri lanciare
-        document.dispatchEvent(new CustomEvent('PL:SET-PERMISSION', { detail
-        [PROFILO1,PROFILO2,PROFILO3,...] }));
-        inserire nel DOM <input permission="READONLY" type="text>"
-        e al decoratore passare @PLPermission(true)
-        l'elemento del dom viene elininato in quanto non contiene il permesso READONLY.
-    */
+## Decorator disponibili
 
-    @PLPermission(environment.production)
-    export class AppComponent
+### `@PLTraceMethod()`
 
-    /**
-        esempio di funzionalita ritardata, la sua esecuzione avviene in modalita
-        observer e dopo 3 secondi dalla sua chiamata.
-    */
+Logga input/output/error del metodo decorato.
 
- 
+### `@PLTraceHooks(disabled?)`
 
-  
-  
+Logga lifecycle Angular della classe decorata.
 
-## Esempi di funzionalità aggiuntive
+### `@PLPermission(enabled?)`
 
-il codice viene corredato di funzionalità aggiuntive per String , Array, JSON si riporta un esempio di chiamata
+Ascolta evento `PL:SET-PERMISSION` e rimuove elementi DOM con attributo `PL-permission` non autorizzato.
 
-    let user = {
-        nome:"Luca" ,
-        cognome: "Pic"
-    }
+Esempio evento:
 
-    user=JSON.changeValuesByKey(user,"cognome","Piciollo");
-    console.log(user);
+```ts
+document.dispatchEvent(new CustomEvent('PL:SET-PERMISSION', {
+  detail: ['ADMIN', 'READONLY']
+}));
+```
 
-> Verrà stampato l'oggetto - {nome : "Luca" , cognome: "Piciollo" }
+Esempio DOM:
 
->Le altre funzionalità vanno utilizzate allo stesso modo
+```html
+<input PL-permission="READONLY|ADMIN" />
+```
 
-  
-  
-  
+## Note operative
 
-    String {
-        format: (...params) => string;
-        isNullOrEmpty: (val: string) => boolean;
-        truncateUrlIfNoParams: (val: any) => string;
-        truncateUrlCache: (val: any) => string;
-    }
+- Alcune utility usano API browser (`window`, `document`, `XMLHttpRequest`) e non sono adatte a runtime server-side.
+- I metodi HTTP con `responseType` abilitano progress e tracciamento in `PlCoreUtils.progressBars`.
+- Il modulo include già `PlHttpInterceptorMockService`.
 
-  
+## Changelog e versionamento
 
-    Array<T> {
-        moveDown: (from) => void;
-        moveTo: (from, to) => void;
-        moveUp: (from) => void;
-        delete: (position) => void;
-        differences: (items) => Array<any>;
-        inArray: (item) => Number;
-        insert: (index: number, item: any) => void;
-    }
-
-  
-
-    JSON {
-        changeValues: (json,previousValue, nextValue) => any;
-        changeValuesByKey: (json,key, nextValue) => any;
-        findByValue: (json, value) => any;
-        json2flat: (json) => any;
-        json2array: (json) => any;
-        json2flatObj: (json) => any;
-        findKey: (json, keyFind) => any;
-    }
-
-  
-  
-  
-  
-  
-  
-
-## Esempio mock servizio
-
-Viene mostrato come abilitare il mock di un servizio di BE, utile in caso si voglia simulare la risposta di un servizio ancora in fase di sviluppo
-
-  
-
-    /**
-        esempio di chiamata http
-    */
-
-    callMock(p1: any, p2: any): Observable<any> {
-        return new Observable<any>(obs => {
-            let plHttpRequest: PlHttpRequest = new PlHttpRequest(
-            environment.http.api.mock ,
-            Object({ api: "api", files: "files" }),
-            Object({ api: p1, files: p2 }),
-            null);
-
-        this.httpService.GETFILE(plHttpRequest, RESPONSE_TYPE.ARRAYBUFFER, null, null).subscribe(sb => {
-            obs.next(sb);
-            obs.complete()
-        }, error => {
-             obs.error(error);
-         }, () => { })
-      })
-    }
-
-dichiarare nel file di properties un oggetto cosi dichiarato,
-
-> api esposta a scopo illustrativo
-
-    /**
-        @author l.piciollo
-        è possibile dichiarare una chiamata ad un mock, si consiglia di rispettare il seguente formato dichiarativo
-        E.S.
-        mock: {
-            url: "@cachable@/example/:api/:files",
-            mocked: true,
-            method:"GET"
-        }
-        il mock a true, impone al sistema di risalire alla folder                     
-        assets/public/mock/example/no/cache/api/122 e prelevare il
-        json relativo al metodo utilizzato.. quindi post||get||put||delete||patch .json
-    */
-
-    mock: {
-        url: "@cachable@/example/:api/:files",
-        mocked: true,
-        method:"GET"
-    }
-
-  
-
-creare una struttura di cartelle per ospitare i file stub. La struttura deve essere posta a partire dal path assets e deve avere cartelle e sottocartelle come il path della url, ovviamente escludendo i queryparams.
-
-  
-
-- per chiamate di tipo GET : **assets/public/mock/** example/:api/:file/**get.json**
-
-- per chiamate di tipo POST: **assets/public/mock/** example/:api/:file/****post.json**
-
-  
-
-> i path url possono contenere variabili indicate con :nome, il sistema intercetterà automaticamente i path params e sostituira autonomamente questi valori con i valori dei path params passati nella request.
-
-> Es.
-
-  
-
-    let plHttpRequest: PlHttpRequest = new PlHttpRequest( environment.http.api.mock , Object({ api: "api", files: "files" }), Object({ api: p1, files: p2 }), null);
-
-le chiamate http necessitano in ingresso dell'oggetto plHttpRequest, il quale contiene la url da richiamare, i query params , del body params e del pathParams. Nell'esempio sopra, si vede che l'oggetto contiene Object({ api: "api", files: "files" }), le chiavi dell'oggetto devono corrispondere con il nome del path param e il valore, sarà quello che effettivamente sostituirà il nome.
-
-  
-
-e cosi per gli altri metodi
-
-  
-
-> è possibile anche mockare servizi con url contenenti path params, ad esempio /example/:id , in questo caso creare comunque l'alberatura sopra citata, escludendo i : nel nome della folder.
-
-  
-
->è possibile cambiare il path di riferimento dei file di mock, ma che comunque siano sempre sotto assets, occorre aggiungere nel modulo di avvio la seguente istruzione
-
-  
-
-    /**
-        inizializzazione del path per reperire gli stub json di risposta al mock
-    */
-
-    { provide: DEFAULT_PATH_MOCK, useValue: "nuovo/path" }
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-## Alcune funzionalità utili
-
-E' possibile avvalersi di alcune funzionalità utili come la gestione delle immagini. Si riportano le funzionalità messe a disposizione per la gestione della grafica
-
-  
-
-    /**
-        si occupa di convertire un immagine esposta tramite blob url, in formato base 64
-        @param imageUrl
-    */
-
-    public image2base64(imageUrl: string): Promise<any>
-
-    /**
-        Funzione che esporta l'intero elemento svg in un file per la visualizzazione in un browser,
-        verrà mantenuto fedelmente il costrutto
-        dell'elemento SVG
-        @param elementSVG : elemento svg da elaborare
-        @param nameFIle : nome del file da salvare
-    */
-
-    public svg2File(elementSVG: HTMLElement, nameFIle: string): Observable<boolean>
-
-    /**
-        Funzine per la creazione del jpeg partendo da un dom.
-        l'osservatore ritorna il link all'immagine per il download
-        @param elementSVG elemento SVG dom da cattuare
-    */
-
-    public dom2jpeg(elementSVG: HTMLElement): Observable<string>
-
-    /**
-        Funzione per la creazione del canvas, contenente l'immagine del DOM referenziato. non verranno presi in considerazione
-        tag SVG grafici. ma solo html semplice comprese le immagini
-        la funzione restituisce in callback il canvas creato, in modo da poterlo aggiungere al dom o altro.
-        mentre in observer torna la url da passare alla funaione di download
-        @param elementoDom : elemento dom da cattuare
-        @param call : callback di ritorno dove iniettare il canvas creato.
-    */
-
-    public domToCanvas(elementoDom: HTMLElement, call: (canvas: HTMLElement) => void): Observable<string>
-
-  
-
-    /**
-        Funzione che si occupa di scaricare un'immagine da un contenitore canvas, il canvas deve contenere un immagine non un html.
-        questa funzionalità puo essere usata in risposta a domToCanvas
-        viene ritornata la URL del blob da poeter scaricare
-        @param canvas :oggetto canvas da scaricare
-    */
-
-    public canvasToImg(canvas: HTMLElement): Observable<string>
-
-  
-
-    /**
-        Funzionalita per la creazione di un immagine a partire da un svg. la funzione restituisce in callback un canvas eventualmente
-        da mostrare a schermo e la url del file in formato blob nell'osservable
-        @param svgElement : svg element del dom
-        @param callBack : funzione di ritorno per la consegna del canvas
-    */
-
-    public svgToImage(svgElement: HTMLElement, call: (canvas) => void): Observable<any>
-
-  
-## Esempio message alert()
-
-Introdotto un sistema di alert() custom, al momento della chiamata alla funzione alert() di window.. verrà scatenata una routine, che mostrerà una finestra di dialogo modale in formato bootstrap.  La funzionalità è nata per velocizzare la chiamata ad un message .
-
-	showMessage(){
-		alert(title,message);
-	}  
-
-![alt text](https://firebasestorage.googleapis.com/v0/b/pl-schematics.appspot.com/o/img%2FAlert.PNG?alt=media&token=98a8d646-41ae-4e59-9442-fae7a293d7fc)
-    
-come si puo vedere l'utilizzo della funzionalità è molto semplice e immediata.
-
-E' possibile ritornare alla funzionalità predefinita di window, semplicemente disabilitandola.
- 
-	 constructor(private alertService: AlertService) {
-		 this.alertService.enableAlertMessage(false);
-	 }
-	 
-
-## PlBaseComponent
-
-Componente nato per essere esteso, mette a disposizione funzionalità utili per la navigazione tramite routing. Qui è possibile passare parametri anche complessi via URL, dato che questi vengono codificate
-
-    /** chiamata a menu con passaggio di parametri */
-    export class HomeComponent extends PlBaseComponent{
-        go() {
-            this.goToPage("home/menu", null, { P1: "param1", p2: { param2: "param2" }, p3: { param3: "param3" } });
-        }
-    }
-
-    /** lettura dei parametri arrivati */
-    export class MenuComponent extends PlBaseComponent{
-        ngOnInit() {
-              this.queryParams.subscribe(user => {
-                this.user = user;
-                this.userName = String(Object.keys(user)[0]);
-                this.pathDetailUser = user[(Object.keys(user)[0])];
-              })
-              this.data.subscribe(user => {
-                .....
-              })
-              this.params.subscribe(user => {
-                .....
-              })
-        }       
-    }
-
-> ES: http://localhost:4200/#/home?OBJ=eyJob21lMSI6ImNpYW8iLCJob21lMiI6ImNpYW8ifQ%3D%3D
-
-
-#   Rxjs polling ed uuid
-
-Tutti gli oservatori ora godono della nuova funzionalità di polling. Questa è utile specialmente a livello di chiamata HTTP su servizi di BE. La funzionalità si occupa di effettuare a ciclo continuo, ma configurando le condizioni, la richiesta all'observer di replicare nuovamente il suo funzionamento. QUindi applicato ad una chiamata rest, la stessa viene ripetuta fino al raggiungimento della condizione stabilita.
-
->   polling<T>(everyTime: number, forTime?: number, interrupt?: Subject<boolean> = new Subject()): Subject<T>
-
-Per richiamare tale funzionalità occorre passare l'intervallo di tempo tra una ripetizione e l'altra, il valore che indica per quanto tempo deve essere attivo il polling, in millisecondi, indicare 0 per un ciclo infinito e in fine l'interrupt, un evento che al verificarsi blocca il processo di polling.
-E' obbligatorio inserire oltre al everyTime, uno dei due parametri successivamente richiesti.
-    
-    /**
-    * chiamata ad un servizio rest ogni secondo per un tempo complessivo di 6 secondi
-    * il polling si interrompe in caso di riscontro di un cambio rotta di navigazione del portale.
-    * Attenzione, la chiamata REST deve essere di tipo background altrimenti la GET semplice viene interrotta
-    * al cambio rotta, quindi usare la GETBG o le altre, purche siano ..BG
-    */
-    let caller = <HTTPREQUEST>.polling(1000,6000, PlCoreModule.Routing().getIinterrupt() )).subscribe(
-      val => console.log(val ),
-      error => { console.error(error )},
-      () => alert(caller.uuid)
-    )
-
->   Attenzione: se il polling viene scatenato da un osservatore di tipo of(1,2,3), questo avrà effetto solo sul primo elemento e cioè 1. il polling è nato per osservatori che producono valori da un solo processo, come le chiamate a servizi di BE.. quindi non applicare ad osservatori come Timer, Interval o operatori simili.
-
-Come si vede dal codice ogni osservatore o subscriber ha la proprietà uuid, la stessa viene valorizzata in automatico al momento della sua creazione. è possibile risalire ad essa semplicemente assegnando ad una variabile l'osservatore e prelevare il suo uuid
-
-    let caller= <observer>;
-    console.log(caller.uuid)
-
-## Opzioni configurabili
-
-è possibile procedere alla configurazione personale di alcuni servizi, come ad esempio il tag cache la durata della validità della stessa. Le configurazioni al momento disponibili sono
-
-  
-
->{ provide: BROWSER_VALID, useValue: [BROWSER.ALL] },
-
-  
-
->{ provide: DISABLE_LOG, useValue: false },
-
-  
-
->{ provide: MAX_CACHE_AGE, useValue: 300000 },
-
-  
-
->{ provide: CACHE_TAG, useValue: "@cachable@" },
-
-  
-
->{ provide: DEFAULT_PATH_MOCK, useValue: "public/mock" }
-
-  
-
-## In questa versione
-
-Questa versione della lib, contiene tutte le fix effettuate nelle precedenti e in piu, viene migliorata introducendo
-
-  
-
- - modifica dell'interfaccia Rxjs per l'introduzione di una nuova funzionalità, applicabile agli osservatori "polling" e inserimento di un nuovo attributo per identificare tutti gli Observer "uuid"
-
-  
-
-Tutte le precedenti funzionalità sono rimaste invariate.
-
-## Documentazione online
-[Qui](https://pl-core-utils.web.app/index.html) è possibile fare riferimento alla documentazione on line delle libreria e delle sue funzionalità  
-
-## Author
-
-Created by @l.piciollo
+Per processi di build/pack/publish usa gli script presenti nella root del workspace (`build:lib`, `pack:lib`, `verify:lib`, `publish:lib:*`).

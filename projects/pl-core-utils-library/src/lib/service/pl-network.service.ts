@@ -1,8 +1,3 @@
-/**
- * @author l.piciollo
- * Servizio di utilità per funzionalità di rete.
- */
-
 import { Injectable } from '@angular/core';
 
 export interface PlLocalHttpInfo {
@@ -22,6 +17,7 @@ export class PlNetworkService {
    * Nota:
    * la lettura degli header tramite XMLHttpRequest sincrona è mantenuta
    * per retrocompatibilità, ma può non funzionare in tutti gli ambienti.
+    * @returns Promise con header e query params correnti.
    */
   public getLocalHttpHeaders(): Promise<PlLocalHttpInfo> {
     return new Promise<PlLocalHttpInfo>((resolve, reject) => {
@@ -47,6 +43,7 @@ export class PlNetworkService {
     });
   }
 
+  /** Legge gli header HTTP del documento corrente tramite chiamata locale sincrona. */
   private readCurrentDocumentHeaders(): Record<string, string> {
     try {
       const req = new XMLHttpRequest();
@@ -60,6 +57,7 @@ export class PlNetworkService {
     }
   }
 
+  /** Effettua il parse dei query param della URL corrente in un record key/value. */
   private parseQueryParams(search: string): Record<string, string> {
     const params: Record<string, string> = {};
     const query = search.startsWith('?') ? search.substring(1) : search;

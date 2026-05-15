@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2019-12-04 00:03:28
- * @modify date 2019-12-04 00:03:28
- * @desc Utility core della libreria.
- */
-
 import { Subject } from 'rxjs';
 import { TYPE_EVENT } from './decorator/decordator';
 
@@ -50,6 +42,7 @@ export class PlCoreUtils {
 
   /**
    * Metodi per lancio, registrazione e cancellazione eventi.
+    * @returns API broadcast con funzioni di publish/subscribe/unsubscribe.
    */
   static Broadcast(): {
     execEvent<T = any>(event: TYPE_EVENT | string, object: T): void;

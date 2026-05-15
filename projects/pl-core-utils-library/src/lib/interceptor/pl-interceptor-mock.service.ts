@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-11-17 23:04:27
- * @modify date 2020-11-17 23:04:27
- * @desc Intercettore HTTP per la gestione delle chiamate mock.
- */
-
 import {
   HttpEvent,
   HttpHandler,

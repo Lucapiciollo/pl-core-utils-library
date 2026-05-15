@@ -1,11 +1,3 @@
-/**
- * @author @l.piciollo
- * @email lucapiciollo@gmail.com
- * @create date 2020-11-17 23:04:27
- * @modify date 2020-11-17 23:04:27
- * @desc Servizio per rilevare ambiente/browser e applicare configurazioni runtime.
- */
-
 import {
   Inject,
   Injectable,
@@ -71,6 +63,7 @@ export class PlAmbientModeLoaderService {
   /**
    * Rileva browser, applica eventuale disabilitazione log
    * e restituisce l'esito della validazione ambiente.
+    * @returns Risultato rilevazione ambiente/browser.
    */
   detect(): PlAmbientModeResult {
     const browser = this.getBrowser();
@@ -98,6 +91,7 @@ export class PlAmbientModeLoaderService {
 
   /**
    * Restituisce l'ultimo risultato calcolato da detect().
+    * @returns Ultimo risultato ambient mode oppure `null`.
    */
   getLastResult(): PlAmbientModeResult | null {
     return this.lastResult;
@@ -105,6 +99,7 @@ export class PlAmbientModeLoaderService {
 
   /**
    * Restituisce il browser corrente.
+    * @returns Browser rilevato.
    */
   getBrowser(): BROWSER {
     if (typeof navigator === 'undefined') {
@@ -142,6 +137,8 @@ export class PlAmbientModeLoaderService {
 
   /**
    * Verifica se il browser è supportato in base al token BROWSER_VALID.
+    * @param browser Browser da verificare. Se omesso usa quello corrente.
+    * @returns `true` se browser supportato.
    */
   isBrowserSupported(browser: BROWSER = this.getBrowser()): boolean {
     const validBrowsers = this.browserValid?.length

@@ -18,6 +18,8 @@ export class PlGraphicService {
    * Converte un'immagine SVG caricata da URL in base64.
    *
    * Nota: usa XMLHttpRequest sincrono per retrocompatibilità con il comportamento storico.
+    * @param imageUrl URL immagine SVG da convertire.
+    * @returns Promise con data URL base64 dell'immagine.
    */
   public image2base64(imageUrl: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -51,6 +53,9 @@ export class PlGraphicService {
 
   /**
    * Esporta un elemento SVG in un file .svg.
+    * @param elementSVG Elemento SVG/HTML da serializzare.
+    * @param nameFile Nome file da scaricare.
+    * @returns Observable che emette `true` a completamento download.
    */
   public svg2File(elementSVG: HTMLElement | SVGElement, nameFile: string): Observable<boolean> {
     return new Observable<boolean>(observer => {
@@ -96,6 +101,8 @@ export class PlGraphicService {
 
   /**
    * Converte un elemento SVG/HTML in JPEG tramite html-to-image.
+    * @param elementSVG Elemento sorgente da convertire.
+    * @returns Observable con data URL JPEG.
    */
   public svgToJpeg(elementSVG: HTMLElement | SVGElement): Observable<string> {
     return new Observable<string>(observer => {
@@ -118,6 +125,9 @@ export class PlGraphicService {
    * Crea un canvas a partire da un elemento DOM.
    *
    * Restituisce l'URL blob del canvas e passa il canvas alla callback, se presente.
+    * @param elementoDom Elemento DOM da renderizzare su canvas.
+    * @param call Callback opzionale con il canvas creato.
+    * @returns Observable con blob URL del canvas.
    */
   public domToCanvas(
     elementoDom: HTMLElement,
@@ -158,6 +168,8 @@ export class PlGraphicService {
 
   /**
    * Crea un URL blob a partire da un canvas.
+    * @param canvas Canvas da convertire in blob URL.
+    * @returns Observable con blob URL dell'immagine.
    */
   public canvasToImg(canvas: HTMLCanvasElement): Observable<string> {
     return new Observable<string>(observer => {
@@ -187,6 +199,9 @@ export class PlGraphicService {
   /**
    * Crea una immagine dataURL a partire da un SVG.
    * Restituisce il dataURL e passa il canvas alla callback, se presente.
+    * @param svgElement Elemento SVG/DOM da convertire.
+    * @param call Callback opzionale con canvas risultante.
+    * @returns Observable con dataURL dell'immagine prodotta.
    */
   public svgToImage(
     svgElement: SVGGraphicsElement | SVGElement | HTMLElement,
