@@ -16,7 +16,7 @@ export class PLWorkerService {
   private promiseToWorkerMap = new WeakMap<Promise<any>, Worker>();
 
 
- 
+
 
   /**
    * @l.piciollo
@@ -44,6 +44,14 @@ export class PLWorkerService {
     }
   }
 
+  private createWorker(url: string): Worker {
+    if (typeof Worker === 'undefined') {
+      throw new Error('Web Worker is not supported in this environment');
+    }
+
+    return new Worker(url);
+  }
+
   /**
    * @author l.piciollo
    * funzionalita di esecuzione di uno script in formato blob
@@ -52,7 +60,7 @@ export class PLWorkerService {
    */
   public runUrl(url: string, data?: any): Promise<any> {
     if (typeof (Worker) !== "undefined") {
-      const worker = new Worker(url);
+      const worker = this.createWorker(url);
       const promise = this.createPromiseForWorker(worker, data);
       const promiseCleaner = this.createPromiseCleaner(promise);
       this.promiseToWorkerMap.set(promise, worker);
