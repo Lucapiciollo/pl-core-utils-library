@@ -3,7 +3,7 @@
  * @email lucapiciollo@gmail.com
  * @create date 2020-12-22 16:42:38
  * @modify date 2020-12-22 16:42:38
- * @desc componente base per l'estensione di componenti.
+ * @desc Componente base per l'estensione di componenti.
  * Utile per la condivisione di servizi e funzionalità basilari comuni a tutti i componenti.
  */
 
@@ -36,27 +36,33 @@ import { PLWorkerService } from '../../service/pl-worker.service';
 })
 export class PlBaseComponent
   implements
-  OnChanges,
-  OnInit,
-  DoCheck,
-  AfterContentInit,
-  AfterContentChecked,
-  AfterViewInit,
-  AfterViewChecked,
-  OnDestroy {
-  protected graphicService: PlGraphicService = null;
-  protected httpService: PlHttpService = null;
-  protected networkService: PlNetworkService = null;
-  protected utilsService: PlUtilsService = null;
-  protected workerService: PLWorkerService = null;
+    OnChanges,
+    OnInit,
+    DoCheck,
+    AfterContentInit,
+    AfterContentChecked,
+    AfterViewInit,
+    AfterViewChecked,
+    OnDestroy
+{
+  protected graphicService: PlGraphicService;
+  protected httpService: PlHttpService;
+  protected networkService: PlNetworkService;
+  protected utilsService: PlUtilsService;
+  protected workerService: PLWorkerService;
 
-  protected queryParams: ReplaySubject<any> = new ReplaySubject<any>(1);
-  protected params: ReplaySubject<any> = new ReplaySubject<any>(1);
-  protected data: ReplaySubject<any> = new ReplaySubject<any>(1);
+  protected queryParams: ReplaySubject<Record<string, any>> =
+    new ReplaySubject<Record<string, any>>(1);
 
-  protected queryParamsObs: Subscription = null;
-  protected paramsObs: Subscription = null;
-  protected dataObs: Subscription = null;
+  protected params: ReplaySubject<Record<string, any>> =
+    new ReplaySubject<Record<string, any>>(1);
+
+  protected data: ReplaySubject<Record<string, any>> =
+    new ReplaySubject<Record<string, any>>(1);
+
+  protected queryParamsObs: Subscription | null = null;
+  protected paramsObs: Subscription | null = null;
+  protected dataObs: Subscription | null = null;
 
   protected router: Router;
   protected route: ActivatedRoute;
@@ -85,12 +91,10 @@ export class PlBaseComponent
   }
 
   /**
-   * @author @l.piciollo
-   * @param pageUrl Url della pagina di destinazione
-   * @param extras Oggetto contenente direttive di rotta
-   * @param queryParams parametri da passare alla pagina
-   * @description funzione che si occupa di richiamare una pagina e di passare parametri per query url.
-   * È possibile passare anche json complessi.
+   * Funzione che si occupa di navigare verso una pagina
+   * e di passare eventuali query params.
+   *
+   * È possibile preservare alcuni query params già presenti nella rotta corrente.
    */
   goToPage(
     pageUrl: string,
@@ -98,28 +102,27 @@ export class PlBaseComponent
     queryParams: Record<string, any> = {},
     preservedQueryParams: string[] = []
   ): void {
-    queryParams = queryParams ?? {};
-    extras = extras ?? {};
-
+    const safeQueryParams = queryParams ?? {};
+    const safeExtras = extras ?? {};
     const currentQueryParams = this.route.snapshot.queryParams ?? {};
 
     preservedQueryParams.forEach(key => {
-      if (!Object.prototype.hasOwnProperty.call(queryParams, key)) {
-        queryParams[key] = currentQueryParams[key] ?? null;
+      if (!Object.prototype.hasOwnProperty.call(safeQueryParams, key)) {
+        safeQueryParams[key] = currentQueryParams[key] ?? null;
       }
     });
 
     this.router.navigate([pageUrl], {
-      ...extras,
-      queryParams
+      ...safeExtras,
+      queryParams: safeQueryParams
     });
   }
 
   @Log('debug')
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
   @Log('debug')
-  ngAfterContentInit(): void { }
+  ngAfterContentInit(): void {}
 
   @Log('debug')
   ngOnDestroy(): void {
@@ -127,18 +130,22 @@ export class PlBaseComponent
     this.paramsObs?.unsubscribe();
     this.dataObs?.unsubscribe();
 
+    this.queryParamsObs = null;
+    this.paramsObs = null;
+    this.dataObs = null;
+
     this.queryParams.complete();
     this.params.complete();
     this.data.complete();
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {}
 
-  ngAfterViewChecked(): void { }
+  ngAfterViewChecked(): void {}
 
-  ngAfterContentChecked(): void { }
+  ngAfterContentChecked(): void {}
 
-  ngDoCheck(): void { }
+  ngDoCheck(): void {}
 
-  ngOnChanges(changes: SimpleChanges): void { }
+  ngOnChanges(changes: SimpleChanges): void {}
 }
