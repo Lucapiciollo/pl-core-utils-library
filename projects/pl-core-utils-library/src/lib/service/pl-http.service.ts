@@ -18,7 +18,7 @@ import { Injectable } from '@angular/core';
 import { forkJoin, Observable, Subject, Subscriber } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import { PlHttpRequest } from '../bean/Pl-http-request';
+import { PlHttpMethod, PlHttpRequest } from '../bean/Pl-http-request';
 import { PlCoreUtils } from '../pl-core-utils-library.service';
 import { createPlUuid } from '../utils/pl-uuid.util';
 
@@ -153,7 +153,7 @@ export enum CONTENT_TYPE {
   'VND.MOZILLA.XUL+XML' = 'application/vnd.mozilla.xul+xml'
 }
 
-type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+ 
 
 @Injectable({
   providedIn: 'root'
@@ -349,11 +349,11 @@ export class PlHttpService {
     }
   }
 
-  private normalizeMethod(method: any): HttpMethod | null {
+  private normalizeMethod(method: any): PlHttpMethod | null {
     const normalizedMethod = String(method ?? '').trim().toUpperCase();
 
     if (['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(normalizedMethod)) {
-      return normalizedMethod as HttpMethod;
+      return normalizedMethod as PlHttpMethod;
     }
 
     return null;
@@ -386,7 +386,7 @@ export class PlHttpService {
   }
 
   private requestWithAngularHttp<T>(
-    method: HttpMethod,
+    method: PlHttpMethod,
     plHttpRequest: PlHttpRequest,
     responseType?: RESPONSE_TYPE,
     interrupt?: Subject<boolean>,
