@@ -484,9 +484,17 @@ export class PlHttpService {
   /**
    * Crea un blob URL da stream dati.
    */
+  /**
+ * Crea un blob URL da stream dati.
+ */
   CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE | string = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
+        if (typeof window === 'undefined' || !window.URL) {
+          reject(new Error('CREATEBLOB is available only in browser environments'));
+          return;
+        }
+
         const jsEscape = '\uFEFF';
 
         const blob =
@@ -507,7 +515,7 @@ export class PlHttpService {
   DESTROYBLOB(blobUrl: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       try {
-        URL.revokeObjectURL(blobUrl);
+        this.revokeURL(blobUrl);
         resolve(true);
       } catch (error) {
         reject(error);
@@ -515,9 +523,6 @@ export class PlHttpService {
     });
   }
 
-  /**
-   * Placeholder storico per download da stream.
-   */
   /**
    * Effettua il download di uno stream dati come file.
    */
@@ -545,10 +550,11 @@ export class PlHttpService {
   /**
    * Download di un file da URL/blob URL.
    */
-  /**
-   * Download di un file da URL/blob URL.
-   */
   DOWNLOADURL(url: string, filename = 'download_temp'): void {
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      throw new Error('DOWNLOADURL is available only in browser environments');
+    }
+
     const link = document.createElement('a');
 
     if (typeof link.download === 'string') {
@@ -570,9 +576,13 @@ export class PlHttpService {
   /** @ignore */
   private revokeURL(url: string): void {
     try {
-      URL.revokeObjectURL(url);
+      if (typeof URL !== 'undefined') {
+        URL.revokeObjectURL(url);
+      }
     } catch { }
   }
+
+
 
   private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
     const chunk = this.decoder.decode(value);
