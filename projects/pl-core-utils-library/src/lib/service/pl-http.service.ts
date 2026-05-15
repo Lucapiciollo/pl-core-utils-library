@@ -481,10 +481,14 @@ export class PlHttpService {
   /**
    * Crea un blob URL da stream dati.
    */
-  CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE = CONTENT_TYPE.PDF): Promise<string> {
+  /**
+   * Crea un blob URL da stream dati.
+   */
+  CREATEBLOB(streamData: ArrayBuffer, applicationType: CONTENT_TYPE | string = CONTENT_TYPE.PDF): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
         const jsEscape = '\uFEFF';
+
         const blob =
           applicationType === CONTENT_TYPE.TEXT
             ? new Blob([jsEscape + streamData], { type: applicationType })
@@ -514,10 +518,33 @@ export class PlHttpService {
   /**
    * Placeholder storico per download da stream.
    */
-  DOWNLOAD(streamData: ArrayBuffer, contentType: CONTENT_TYPE | string, fileName?: string): Promise<any> {
-    return Promise.resolve(null);
+  /**
+   * Effettua il download di uno stream dati come file.
+   */
+  DOWNLOAD(
+    streamData: ArrayBuffer,
+    contentType: CONTENT_TYPE | string,
+    fileName = 'download_temp'
+  ): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      try {
+        this.CREATEBLOB(streamData, contentType)
+          .then(blobUrl => {
+            this.DOWNLOADURL(blobUrl, fileName);
+            resolve(true);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
+  /**
+   * Download di un file da URL/blob URL.
+   */
   /**
    * Download di un file da URL/blob URL.
    */
@@ -527,7 +554,12 @@ export class PlHttpService {
     if (typeof link.download === 'string') {
       link.href = url;
       link.download = filename;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+
       this.revokeURL(url);
       return;
     }
