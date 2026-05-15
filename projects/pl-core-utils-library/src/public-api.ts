@@ -24,9 +24,7 @@ export { PLWorkerService } from './lib/service/pl-worker.service';
 
 // Interceptors
 export { DEFAULT_PATH_MOCK, PlHttpInterceptorMockService } from './lib/interceptor/pl-interceptor-mock.service';
-
-// Utils
-export { PlCoreUtils, progressBarsInterface } from './lib/pl-core-utils-library.service';
+ 
 
 // Decorators
 export { PLPermission, PLTraceHooks, TYPE_EVENT, PLTraceMethod } from './lib/decorator/decordator';
@@ -37,3 +35,11 @@ export {
     PlHttpMethod,
     PlHttpRequestConfig
 } from './lib/bean/Pl-http-request';
+
+export {
+  PlCoreUtils,
+  PlProgressBar,
+  progressBarItemInterface,
+  progressBarsInterface,
+  PlBroadcastEventListener
+} from './lib/pl-core-utils-library.service';
