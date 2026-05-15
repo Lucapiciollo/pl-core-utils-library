@@ -5,7 +5,6 @@
  * @modify date 2019-12-21 23:18:12
  * @desc [Classe di utilita, qui vengono elencate tutte le funzionalità per l'itera applicazione.]
  */
-import { UUID } from "angular2-uuid";
 import { ErrorBean, ErrorCode } from 'src/app/com/mycompany/normalize/core/bean/error-bean';
 
 /**
@@ -19,7 +18,15 @@ export class Utils {
    */
   public static UUIDCODE(): any {
     try {
-      return UUID.UUID();
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+        const random = Math.floor(Math.random() * 16);
+        const value = char === 'x' ? random : ((random & 0x3) | 0x8);
+        return value.toString(16);
+      });
     } catch (error : any) {
       throw new ErrorBean(error.message, ErrorCode.SYSTEMERRORCODE, false, false);
     }

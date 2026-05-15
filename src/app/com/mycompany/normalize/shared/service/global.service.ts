@@ -122,11 +122,14 @@ export class GlobalService implements OnDestroy {
   callMock(p1: any, p2: any): Observable<any> {
     return new Observable<any>(obs => {
  
-      let plHttpRequest: PlHttpRequest = new PlHttpRequest(
-                            environment.http.api.mock , 
-                            Object({ api: "api", files: "files" }),
-                            Object({ api: p1, files: p2 }), 
-                            null);
+      let plHttpRequest: PlHttpRequest = new PlHttpRequest({
+                            url: environment.http.api.mock.url,
+                            queryParams: Object({ api: "api", files: "files" }),
+                            body: Object({ api: p1, files: p2 }),
+                            httpHeaders: null,
+                            method: environment.http.api.mock.method,
+                            mocked: environment.http.api.mock.mocked
+                          });
                             
       this.httpService.GETFILE(plHttpRequest, RESPONSE_TYPE.ARRAYBUFFER, null, null).subscribe(sb => {
         obs.next(sb);

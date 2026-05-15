@@ -75,12 +75,13 @@ export class HttpInterceptorService implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     try {
       let startTime = Date.now();
+      const cacheKey = `${request.method}:${request.urlWithParams}`;
       /**
        * si procede a verificare se la chiamata è in cache, in caso i dati vengono prelevati dalla cache e la chiamata 
        * al be non viene effettuata
        */
       if (this.isRequestCachable(request.method, request.url)) {
-        let cachedResponse = this.cache.get(request);
+        let cachedResponse = this.cache.get<HttpEvent<any>>(cacheKey);
         if (cachedResponse !== null) {
           /**in caso sia presente in cache la chimata, viene ritornato il suo valore */
           PlCoreUtils.Broadcast().execEvent(CORE_TYPE_EVENT.CORE_HTTP_AJAX_CACHE, request.url);
@@ -104,7 +105,7 @@ export class HttpInterceptorService implements HttpInterceptor {
             if (event instanceof HttpResponse) {
               /**in caso di esito positivo della chiamata al BE, si verifica se o meno è possibile storicizzare la response */
               if (this.isRequestCachable(request.method, urlApp))
-                this.cache.put(request, event);
+                this.cache.set(cacheKey, event);
               /**è possibile aggiungere qui chiamate ad altri servizi o modali di allerta della buon uscita dell'operazione */
             }
           }, (err: any) => {

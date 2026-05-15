@@ -23,11 +23,12 @@ export default function AmbientModeProviderFactory(ambientModeService: PlAmbient
             /** caricamento dei dati per determinare l'ambiente, in caso di errore questo viene tramandato al gestore di errori
              * e l'applicazione non si avvierà
              */
-            ambientModeService.detect().subscribe(success => {
-                resolve(success)
-            }, err => {
+            try {
+                const success = ambientModeService.detect();
+                resolve(success);
+            } catch (err) {
                 reject(err);
-            })
+            }
         })
     };
 }
