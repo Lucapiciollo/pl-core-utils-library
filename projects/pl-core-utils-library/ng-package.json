@@ -3,5 +3,9 @@
   "dest": "../../dist/pl-core-utils-library",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "allowedNonPeerDependencies": [
+    "html-to-image",
+    "html2canvas"
+  ]
 }
