@@ -3,12 +3,34 @@
  * @email lucapiciollo@gmail.com
  * @create date 2020-11-24 12:37:01
  * @modify date 2020-11-24 12:37:01
- * @desc [Componente per la mostra di messaggi alert(), il componente è in grado di accodare tutte le richieste di messaggio
- * pervenute dal sistema, tramite il comando alert(), e le mostra in modalita FIFO]
+ * @desc Componente per la mostra di messaggi alert().
+ * Il componente è in grado di accodare tutte le richieste di messaggio
+ * pervenute dal sistema tramite Broadcast e le mostra in modalità FIFO.
  */
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PlCoreUtils } from '../../pl-core-utils-library.service';
 
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+
+import {
+  PlBroadcastEventListener,
+  PlCoreUtils
+} from '../../pl-core-utils-library.service';
+
+interface AlertBroadcastPayload {
+  title?: string | null;
+  body?: string;
+}
+
+interface AlertMessageInfo {
+  title: string | null;
+  body: string;
+  type?: string;
+}
 
 @Component({
   selector: 'app-alert',
@@ -17,28 +39,25 @@ import { PlCoreUtils } from '../../pl-core-utils-library.service';
   standalone: false
 })
 /**
- * Componente grafico per la visualizzazione dell'alert
+ * Componente grafico per la visualizzazione dell'alert.
  */
 export class AlertComponent implements OnInit, OnDestroy {
   /**
-   * contenitore di messaggi
+   * Contenitore di messaggi.
    */
-  public queueMessageInfo = [];
+  public queueMessageInfo: AlertMessageInfo[] = [];
+
   /**
-   * messaggio corrente processato dalla coda
+   * Messaggio corrente processato dalla coda.
    */
-  public messageInfo = null;
+  public messageInfo: AlertMessageInfo | null = null;
+
   /**
-   * riferimento al modale html 
+   * Riferimento al modale html.
    */
-  @ViewChild('dialog') dialog: ElementRef<any>;
+  @ViewChild('dialog') dialog: ElementRef | undefined;
 
-
-  constructor() { }
-
-  private readonly infoServiceDialogListener = (
-    message: CustomEvent<{ title?: string | null; body?: string }>
-  ): void => {
+  private readonly infoServiceDialogListener: PlBroadcastEventListener<AlertBroadcastPayload> = message => {
     const detail = message.detail;
 
     if (!detail?.body) {
@@ -51,29 +70,30 @@ export class AlertComponent implements OnInit, OnDestroy {
     });
   };
 
+  constructor() {}
+
   ngOnInit(): void {
     this.push();
 
-    PlCoreUtils.Broadcast().listenEvent<{ title?: string | null; body?: string }>(
+    PlCoreUtils.Broadcast().listenEvent<AlertBroadcastPayload>(
       'CORE:INFO_SERVICE_DIALOG',
       this.infoServiceDialogListener
     );
   }
 
   ngOnDestroy(): void {
-    PlCoreUtils.Broadcast().removeListenEvent<{ title?: string | null; body?: string }>(
+    PlCoreUtils.Broadcast().removeListenEvent<AlertBroadcastPayload>(
       'CORE:INFO_SERVICE_DIALOG',
       this.infoServiceDialogListener
     );
   }
 
-
-
   /**
-   * funzionalità per la chiusura della modale
+   * Funzionalità per la chiusura della modale.
    */
-  closeDialog() {
+  closeDialog(): void {
     this.messageInfo = null;
+
     setTimeout(() => {
       if (this.queueMessageInfo.length > 0) {
         this.openDialog();
@@ -81,22 +101,31 @@ export class AlertComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
-  private openDialog() {
-    this.messageInfo = this.queueMessageInfo.splice(0, 1)[0];
-    this.messageInfo["type"] = "alert-info";
+  private openDialog(): void {
+    const nextMessage = this.queueMessageInfo.splice(0, 1)[0];
+
+    if (!nextMessage) {
+      return;
+    }
+
+    this.messageInfo = {
+      ...nextMessage,
+      type: 'alert-info'
+    };
   }
 
-  private push() {
-    let _this = this;
-    /// @ts-ignore
-    this.queueMessageInfo.push = function () {
-      Array.prototype.push.apply(this, arguments as any);
-      if (_this.messageInfo == null) {
-        _this.openDialog();
+  private push(): void {
+    const component = this;
+    const originalPush = this.queueMessageInfo.push;
+
+    this.queueMessageInfo.push = function (...items: AlertMessageInfo[]): number {
+      const result = originalPush.apply(this, items);
+
+      if (component.messageInfo == null) {
+        component.openDialog();
       }
 
-      return this;
-    }
+      return result;
+    };
   }
-
 }
