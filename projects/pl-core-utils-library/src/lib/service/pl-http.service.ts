@@ -569,6 +569,35 @@ export class PlHttpService {
     }
   }
 
+  private toHeaderRecord(headers?: HttpHeaders | Record<string, any> | null): Record<string, string> {
+    if (!headers) {
+      return {};
+    }
+
+    if (headers instanceof HttpHeaders) {
+      return headers.keys().reduce((acc, key) => {
+        const value = headers.get(key);
+
+        if (value !== null) {
+          acc[key] = value;
+        }
+
+        return acc;
+      }, {} as Record<string, string>);
+    }
+
+    return Object.keys(headers).reduce((acc, key) => {
+      const value = headers[key];
+
+      if (value !== undefined && value !== null) {
+        acc[key] = String(value);
+      }
+
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+
   STREAM<T>(
     plttpRequest: PlHttpRequest,
     interrupt?: AbortSignal,
@@ -589,15 +618,7 @@ export class PlHttpService {
         });
       }
 
-      const headersObj = plttpRequest.httpHeaders?.keys().reduce((acc, key) => {
-        const value = plttpRequest.httpHeaders.get(key);
-
-        if (value != null) {
-          acc[key] = value;
-        }
-
-        return acc;
-      }, {} as Record<string, string>);
+      const headersObj = this.toHeaderRecord(plttpRequest.httpHeaders);
 
       (async () => {
         try {
