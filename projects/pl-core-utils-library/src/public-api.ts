@@ -32,4 +32,8 @@ export { PlCoreUtils, progressBarsInterface } from './lib/pl-core-utils-library.
 export { PLPermission, PLTraceHooks, TYPE_EVENT, PLTraceMethod } from './lib/decorator/decordator';
 
 // Beans
-export { PlHttpRequest } from './lib/bean/Pl-http-request';
+export {
+    PlHttpRequest,
+    PlHttpMethod,
+    PlHttpRequestConfig
+} from './lib/bean/Pl-http-request';
