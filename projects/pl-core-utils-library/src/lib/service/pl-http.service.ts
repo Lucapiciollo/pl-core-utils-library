@@ -165,7 +165,29 @@ export class PlHttpService {
   private readonly JTOKEN_START_OBJECT = '{';
   private readonly JTOKEN_END_OBJECT = '}';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  private toHttpHeaders(headers?: HttpHeaders | Record<string, any> | null): HttpHeaders {
+    if (!headers) {
+      return new HttpHeaders();
+    }
+
+    if (headers instanceof HttpHeaders) {
+      return headers;
+    }
+
+    let httpHeaders = new HttpHeaders();
+
+    Object.keys(headers).forEach(key => {
+      const value = headers[key];
+
+      if (value !== undefined && value !== null) {
+        httpHeaders = httpHeaders.set(key, String(value));
+      }
+    });
+
+    return httpHeaders;
+  }
 
   private createProgressBar(uuid: string): void {
     PlCoreUtils.progressBars[uuid] = {
@@ -384,12 +406,11 @@ export class PlHttpService {
 
     return new Observable<any>(observer => {
       try {
-        let header = plHttpRequest.httpHeaders || new HttpHeaders();
+        let header = this.toHttpHeaders(plHttpRequest.httpHeaders);
 
         if (plHttpRequest.mocked) {
           header = header.append('mocked', 'true');
         }
-
         const options = this.requestOption(
           plHttpRequest.queryParams,
           header,
@@ -511,7 +532,7 @@ export class PlHttpService {
   private revokeURL(url: string): void {
     try {
       URL.revokeObjectURL(url);
-    } catch {}
+    } catch { }
   }
 
   private decodeChunk<T>(value: Uint8Array, decodedItemCallback: (item: T) => void): void {
@@ -626,7 +647,7 @@ export class PlHttpService {
         try {
           controller.abort();
           reader?.cancel();
-        } catch {}
+        } catch { }
       };
     });
   }
