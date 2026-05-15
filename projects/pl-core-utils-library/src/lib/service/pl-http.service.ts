@@ -153,7 +153,7 @@ export enum CONTENT_TYPE {
   'VND.MOZILLA.XUL+XML' = 'application/vnd.mozilla.xul+xml'
 }
 
- 
+
 
 @Injectable({
   providedIn: 'root'
@@ -889,27 +889,18 @@ export class PlHttpService {
   /**
    * Esegue più GET in parallelo.
    */
-  FORKJOIN(
+  FORKJOIN<T = any>(
     plHttpRequest: Array<PlHttpRequest>,
     interrupt?: Subject<boolean>
-  ): Observable<Array<HttpResponse<any>>> {
-    return new Observable<Array<HttpResponse<any>>>(observer => {
-      const requestInterrupt = interrupt ?? new Subject<boolean>();
-      const serviceRequests = plHttpRequest.map(request =>
-        this.GET(request, undefined, requestInterrupt, undefined, undefined)
-      );
+  ): Observable<Array<HttpResponse<T>>> {
+    const requestInterrupt = interrupt ?? new Subject<boolean>();
 
-      forkJoin(serviceRequests)
-        .pipe(takeUntil(requestInterrupt))
-        .subscribe({
-          next: res => {
-            observer.next(res as Array<HttpResponse<any>>);
-            observer.complete();
-          },
-          error: err => {
-            observer.error(err);
-          }
-        });
-    });
+    const serviceRequests = plHttpRequest.map(request =>
+      this.GET<T>(request, undefined, requestInterrupt, undefined, undefined)
+    );
+
+    return forkJoin(serviceRequests).pipe(
+      takeUntil(requestInterrupt)
+    );
   }
 }
