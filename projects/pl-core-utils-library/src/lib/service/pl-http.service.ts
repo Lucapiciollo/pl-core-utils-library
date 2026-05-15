@@ -206,6 +206,7 @@ export class PlHttpService {
   }
 
   /** @ignore */
+  /** @ignore */
   public requestOption(
     params: Record<string, any> | null,
     header: HttpHeaders | null,
@@ -216,7 +217,11 @@ export class PlHttpService {
     const safeParams = params ?? {};
 
     Object.keys(safeParams).forEach(key => {
-      search = search.append(key, safeParams[key]);
+      const value = safeParams[key];
+
+      if (value !== undefined && value !== null) {
+        search = search.append(key, value);
+      }
     });
 
     let headers = header ?? new HttpHeaders();
