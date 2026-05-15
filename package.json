@@ -38,8 +38,7 @@
     "ngx-ui-loader": "^13.0.0",
     "pl-core-utils-library": "file:projects/pl-core-utils-library",
     "pl-decorator": "^1.4.28",
-    "popper.js": "^1.16.1",
-    "rxjs": "~7.8.0",
+     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
